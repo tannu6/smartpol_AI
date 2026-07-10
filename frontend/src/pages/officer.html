@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SmartPol AI | Mission Control</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Space+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        @keyframes pulse-red {
+            0%, 100% { border-color: rgba(239, 68, 68, 0.5); box-shadow: 0 0 10px rgba(239, 68, 68, 0.2); }
+            50% { border-color: rgba(239, 68, 68, 1); box-shadow: 0 0 20px rgba(239, 68, 68, 0.5); }
+        }
+        .animate-pulse-red { animation: pulse-red 2s infinite; }
+        
+        .glass-panel {
+            backdrop-filter: blur(20px);
+            background: rgba(16, 26, 46, 0.6);
+            border: 1px solid rgba(180, 197, 255, 0.1);
+        }
+        
+        .cyber-grid {
+            background-image: radial-gradient(circle, rgba(37, 99, 235, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        .scanning-bar {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #4cd7f6, transparent);
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        input:focus + .scanning-bar {
+            transform: scaleX(1);
+            animation: scan 2s linear infinite;
+        }
+        @keyframes scan {
+            0% { transform: translateX(-100%) scaleX(0.5); }
+            100% { transform: translateX(100%) scaleX(0.5); }
+        }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+        ::-webkit-scrollbar-thumb { background: rgba(180, 197, 255, 0.2); border-radius: 10px; }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-surface-variant": "#c3c6d7",
+                      "on-tertiary-fixed-variant": "#5a00c6",
+                      "inverse-on-surface": "#273045",
+                      "secondary": "#4cd7f6",
+                      "primary-fixed": "#dbe1ff",
+                      "secondary-fixed": "#acedff",
+                      "on-error": "#690005",
+                      "on-tertiary-fixed": "#25005a",
+                      "primary": "#b4c5ff",
+                      "secondary-fixed-dim": "#4cd7f6",
+                      "tertiary-container": "#8343f4",
+                      "surface-container": "#161f34",
+                      "surface-tint": "#b4c5ff",
+                      "on-secondary-fixed": "#001f26",
+                      "surface-container-low": "#111b2f",
+                      "surface-container-high": "#202a3f",
+                      "tertiary-fixed-dim": "#d2bbff",
+                      "on-secondary-container": "#00424e",
+                      "inverse-surface": "#d9e2fe",
+                      "surface-container-lowest": "#040e21",
+                      "surface-dim": "#091327",
+                      "on-surface": "#d9e2fe",
+                      "tertiary-fixed": "#eaddff",
+                      "on-secondary-fixed-variant": "#004e5c",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "error-container": "#93000a",
+                      "tertiary": "#d2bbff",
+                      "outline-variant": "#434655",
+                      "on-tertiary-container": "#f7edff",
+                      "on-primary-container": "#eeefff",
+                      "inverse-primary": "#0053db",
+                      "surface-container-highest": "#2b354a",
+                      "on-secondary": "#003640",
+                      "error": "#ffb4ab",
+                      "background": "#091327",
+                      "surface-bright": "#2f394f",
+                      "surface": "#091327",
+                      "outline": "#8d90a0",
+                      "on-primary-fixed-variant": "#003ea8",
+                      "secondary-container": "#03b5d3",
+                      "surface-variant": "#2b354a",
+                      "on-error-container": "#ffdad6",
+                      "on-primary-fixed": "#00174b",
+                      "primary-container": "#2563eb",
+                      "on-background": "#d9e2fe",
+                      "on-tertiary": "#3f008e",
+                      "on-primary": "#002a78"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "sm": "8px",
+                      "unit": "4px",
+                      "xs": "4px",
+                      "lg": "24px",
+                      "xl": "40px",
+                      "md": "16px",
+                      "gutter": "16px",
+                      "container-margin": "32px"
+              },
+              "fontFamily": {
+                      "display-lg": ["Inter"],
+                      "body-md": ["Inter"],
+                      "mono-data": ["Space Mono"],
+                      "body-sm": ["Inter"],
+                      "title-sm": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "label-caps": ["Inter"],
+                      "display-lg-mobile": ["Inter"]
+              },
+              "fontSize": {
+                      "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "mono-data": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "title-sm": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                      "display-lg-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+              }
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-body-md selection:bg-primary selection:text-on-primary">
+<!-- Background Decoration -->
+<div class="fixed inset-0 cyber-grid opacity-20 pointer-events-none"></div>
+
+<!-- Top Navigation Bar -->
+<nav class="fixed top-0 w-full z-50 flex justify-between items-center px-lg h-16 bg-surface-container/60 backdrop-blur-xl border-b border-primary/15 shadow-[0_0_20px_rgba(37,99,235,0.1)]">
+<div class="flex items-center gap-lg">
+<span class="font-display-lg-mobile text-display-lg-mobile text-primary tracking-tighter">SmartPol AI</span>
+<div class="hidden md:flex items-center bg-surface-container-highest/40 rounded-lg px-md py-xs border border-outline-variant/30 relative group">
+<span class="material-symbols-outlined text-on-surface-variant mr-sm">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-body-sm w-64 placeholder:text-on-surface-variant/50" placeholder="Global Entity Search..." type="text"/>
+<div class="scanning-bar"></div>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<div class="flex items-center gap-sm px-md py-xs bg-surface-container-high border border-secondary/20 rounded-full">
+<span class="relative flex h-3 w-3">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-secondary"></span>
+</span>
+<span class="font-label-caps text-secondary">SENTINEL: ACTIVE</span>
+</div>
+<div class="flex items-center gap-sm">
+<button class="p-sm text-on-surface-variant hover:brightness-125 transition-all duration-200 active:scale-95">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-sm text-on-surface-variant hover:brightness-125 transition-all duration-200 active:scale-95">
+<span class="material-symbols-outlined">shield</span>
+</button>
+<button class="p-sm text-on-surface-variant hover:brightness-125 transition-all duration-200 active:scale-95">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+<div class="h-8 w-8 rounded-full overflow-hidden border border-primary/30">
+<img class="object-cover w-full h-full" data-alt="A cinematic, close-up portrait of a futuristic high-ranking police chief in a high-tech command center environment. The figure wears a sleek, dark navy tactical uniform with glowing blue circuitry integrated into the fabric. The lighting is dramatic, with cold blue rim light and warm amber dashboard reflections on their determined face. The background features blurred holographic interfaces and data streams, emphasizing a mood of intense focus and technological mastery." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCo8rrjUYwD4OHyVW3WKR84yoDzdOD-delRM7_igVm9wVbqNIlpujsgLx9sE81e3Ldoj4xUgYfzHj2DAFY9ff9MjrXvrKgHSoK_qsWFA7nSC8f_lX4Guor3b9Ql7i0Bz4_wZba0vP4cs0k0I5dHx8ffREcWPQHZZ7KRKEIl8fe5HCPpqMlAeQ7V0mP9-jnZPn9jt9fPI6jPdlgKHhCv-wQ3eURGiQGfG13zWDNNb0AYFgBl7HZskMCg-g"/>
+</div>
+</div>
+</nav>
+<!-- Side Navigation -->
+<aside class="fixed left-0 top-0 h-full w-[280px] bg-surface-container-lowest/80 backdrop-blur-2xl border-r border-primary/10 flex flex-col py-md pt-20 z-40 hidden md:flex">
+<div class="px-lg mb-xl">
+<div class="flex items-center gap-sm mb-xs">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">security</span>
+<span class="font-label-caps text-secondary-fixed">COMMAND CENTER</span>
+</div>
+<p class="text-[10px] text-on-surface-variant opacity-50 tracking-widest">V.2.4.0-SECURE</p>
+</div>
+<nav class="flex-1 px-sm space-y-unit">
+<a class="flex items-center gap-md px-md py-sm rounded text-secondary-fixed-dim border-l-2 border-secondary-container bg-secondary-container/10 hover:bg-surface-variant/30 transition-colors duration-200 ease-out" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="font-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded text-on-surface-variant hover:bg-surface-variant/30 hover:text-secondary transition-colors duration-200 ease-out" href="#">
+<span class="material-symbols-outlined">local_police</span>
+<span class="font-body-md">Operations</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded text-on-surface-variant hover:bg-surface-variant/30 hover:text-secondary transition-colors duration-200 ease-out" href="#">
+<span class="material-symbols-outlined">psychology</span>
+<span class="font-body-md">Intelligence</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded text-on-surface-variant hover:bg-surface-variant/30 hover:text-secondary transition-colors duration-200 ease-out" href="#">
+<span class="material-symbols-outlined">folder_managed</span>
+<span class="font-body-md">Archives</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded text-on-surface-variant hover:bg-surface-variant/30 hover:text-secondary transition-colors duration-200 ease-out" href="#">
+<span class="material-symbols-outlined">settings_accessibility</span>
+<span class="font-body-md">Settings</span>
+</a>
+</nav>
+<div class="mt-auto px-md space-y-md">
+<button class="w-full bg-primary-container text-on-primary-container font-bold py-md rounded-lg shadow-[0_0_15px_rgba(37,99,235,0.4)] active:scale-95 transition-all">
+                DISPATCH UNIT
+            </button>
+<div class="border-t border-outline-variant/20 pt-md">
+<div class="flex items-center justify-between px-sm text-on-surface-variant text-xs mb-sm">
+<span class="flex items-center gap-xs"><span class="material-symbols-outlined text-[14px]">sensors</span> System Status</span>
+<span class="text-secondary">99.8%</span>
+</div>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:text-error transition-colors" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="text-body-sm">Logout</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:ml-[280px] pt-20 px-lg pb-lg">
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-12 gap-gutter">
+<!-- Summary Counter Section -->
+<section class="col-span-12 grid grid-cols-1 md:grid-cols-4 gap-gutter">
+<div class="glass-panel p-md flex flex-col justify-between relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-8 bg-secondary"></div>
+<span class="text-on-surface-variant font-label-caps mb-xs">CRIME TODAY</span>
+<div class="flex items-end justify-between">
+<span class="font-display-lg text-primary">1,284</span>
+<span class="text-error font-mono-data flex items-center mb-xs">
+<span class="material-symbols-outlined text-sm">trending_up</span> 4.2%
+                        </span>
+</div>
+</div>
+<div class="glass-panel p-md flex flex-col justify-between relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-8 bg-secondary"></div>
+<span class="text-on-surface-variant font-label-caps mb-xs">ACTIVE DISPATCH</span>
+<div class="flex items-end justify-between">
+<span class="font-display-lg text-secondary">42</span>
+<span class="text-secondary font-mono-data flex items-center mb-xs">
+                            LIVE
+                        </span>
+</div>
+</div>
+<div class="glass-panel p-md flex flex-col justify-between relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-8 bg-secondary"></div>
+<span class="text-on-surface-variant font-label-caps mb-xs">OFFICERS IN FIELD</span>
+<div class="flex items-end justify-between">
+<span class="font-display-lg text-on-surface">312</span>
+<span class="text-on-surface-variant font-mono-data mb-xs">of 450</span>
+</div>
+</div>
+<div class="glass-panel p-md flex flex-col justify-between relative overflow-hidden animate-pulse-red border-error/50">
+<div class="absolute top-0 left-0 w-1 h-8 bg-error"></div>
+<span class="text-error font-label-caps mb-xs">EMERGENCY ALERTS</span>
+<div class="flex items-end justify-between">
+<span class="font-display-lg text-error">03</span>
+<span class="text-error font-mono-data mb-xs">IMMEDIATE</span>
+</div>
+</div>
+</section>
+<!-- Tactical Map (Main) -->
+<section class="col-span-12 lg:col-span-8 glass-panel h-[600px] relative overflow-hidden group">
+<div class="absolute top-md left-md z-10 flex gap-sm">
+<div class="bg-surface-container-lowest/80 backdrop-blur-md border border-outline-variant/30 rounded px-sm py-xs flex items-center gap-xs">
+<span class="material-symbols-outlined text-secondary text-sm">layers</span>
+<span class="text-xs font-label-caps">TACTICAL OVERLAY</span>
+</div>
+<div class="bg-surface-container-lowest/80 backdrop-blur-md border border-outline-variant/30 rounded px-sm py-xs flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary text-sm">my_location</span>
+<span class="text-xs font-label-caps">UNIT TRACKING: ON</span>
+</div>
+</div>
+<!-- Map Placeholder -->
+<div class="w-full h-full grayscale-[0.8] contrast-[1.2] brightness-[0.5]" data-alt="A highly detailed, futuristic tactical street map of a major metropolitan area at night. The map uses a deep navy and slate grey color palette with glowing blue and neon cyan lines representing arterial roads and transit routes. Small, pulsing geometric icons in bright primary blue represent patrol units, while scattered amber clusters indicate high-activity zones. The style is ultra-clean and high-tech, reminiscent of a Tesla interface or a military command display." data-location="New York City" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDK_299UxsCO79jcRMf7H80vooX-9Gpue7aYewGcRqLKmAlGemhoRTQzxzrruwAnP_54X0NmE-N8A7xEN9SJSYumGwaUrUAQdiKUeoMLlXQEX4RaXjr3WzHUgWptocmS0FGbaYrJtiaXULT8xw0ntzAdTyjHDjeD4bfIoVOycImAn9BQkttbr2mgl5nhHK7pKQlgCbnTjIfydh0KeLmUMrRRVtamcVmX4IlQkAKZUwEZFaJnSgyq2h7Vw')"></div>
+<!-- Floating Data HUD on Map -->
+<div class="absolute bottom-md right-md z-10 w-48 space-y-sm">
+<div class="glass-panel p-sm text-[10px]">
+<p class="text-on-surface-variant mb-unit">SECTOR 7 STATUS</p>
+<div class="w-full h-1 bg-surface-variant overflow-hidden rounded-full">
+<div class="w-3/4 h-full bg-secondary"></div>
+</div>
+<p class="text-secondary mt-unit">HIGH DENSITY</p>
+</div>
+</div>
+</section>
+<!-- Priority Queue & Activity Log -->
+<section class="col-span-12 lg:col-span-4 flex flex-col gap-gutter">
+<div class="glass-panel flex-1 p-md flex flex-col">
+<div class="flex items-center justify-between mb-md">
+<h3 class="font-title-sm text-on-surface flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary">priority_high</span>
+                            PRIORITY QUEUE
+                        </h3>
+<span class="text-xs text-on-surface-variant">8 INCIDENTS</span>
+</div>
+<div class="space-y-sm overflow-y-auto pr-sm max-h-[250px]">
+<div class="p-sm bg-surface-container-high/40 border border-outline-variant/20 rounded hover:border-primary/50 transition-all cursor-pointer">
+<div class="flex justify-between items-start mb-unit">
+<span class="font-mono-data text-xs text-error">CODE-3</span>
+<span class="text-[10px] text-on-surface-variant">2m ago</span>
+</div>
+<p class="text-body-sm font-semibold mb-unit">Armed Robbery in Progress</p>
+<p class="text-[11px] text-on-surface-variant">Financial District - Sector 4B</p>
+</div>
+<div class="p-sm bg-surface-container-high/40 border border-outline-variant/20 rounded hover:border-primary/50 transition-all cursor-pointer">
+<div class="flex justify-between items-start mb-unit">
+<span class="font-mono-data text-xs text-secondary">LEVEL-2</span>
+<span class="text-[10px] text-on-surface-variant">12m ago</span>
+</div>
+<p class="text-body-sm font-semibold mb-unit">Public Disturbance</p>
+<p class="text-[11px] text-on-surface-variant">Grand Central - Sector 1A</p>
+</div>
+<div class="p-sm bg-surface-container-high/40 border border-outline-variant/20 rounded hover:border-primary/50 transition-all cursor-pointer">
+<div class="flex justify-between items-start mb-unit">
+<span class="font-mono-data text-xs text-secondary">LEVEL-1</span>
+<span class="text-[10px] text-on-surface-variant">18m ago</span>
+</div>
+<p class="text-body-sm font-semibold mb-unit">Traffic Obstruction</p>
+<p class="text-[11px] text-on-surface-variant">Bridge Expressway</p>
+</div>
+</div>
+</div>
+<div class="glass-panel h-[280px] p-md flex flex-col">
+<h3 class="font-title-sm text-on-surface mb-md flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary">history</span>
+                        RECENT ACTIVITY
+                    </h3>
+<div class="space-y-md overflow-y-auto pr-sm">
+<div class="flex gap-md">
+<div class="w-2 h-2 rounded-full bg-secondary mt-1.5 shrink-0"></div>
+<div>
+<p class="text-body-sm">Unit 402 reported on scene at Midtown</p>
+<span class="text-[10px] text-on-surface-variant font-mono-data">14:22:15</span>
+</div>
+</div>
+<div class="flex gap-md">
+<div class="w-2 h-2 rounded-full bg-outline mt-1.5 shrink-0"></div>
+<div>
+<p class="text-body-sm">Automated Scam Detection triggered</p>
+<span class="text-[10px] text-on-surface-variant font-mono-data">14:18:42</span>
+</div>
+</div>
+<div class="flex gap-md">
+<div class="w-2 h-2 rounded-full bg-primary mt-1.5 shrink-0"></div>
+<div>
+<p class="text-body-sm">Intelligence report updated: Case #882</p>
+<span class="text-[10px] text-on-surface-variant font-mono-data">14:05:00</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Golden Hour Cases -->
+<section class="col-span-12 lg:col-span-4 glass-panel p-md flex flex-col">
+<div class="flex items-center justify-between mb-md">
+<h3 class="font-title-sm text-on-surface flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">hourglass_top</span>
+                        GOLDEN HOUR CASES
+                    </h3>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer">info</span>
+</div>
+<div class="space-y-lg">
+<div class="space-y-xs">
+<div class="flex justify-between text-xs mb-unit">
+<span>Case #92-B: Missing Minor</span>
+<span class="text-error">00:42:15 remaining</span>
+</div>
+<div class="w-full h-2 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-error to-primary w-[30%] animate-pulse"></div>
+</div>
+</div>
+<div class="space-y-xs">
+<div class="flex justify-between text-xs mb-unit">
+<span>Case #11-A: Narcotic Sting</span>
+<span class="text-secondary">02:15:00 remaining</span>
+</div>
+<div class="w-full h-2 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[65%]"></div>
+</div>
+</div>
+<div class="space-y-xs">
+<div class="flex justify-between text-xs mb-unit">
+<span>Case #44-F: Data Breach</span>
+<span class="text-on-surface-variant">05:40:12 remaining</span>
+</div>
+<div class="w-full h-2 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[85%]"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Scam Clusters Visualization -->
+<section class="col-span-12 lg:col-span-4 glass-panel p-md flex flex-col relative overflow-hidden">
+<h3 class="font-title-sm text-on-surface mb-md flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary">hub</span>
+                    SCAM CLUSTERS
+                </h3>
+<div class="flex-1 min-h-[200px] flex items-center justify-center relative">
+<!-- Placeholder for Network Graph -->
+<div class="absolute inset-0 opacity-40">
+
+</div>
+<div class="z-10 text-center">
+<p class="text-display-lg-mobile text-secondary font-mono-data">12</p>
+<p class="text-label-caps text-on-surface-variant">ACTIVE NODES</p>
+</div>
+</div>
+<div class="flex justify-center gap-md mt-md">
+<div class="flex items-center gap-xs">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span class="text-[10px] text-on-surface-variant">PHISHING</span>
+</div>
+<div class="flex items-center gap-xs">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="text-[10px] text-on-surface-variant">CRYPTO</span>
+</div>
+<div class="flex items-center gap-xs">
+<span class="w-2 h-2 rounded-full bg-error"></span>
+<span class="text-[10px] text-on-surface-variant">IDENT-THEFT</span>
+</div>
+</div>
+</section>
+<!-- Data Visualizations (Charts) -->
+<section class="col-span-12 lg:col-span-4 glass-panel p-md">
+<h3 class="font-title-sm text-on-surface mb-md flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary">analytics</span>
+                    DISTRICT HEATMAP
+                </h3>
+<div class="flex flex-col gap-sm">
+<div class="flex items-center gap-md">
+<span class="text-xs w-20 text-on-surface-variant">DOWNTOWN</span>
+<div class="flex-1 h-3 bg-surface-variant/30 rounded flex overflow-hidden">
+<div class="w-4/5 bg-primary"></div>
+</div>
+<span class="text-xs font-mono-data">82%</span>
+</div>
+<div class="flex items-center gap-md">
+<span class="text-xs w-20 text-on-surface-variant">NORTH SIDE</span>
+<div class="flex-1 h-3 bg-surface-variant/30 rounded flex overflow-hidden">
+<div class="w-1/3 bg-primary"></div>
+</div>
+<span class="text-xs font-mono-data">33%</span>
+</div>
+<div class="flex items-center gap-md">
+<span class="text-xs w-20 text-on-surface-variant">EAST PORT</span>
+<div class="flex-1 h-3 bg-surface-variant/30 rounded flex overflow-hidden">
+<div class="w-2/3 bg-primary"></div>
+</div>
+<span class="text-xs font-mono-data">64%</span>
+</div>
+<div class="flex items-center gap-md">
+<span class="text-xs w-20 text-on-surface-variant">SUBURBS</span>
+<div class="flex-1 h-3 bg-surface-variant/30 rounded flex overflow-hidden">
+<div class="w-1/4 bg-primary"></div>
+</div>
+<span class="text-xs font-mono-data">18%</span>
+</div>
+</div>
+<div class="mt-lg pt-lg border-t border-outline-variant/10">
+<div class="flex justify-between items-center">
+<span class="text-label-caps text-on-surface-variant">OFFICER PERFORMANCE</span>
+<span class="text-secondary text-xs">+12.4% AVG</span>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Bottom Navigation Bar (Mobile Only) -->
+<footer class="md:hidden fixed bottom-0 w-full h-16 bg-surface-container/80 backdrop-blur-xl border-t border-primary/10 flex items-center justify-around px-lg z-50">
+<button class="flex flex-col items-center gap-unit text-secondary">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="text-[10px] font-label-caps">HOME</span>
+</button>
+<button class="flex flex-col items-center gap-unit text-on-surface-variant">
+<span class="material-symbols-outlined">map</span>
+<span class="text-[10px] font-label-caps">MAP</span>
+</button>
+<button class="flex flex-col items-center gap-unit text-on-surface-variant">
+<span class="material-symbols-outlined">warning</span>
+<span class="text-[10px] font-label-caps">ALERTS</span>
+</button>
+<button class="flex flex-col items-center gap-unit text-on-surface-variant">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="text-[10px] font-label-caps">PROFILE</span>
+</button>
+</footer>
+<script>
+        // Micro-interactions for dashboard elements
+        document.querySelectorAll('.glass-panel').forEach(panel => {
+            panel.addEventListener('mousemove', (e) => {
+                const rect = panel.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                panel.style.setProperty('--mouse-x', `${x}px`);
+                panel.style.setProperty('--mouse-y', `${y}px`);
+            });
+        });
+        
+        // Simple Clock Update
+        function updateSentinel() {
+            // Placeholder logic for simulation updates if needed
+        }
+        setInterval(updateSentinel, 5000);
+    </script>
+</body></html>

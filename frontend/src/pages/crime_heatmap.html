@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SmartPol AI | Tactical Heatmap</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;family=Space+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind Theme Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "tertiary-container": "#8343f4",
+                "error": "#ffb4ab",
+                "secondary-container": "#03b5d3",
+                "primary-fixed": "#dbe1ff",
+                "on-error": "#690005",
+                "tertiary": "#d2bbff",
+                "on-surface": "#d9e2fe",
+                "on-primary-fixed": "#00174b",
+                "tertiary-fixed": "#eaddff",
+                "on-secondary-container": "#00424e",
+                "surface-container": "#161f34",
+                "secondary-fixed-dim": "#4cd7f6",
+                "surface": "#091327",
+                "primary": "#b4c5ff",
+                "primary-container": "#2563eb",
+                "inverse-primary": "#0053db",
+                "surface-tint": "#b4c5ff",
+                "surface-container-low": "#111b2f",
+                "on-secondary-fixed": "#001f26",
+                "on-error-container": "#ffdad6",
+                "surface-container-highest": "#2b354a",
+                "surface-bright": "#2f394f",
+                "on-tertiary-fixed-variant": "#5a00c6",
+                "inverse-surface": "#d9e2fe",
+                "error-container": "#93000a",
+                "on-secondary": "#003640",
+                "inverse-on-surface": "#273045",
+                "outline": "#8d90a0",
+                "on-tertiary": "#3f008e",
+                "surface-container-high": "#202a3f",
+                "secondary-fixed": "#acedff",
+                "primary-fixed-dim": "#b4c5ff",
+                "surface-container-lowest": "#040e21",
+                "on-primary-container": "#eeefff",
+                "on-tertiary-fixed": "#25005a",
+                "on-secondary-fixed-variant": "#004e5c",
+                "on-primary-fixed-variant": "#003ea8",
+                "outline-variant": "#434655",
+                "secondary": "#4cd7f6",
+                "background": "#091327",
+                "tertiary-fixed-dim": "#d2bbff",
+                "on-tertiary-container": "#f7edff",
+                "on-background": "#d9e2fe",
+                "surface-variant": "#2b354a",
+                "on-surface-variant": "#c3c6d7",
+                "on-primary": "#002a78",
+                "surface-dim": "#091327"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+            },
+            "spacing": {
+                "lg": "24px",
+                "gutter": "16px",
+                "container-margin": "32px",
+                "xs": "4px",
+                "md": "16px",
+                "unit": "4px",
+                "sm": "8px",
+                "xl": "40px"
+            },
+            "fontFamily": {
+                "headline-md": ["Inter"],
+                "body-md": ["Inter"],
+                "title-sm": ["Inter"],
+                "mono-data": ["Space Mono"],
+                "label-caps": ["Inter"],
+                "display-lg": ["Inter"],
+                "body-sm": ["Inter"]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        body {
+            background-color: #07111F;
+            color: #d9e2fe;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .cyber-grid {
+            background-image: 
+                linear-gradient(rgba(37, 99, 235, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(37, 99, 235, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        .glass-panel {
+            background: rgba(16, 26, 46, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(180, 197, 255, 0.15);
+        }
+
+        .glow-blue {
+            box-shadow: 0 0 15px rgba(37, 99, 235, 0.4);
+        }
+
+        .scanning-line {
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #4cd7f6, transparent);
+            position: absolute;
+            top: 0;
+            animation: scan 4s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { top: 0; opacity: 0; }
+            50% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        .hotspot-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.1); }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(37, 99, 235, 0.3); border-radius: 10px; }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-surface/60 backdrop-blur-xl border-b border-primary/15 shadow-[0_0_20px_rgba(37,99,235,0.1)] flex justify-between items-center px-lg h-16">
+<div class="flex items-center gap-md">
+<span class="font-headline-md text-headline-md font-bold text-primary tracking-tighter">SmartPol AI</span>
+<div class="hidden md:flex items-center bg-surface-container-low px-md py-xs rounded-lg border border-primary/10">
+<span class="material-symbols-outlined text-primary-fixed-dim mr-xs" style="font-variation-settings: 'FILL' 0;">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-body-sm w-64 text-on-surface placeholder:text-on-surface-variant/50" placeholder="Search operational database..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<button class="relative p-xs text-on-surface-variant hover:brightness-125 transition-all duration-200 active:scale-95">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="p-xs text-on-surface-variant hover:brightness-125 transition-all duration-200 active:scale-95">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="flex items-center gap-sm pl-md border-l border-primary/15">
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center border border-primary/30">
+<img class="w-full h-full rounded-full object-cover" data-alt="A professional high-ranking chief police officer in a futuristic tactical uniform. The lighting is dramatic with cool blue tones, highlighting the technical details of his attire and the serious, commanding expression on his face. Cinematic lighting, hyper-realistic, cyber-security command center background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC2Q3lO-Eu35lwDHPGZHP-7ljP6stgUo_lkMGdK4aFTlMOebTGUVbP9aQy78j1dUmBV1oGS3sUYoaAyjFM1kC2JO6rPyof1Xd-fCSU7QLRCjM1psIen4c0Kr__z5gzyZF96OJkll1FnwPHf2QiNX6L4LJ0ae83xm2-uE0kBRmvdQW7CAmR2GRY1oagslp6lvm_BD53xxWMgyadBNHVnO-BeBZaH4miEPBOSBEkW8teHwcxsWTlpAdCTuA"/>
+</div>
+<div class="hidden lg:block">
+<p class="text-label-caps font-bold text-primary">Chief Officer</p>
+<p class="text-[10px] text-on-surface-variant leading-none">Sector 7G Command</p>
+</div>
+</div>
+</div>
+</nav>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-16 h-[calc(100vh-64px)] w-72 bg-surface-container/60 backdrop-blur-xl border-r border-primary/15 flex flex-col py-md z-40">
+<div class="px-md mb-xl">
+<div class="flex items-center gap-sm p-sm bg-primary/5 rounded-lg border border-primary/10">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">security</span>
+<div>
+<p class="font-headline-md text-primary text-sm leading-tight">Command Center</p>
+<p class="text-[10px] text-secondary/70 uppercase tracking-widest font-bold">Sector 7G - Active</p>
+</div>
+</div>
+</div>
+<div class="flex-1 space-y-xs px-sm">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-primary-container/20 hover:text-primary transition-colors duration-200 active:translate-x-1" href="#">
+<span class="material-symbols-outlined">security</span>
+<span class="font-label-caps text-label-caps">Command</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg bg-primary/10 text-primary border-l-2 border-secondary transition-colors duration-200 active:translate-x-1" href="#">
+<span class="material-symbols-outlined">psychology</span>
+<span class="font-label-caps text-label-caps">Intelligence</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-primary-container/20 hover:text-primary transition-colors duration-200 active:translate-x-1" href="#">
+<span class="material-symbols-outlined">local_police</span>
+<span class="font-label-caps text-label-caps">Patrols</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-primary-container/20 hover:text-primary transition-colors duration-200 active:translate-x-1" href="#">
+<span class="material-symbols-outlined">monitoring</span>
+<span class="font-label-caps text-label-caps">Analytics</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-primary-container/20 hover:text-primary transition-colors duration-200 active:translate-x-1" href="#">
+<span class="material-symbols-outlined">emergency</span>
+<span class="font-label-caps text-label-caps">Incidents</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-primary-container/20 hover:text-primary transition-colors duration-200 active:translate-x-1" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-label-caps text-label-caps">Archive</span>
+</a>
+</div>
+<div class="mt-auto px-sm space-y-xs">
+<button class="w-full mb-md bg-primary-container text-on-primary-container font-bold py-md rounded-lg glow-blue flex items-center justify-center gap-sm active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[20px]">rocket_launch</span>
+<span class="font-label-caps text-label-caps">Dispatch Units</span>
+</button>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-white/5 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-label-caps text-label-caps">Support</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-white/5 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined text-error">logout</span>
+<span class="font-label-caps text-label-caps text-error">Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-72 mt-16 flex-1 relative flex overflow-hidden cyber-grid">
+<!-- Left Side: Tactical Filters -->
+<div class="w-80 h-full glass-panel z-30 p-lg flex flex-col gap-lg border-r border-primary/10">
+<div class="flex items-center justify-between">
+<h2 class="font-headline-md text-primary text-lg flex items-center gap-sm">
+<span class="material-symbols-outlined">filter_list</span>
+                    Tactical Filters
+                </h2>
+<span class="text-[10px] bg-secondary/20 text-secondary px-xs py-0.5 rounded font-mono-data">v4.2</span>
+</div>
+<div class="space-y-md overflow-y-auto pr-sm">
+<!-- Dropdown: Crime Type -->
+<div class="space-y-xs">
+<label class="text-label-caps text-on-surface-variant">Crime Type</label>
+<select class="w-full bg-surface-container-highest border border-primary/20 text-on-surface text-body-sm rounded-lg py-sm focus:ring-secondary focus:border-secondary transition-all">
+<option>All Incident Classes</option>
+<option>Violent Felonies</option>
+<option>Property Crimes</option>
+<option>Cyber Infractions</option>
+</select>
+</div>
+<!-- Datepicker Placeholder -->
+<div class="space-y-xs">
+<label class="text-label-caps text-on-surface-variant">Operational Date</label>
+<div class="relative">
+<input class="w-full bg-surface-container-highest border border-primary/20 text-on-surface text-body-sm rounded-lg py-sm px-md focus:ring-secondary transition-all" type="date"/>
+</div>
+</div>
+<!-- District Select -->
+<div class="space-y-xs">
+<label class="text-label-caps text-on-surface-variant">District</label>
+<select class="w-full bg-surface-container-highest border border-primary/20 text-on-surface text-body-sm rounded-lg py-sm focus:ring-secondary transition-all">
+<option>Global Sector View</option>
+<option>District 01: Core</option>
+<option>District 04: Industrial</option>
+<option>District 09: Residential</option>
+</select>
+</div>
+<!-- Severity Multi-select -->
+<div class="space-y-xs">
+<label class="text-label-caps text-on-surface-variant">Severity Index</label>
+<div class="grid grid-cols-2 gap-sm">
+<button class="bg-error/10 border border-error/30 text-error text-[10px] font-bold py-sm rounded-lg">CRITICAL</button>
+<button class="bg-tertiary-container/10 border border-tertiary-container/30 text-tertiary text-[10px] font-bold py-sm rounded-lg">HIGH RISK</button>
+<button class="bg-secondary/10 border border-secondary/30 text-secondary text-[10px] font-bold py-sm rounded-lg">MODERATE</button>
+<button class="bg-on-surface-variant/10 border border-on-surface-variant/30 text-on-surface-variant text-[10px] font-bold py-sm rounded-lg">ROUTINE</button>
+</div>
+</div>
+<!-- Time Range Slider -->
+<div class="space-y-xs pt-md">
+<div class="flex justify-between items-center">
+<label class="text-label-caps text-on-surface-variant">Time Analysis Range</label>
+<span class="text-mono-data text-secondary text-xs">24H</span>
+</div>
+<input class="w-full accent-secondary bg-surface-container-highest rounded-lg h-1" type="range"/>
+<div class="flex justify-between text-[10px] text-on-surface-variant/60 font-mono-data">
+<span>00:00</span>
+<span>12:00</span>
+<span>23:59</span>
+</div>
+</div>
+</div>
+<div class="mt-auto pt-md border-t border-primary/10">
+<button class="w-full py-md bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-on-surface font-bold text-label-caps rounded-lg">
+                    Reset Configuration
+                </button>
+</div>
+</div>
+<!-- Main Center: Spatial Intelligence Map -->
+<div class="flex-1 relative bg-surface overflow-hidden">
+<!-- Mock Map Background -->
+<div class="absolute inset-0 bg-[#070b14]">
+<div class="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_50%_50%,#1e293b_0%,#070b14_100%)]"></div>
+<!-- Map Content Placeholder -->
+<div class="relative w-full h-full p-20">
+<img class="w-full h-full object-cover opacity-60 mix-blend-screen rounded-2xl border border-primary/20" data-alt="A top-down architectural aerial view of a dark futuristic city map at night. The streets are represented by glowing blue and cyan vector lines. Vibrant heat map hotspots in shades of glowing neon red, orange, and yellow are concentrated in specific urban clusters, creating a high-contrast data visualization. The aesthetic is clean, technical, and reminiscent of a high-tech police command center interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0QNZfdcj_pSX4e0SqVK4BZMeGRz0SSwyd7dulrThJ4JJXD1E4EJscpKNqVGdTihoDvwABlEHMz7OmFHGnkCzJEj055mhH9gJvyr645NmqrYdv9cmBqwvk7YPGCo5T61DJTZlxnapAzbuUpxmRH97j6sosTYbHCemkLRF14516ETFlhv2syyTGs5mCr_l5foHgqQhA7kku2uNvMjtYBAZZK-OYNulLJiRhQRl6Z73HNYQ3lav2Il5KEw"/>
+<!-- Dynamic Hotspot Elements -->
+<div class="absolute top-[40%] left-[45%] w-12 h-12 bg-error/40 rounded-full blur-xl hotspot-pulse"></div>
+<div class="absolute top-[42%] left-[47%] w-4 h-4 bg-error rounded-full border border-white shadow-[0_0_10px_#ffb4ab]"></div>
+<div class="absolute top-[60%] left-[30%] w-24 h-24 bg-tertiary-container/30 rounded-full blur-2xl hotspot-pulse" style="animation-delay: 0.5s"></div>
+<div class="absolute top-[65%] left-[35%] w-6 h-6 bg-tertiary-container rounded-full border border-white shadow-[0_0_10px_#8343f4]"></div>
+</div>
+</div>
+<!-- Map Controls Overlay -->
+<div class="absolute top-md right-md flex flex-col gap-sm">
+<div class="glass-panel rounded-xl flex flex-col overflow-hidden">
+<button class="p-sm hover:bg-white/10 border-b border-primary/10 text-on-surface"><span class="material-symbols-outlined">add</span></button>
+<button class="p-sm hover:bg-white/10 text-on-surface"><span class="material-symbols-outlined">remove</span></button>
+</div>
+<div class="glass-panel p-xs rounded-xl flex flex-col gap-xs">
+<button class="p-sm bg-primary/20 rounded-lg text-primary"><span class="material-symbols-outlined">layers</span></button>
+<button class="p-sm hover:bg-white/10 rounded-lg text-on-surface-variant"><span class="material-symbols-outlined">explore</span></button>
+</div>
+</div>
+<!-- Map Legend -->
+<div class="absolute bottom-md left-md glass-panel p-md rounded-xl w-48">
+<p class="text-[10px] text-on-surface-variant mb-sm font-bold uppercase tracking-widest">Threat Legend</p>
+<div class="space-y-xs">
+<div class="flex items-center gap-sm">
+<div class="w-3 h-3 bg-error rounded-full"></div>
+<span class="text-xs text-on-surface-variant">Active Riot/Fire</span>
+</div>
+<div class="flex items-center gap-sm">
+<div class="w-3 h-3 bg-tertiary-container rounded-full"></div>
+<span class="text-xs text-on-surface-variant">High Alert Zone</span>
+</div>
+<div class="flex items-center gap-sm">
+<div class="w-3 h-3 bg-secondary rounded-full"></div>
+<span class="text-xs text-on-surface-variant">Patrol Unit</span>
+</div>
+</div>
+</div>
+<!-- Regional KPIs Overlay (Floating Right) -->
+<div class="absolute right-md top-1/2 -translate-y-1/2 w-72 flex flex-col gap-md z-30">
+<!-- KPI Card 1 -->
+<div class="glass-panel p-md rounded-xl relative overflow-hidden group">
+<div class="absolute left-0 top-0 w-1 h-12 bg-secondary rounded-full mt-2"></div>
+<p class="text-label-caps text-on-surface-variant/70 text-[10px]">TOTAL HOTSPOTS</p>
+<div class="flex items-end justify-between mt-xs">
+<h3 class="font-mono-data text-2xl font-bold text-on-surface">1,402</h3>
+<span class="text-error text-xs flex items-center font-bold">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+                            +12.4%
+                        </span>
+</div>
+</div>
+<!-- KPI Card 2 -->
+<div class="glass-panel p-md rounded-xl relative overflow-hidden border-l-2 border-l-error">
+<p class="text-label-caps text-error/80 text-[10px]">HIGHEST THREAT VECTOR</p>
+<h3 class="font-title-sm text-on-surface mt-xs">Lower East Sector</h3>
+<p class="text-[10px] text-on-surface-variant/60 font-mono-data">Class-A Violations Detected</p>
+</div>
+<!-- KPI Card 3 -->
+<div class="glass-panel p-md rounded-xl relative overflow-hidden border-l-2 border-l-secondary">
+<p class="text-label-caps text-secondary/80 text-[10px]">NEUTRALIZED ZONES</p>
+<div class="flex items-center gap-sm mt-xs">
+<h3 class="font-mono-data text-2xl font-bold text-on-surface">84%</h3>
+<div class="flex-1 bg-surface-container-highest h-1 rounded-full overflow-hidden">
+<div class="bg-secondary h-full" style="width: 84%"></div>
+</div>
+</div>
+</div>
+<!-- KPI Card 4 -->
+<div class="glass-panel p-md rounded-xl relative overflow-hidden group">
+<div class="absolute left-0 top-0 w-1 h-12 bg-primary rounded-full mt-2"></div>
+<p class="text-label-caps text-on-surface-variant/70 text-[10px]">PROXIMITY UNITS</p>
+<div class="flex items-center gap-md mt-xs">
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full bg-surface-container-high border-2 border-surface-dim flex items-center justify-center text-primary"><span class="material-symbols-outlined text-sm">local_police</span></div>
+<div class="w-8 h-8 rounded-full bg-surface-container-high border-2 border-surface-dim flex items-center justify-center text-primary"><span class="material-symbols-outlined text-sm">local_police</span></div>
+<div class="w-8 h-8 rounded-full bg-surface-container-high border-2 border-surface-dim flex items-center justify-center text-on-surface-variant text-[10px]">+12</div>
+</div>
+<span class="text-on-surface-variant text-xs">Active Dispatch</span>
+</div>
+</div>
+</div>
+<!-- Bottom Section: Critical Location Audit -->
+<div class="absolute bottom-0 left-0 right-0 glass-panel h-64 translate-y-0 transition-transform duration-500 z-30 flex flex-col border-t border-primary/20">
+<div class="flex items-center justify-between px-lg py-md border-b border-primary/10">
+<h2 class="text-label-caps font-bold text-primary flex items-center gap-sm">
+<span class="material-symbols-outlined text-[18px]">analytics</span>
+                        Critical Location Audit
+                    </h2>
+<div class="flex gap-md">
+<button class="text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined">download</span></button>
+<button class="text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined">expand_less</span></button>
+</div>
+</div>
+<div class="flex-1 overflow-auto">
+<table class="w-full text-left border-collapse">
+<thead class="sticky top-0 bg-surface-container/80 backdrop-blur z-10">
+<tr>
+<th class="px-lg py-sm text-[10px] font-label-caps text-on-surface-variant/60 uppercase tracking-widest border-b border-primary/5">Location ID</th>
+<th class="px-lg py-sm text-[10px] font-label-caps text-on-surface-variant/60 uppercase tracking-widest border-b border-primary/5">Primary Threat</th>
+<th class="px-lg py-sm text-[10px] font-label-caps text-on-surface-variant/60 uppercase tracking-widest border-b border-primary/5">Risk Index</th>
+<th class="px-lg py-sm text-[10px] font-label-caps text-on-surface-variant/60 uppercase tracking-widest border-b border-primary/5">Status</th>
+<th class="px-lg py-sm text-[10px] font-label-caps text-on-surface-variant/60 uppercase tracking-widest border-b border-primary/5">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-primary/5">
+<tr class="hover:bg-primary/5 transition-colors">
+<td class="px-lg py-md font-mono-data text-secondary text-sm">LOC-7G-401</td>
+<td class="px-lg py-md text-on-surface text-body-sm">Civil Unrest (Level 4)</td>
+<td class="px-lg py-md">
+<div class="flex items-center gap-md">
+<div class="w-32 h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-error" style="width: 92%"></div>
+</div>
+<span class="text-mono-data text-error font-bold text-xs">92</span>
+</div>
+</td>
+<td class="px-lg py-md">
+<span class="px-sm py-1 rounded bg-error/20 text-error text-[10px] font-bold border border-error/30 animate-pulse">HIGH ALERT</span>
+</td>
+<td class="px-lg py-md">
+<button class="text-primary hover:underline text-xs font-bold uppercase">Intercept</button>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 transition-colors">
+<td class="px-lg py-md font-mono-data text-secondary text-sm">LOC-7G-112</td>
+<td class="px-lg py-md text-on-surface text-body-sm">Aggregated Grand Theft</td>
+<td class="px-lg py-md">
+<div class="flex items-center gap-md">
+<div class="w-32 h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-tertiary-container" style="width: 65%"></div>
+</div>
+<span class="text-mono-data text-tertiary font-bold text-xs">65</span>
+</div>
+</td>
+<td class="px-lg py-md">
+<span class="px-sm py-1 rounded bg-tertiary-container/20 text-tertiary text-[10px] font-bold border border-tertiary/30">MONITORING</span>
+</td>
+<td class="px-lg py-md">
+<button class="text-primary hover:underline text-xs font-bold uppercase">Assign Drone</button>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 transition-colors">
+<td class="px-lg py-md font-mono-data text-secondary text-sm">LOC-7G-984</td>
+<td class="px-lg py-md text-on-surface text-body-sm">Signal Jamming Detected</td>
+<td class="px-lg py-md">
+<div class="flex items-center gap-md">
+<div class="w-32 h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-secondary" style="width: 42%"></div>
+</div>
+<span class="text-mono-data text-secondary font-bold text-xs">42</span>
+</div>
+</td>
+<td class="px-lg py-md">
+<span class="px-sm py-1 rounded bg-secondary/20 text-secondary text-[10px] font-bold border border-secondary/30">INVESTIGATING</span>
+</td>
+<td class="px-lg py-md">
+<button class="text-primary hover:underline text-xs font-bold uppercase">Analyze</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+<!-- Scanning Line Effect -->
+<div class="scanning-line z-50 pointer-events-none"></div>
+<script>
+        // Micro-interaction for hover states and button pulses
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('mousedown', () => {
+                button.classList.add('scale-95');
+            });
+            button.addEventListener('mouseup', () => {
+                button.classList.remove('scale-95');
+            });
+        });
+
+        // Toggle table height logic (Simulated)
+        const auditHeader = document.querySelector('.glass-panel.h-64 h2');
+        let isExpanded = false;
+        auditHeader?.parentElement?.querySelector('button:last-child').addEventListener('click', () => {
+            const panel = auditHeader.closest('.glass-panel');
+            if(!isExpanded) {
+                panel.style.height = '80%';
+                isExpanded = true;
+            } else {
+                panel.style.height = '16rem';
+                isExpanded = false;
+            }
+        });
+    </script>
+</body></html>
