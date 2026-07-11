@@ -1,0 +1,35 @@
+{
+  "nav": {
+    "dashboard": "कमांड सेंटर",
+    "complaints": "शिकायतें",
+    "timeline": "टाइमलाइन",
+    "evidence": "साक्ष्य",
+    "settings": "सेटिंग्स"
+  },
+  "complaint": {
+    "title": "शिकायत दर्ज करें",
+    "subtitle": "AI-संचालित घटना रिपोर्टिंग रीयल-टाइम विश्लेषण के साथ",
+    "field_title": "घटना का शीर्षक",
+    "field_category": "श्रेणी",
+    "field_location": "स्थान",
+    "field_description": "विस्तृत विवरण",
+    "submit": "शिकायत जमा करें",
+    "success": "शिकायत सफलतापूर्वक पंजीकृत",
+    "voice": "आवाज इनपुट",
+    "qr_scan": "QR स्कैन"
+  },
+  "ai": {
+    "urgency": "तात्कालिकता स्कोर",
+    "readiness": "तत्परता स्कोर",
+    "classification": "वर्गीकरण",
+    "entities": "इकाइयां"
+  },
+  "common": {
+    "loading": "लोड हो रहा है...",
+    "error": "एक त्रुटि हुई",
+    "save": "सहेजें",
+    "cancel": "रद्द करें",
+    "delete": "हटाएं",
+    "search": "खोजें"
+  }
+}

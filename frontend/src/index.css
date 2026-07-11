@@ -1,6 +1,7 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@import "./styles/animations.css";
+@import "./styles/utilities.css";
 
 @theme {
   --color-background: #091327;
@@ -67,8 +68,6 @@
   --radius-xl: 0.5rem;
   --radius-full: 0.75rem;
 }
-
-@import "./styles/animations.css";
 
 html, body, #root {
   margin: 0;
