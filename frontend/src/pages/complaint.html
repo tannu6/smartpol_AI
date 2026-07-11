@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Citizen Complaint Management | SmartPol AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Space+Mono&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(16, 26, 46, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(180, 197, 255, 0.15);
+        }
+        .accent-bar {
+            position: relative;
+        }
+        .accent-bar::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 2px;
+            height: 16px;
+            background-color: #4cd7f6;
+        }
+        .cyber-grid {
+            background-image: linear-gradient(rgba(37, 99, 235, 0.05) 1px, transparent 1px), 
+                              linear-gradient(90deg, rgba(37, 99, 235, 0.05) 1px, transparent 1px);
+            background-size: 32px 32px;
+        }
+        .scan-line {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #b4c5ff, transparent);
+            animation: scan 3s linear infinite;
+        }
+        @keyframes scan {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .pulse-border {
+            animation: borderPulse 2s infinite;
+        }
+        @keyframes borderPulse {
+            0% { border-color: rgba(255, 180, 171, 0.4); box-shadow: 0 0 0px rgba(255, 180, 171, 0.2); }
+            50% { border-color: rgba(255, 180, 171, 1); box-shadow: 0 0 10px rgba(255, 180, 171, 0.4); }
+            100% { border-color: rgba(255, 180, 171, 0.4); box-shadow: 0 0 0px rgba(255, 180, 171, 0.2); }
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                "surface-dim": "#091327",
+                "surface-container-low": "#111b2f",
+                "on-tertiary-fixed-variant": "#5a00c6",
+                "surface-container-lowest": "#040e21",
+                "error": "#ffb4ab",
+                "surface-tint": "#b4c5ff",
+                "on-secondary-container": "#00424e",
+                "on-error": "#690005",
+                "secondary-container": "#03b5d3",
+                "on-surface-variant": "#c3c6d7",
+                "surface": "#091327",
+                "on-secondary-fixed-variant": "#004e5c",
+                "surface-container-high": "#202a3f",
+                "tertiary-container": "#8343f4",
+                "inverse-surface": "#d9e2fe",
+                "background": "#091327",
+                "tertiary": "#d2bbff",
+                "tertiary-fixed-dim": "#d2bbff",
+                "on-tertiary-fixed": "#25005a",
+                "on-primary-fixed-variant": "#003ea8",
+                "secondary-fixed": "#acedff",
+                "secondary": "#4cd7f6",
+                "on-error-container": "#ffdad6",
+                "tertiary-fixed": "#eaddff",
+                "on-surface": "#d9e2fe",
+                "on-tertiary": "#3f008e",
+                "surface-container": "#161f34",
+                "on-primary-fixed": "#00174b",
+                "primary-fixed": "#dbe1ff",
+                "primary": "#b4c5ff",
+                "outline": "#8d90a0",
+                "on-primary-container": "#eeefff",
+                "primary-fixed-dim": "#b4c5ff",
+                "outline-variant": "#434655",
+                "surface-bright": "#2f394f",
+                "on-primary": "#002a78",
+                "surface-variant": "#2b354a",
+                "error-container": "#93000a",
+                "on-secondary": "#003640",
+                "on-background": "#d9e2fe",
+                "primary-container": "#2563eb",
+                "surface-container-highest": "#2b354a",
+                "on-secondary-fixed": "#001f26",
+                "inverse-primary": "#0053db",
+                "secondary-fixed-dim": "#4cd7f6",
+                "on-tertiary-container": "#f7edff",
+                "inverse-on-surface": "#273045"
+              },
+              "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+              },
+              "spacing": {
+                "xs": "4px",
+                "sm": "8px",
+                "container-margin": "32px",
+                "xl": "40px",
+                "md": "16px",
+                "unit": "4px",
+                "lg": "24px",
+                "gutter": "16px"
+              },
+              "fontFamily": {
+                "title-sm": ["Inter"],
+                "display-lg-mobile": ["Inter"],
+                "body-sm": ["Inter"],
+                "headline-md": ["Inter"],
+                "display-lg": ["Inter"],
+                "mono-data": ["Space Mono"],
+                "label-caps": ["Inter"],
+                "body-md": ["Inter"]
+              },
+              "fontSize": {
+                "title-sm": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                "display-lg-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                "mono-data": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+              }
+            }
+          }
+        }
+    </script>
+</head>
+<body class="bg-surface-dim text-on-surface font-body-md selection:bg-primary/30 cyber-grid min-h-screen">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 bg-surface-container/60 backdrop-blur-xl border-b border-outline-variant/30 shadow-[0_0_20px_rgba(37,99,235,0.2)] h-16 flex justify-between items-center px-lg">
+<div class="flex items-center gap-md">
+<span class="font-headline-md text-headline-md font-bold tracking-tighter text-primary">SmartPol AI</span>
+<div class="hidden md:flex bg-surface-variant/40 rounded-lg items-center px-md py-xs border border-outline-variant/20 ml-lg">
+<span class="material-symbols-outlined text-primary text-[20px] mr-sm">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-body-sm w-64 text-on-surface" placeholder="Global search cases..." type="text"/>
+</div>
+</div>
+<nav class="flex items-center gap-lg">
+<div class="hidden md:flex gap-md">
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-primary/10 p-sm rounded-lg transition-all">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-primary/10 p-sm rounded-lg transition-all">shield</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-primary/10 p-sm rounded-lg transition-all">settings</button>
+</div>
+<div class="h-10 w-10 rounded-full bg-primary-container overflow-hidden border border-primary/40">
+<img class="w-full h-full object-cover" data-alt="Close-up professional portrait of a police officer in a dark tactical uniform against a blurred high-tech control center background. The lighting is cinematic with blue and cyan highlights, emphasizing the technological environment. The officer has a serious yet helpful expression, suited for a citizen-facing government interface. High-fidelity digital photography style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9-XUlfVu4cM2dhAnHoaLSYXz2uvDhgLnrZUeK9AEnwalrAjwGSB0Qq8XtoDgizQzaAtUgr6GSOCuFPB5UtF0NJ6cVjZhIJBBXimxIAH3aCKpLyUTyTZPM7h3XoDHmlF0fVXxUQhpHqkevOp8Kv330bZaFsZa8yYjHw5AIpsMAMSGD2vClVj877XpkYWv8IICYgDq4o3BpJ2yEFzg0rsSzDz7XS_l0XdxtFI5m2cD72vUo0yoLqvUupg"/>
+</div>
+</nav>
+</header>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full w-[280px] z-40 bg-surface-container-low/80 backdrop-blur-2xl border-r border-primary/15 flex flex-col py-lg gap-md hidden lg:flex pt-20">
+<div class="px-lg mb-md">
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 bg-secondary rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary text-[20px]">smart_toy</span>
+</div>
+<div>
+<h2 class="font-label-caps text-label-caps text-secondary uppercase tracking-widest leading-tight">SmartPol AI</h2>
+<p class="text-[10px] text-on-surface-variant/70 uppercase font-bold">Central Command</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 px-sm">
+<ul class="space-y-sm">
+<li><a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant/70 hover:bg-surface-bright/50 hover:text-on-surface transition-all duration-200" href="#"><span class="material-symbols-outlined">gavel</span> <span class="font-label-caps text-label-caps">Command</span></a></li>
+<li><a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant/70 hover:bg-surface-bright/50 hover:text-on-surface transition-all duration-200" href="#"><span class="material-symbols-outlined">psychology</span> <span class="font-label-caps text-label-caps">Intelligence</span></a></li>
+<li><a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant/70 hover:bg-surface-bright/50 hover:text-on-surface transition-all duration-200" href="#"><span class="material-symbols-outlined">local_police</span> <span class="font-label-caps text-label-caps">Patrols</span></a></li>
+<li><a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant/70 hover:bg-surface-bright/50 hover:text-on-surface transition-all duration-200" href="#"><span class="material-symbols-outlined">monitoring</span> <span class="font-label-caps text-label-caps">Analytics</span></a></li>
+<li><a class="flex items-center gap-md px-md py-sm rounded-lg bg-secondary-container/20 text-secondary border-l-4 border-secondary transition-all duration-200" href="#"><span class="material-symbols-outlined">emergency</span> <span class="font-label-caps text-label-caps">Incidents</span></a></li>
+<li><a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant/70 hover:bg-surface-bright/50 hover:text-on-surface transition-all duration-200" href="#"><span class="material-symbols-outlined">inventory_2</span> <span class="font-label-caps text-label-caps">Archive</span></a></li>
+</ul>
+</nav>
+<div class="px-md mt-auto">
+<button class="w-full bg-secondary-container text-on-secondary-container font-label-caps text-label-caps py-md rounded font-bold tracking-widest hover:brightness-110 active:scale-95 transition-all">DISPATCH</button>
+<div class="mt-lg pt-lg border-t border-outline-variant/20 space-y-sm">
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant/70 hover:text-on-surface" href="#"><span class="material-symbols-outlined text-[20px]">help</span> <span class="text-body-sm">Support</span></a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant/70 hover:text-error" href="#"><span class="material-symbols-outlined text-[20px]">logout</span> <span class="text-body-sm">Sign Out</span></a>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="lg:ml-[280px] pt-24 px-lg pb-xl max-w-7xl mx-auto">
+<!-- Header Info -->
+<header class="mb-xl flex flex-col md:flex-row md:items-end justify-between gap-lg">
+<div>
+<h1 class="font-display-lg text-display-lg text-primary mb-xs">Citizen Complaint Intake</h1>
+<p class="text-on-surface-variant max-w-2xl font-body-md">Official submission portal for public reports and safety concerns. All data is processed via encrypted AI pipelines for rapid strategic response.</p>
+</div>
+<div class="flex items-center gap-md">
+<div class="px-md py-sm glass-panel rounded-lg border-l-2 border-secondary">
+<span class="block font-label-caps text-[10px] text-secondary">SYSTEM STATUS</span>
+<span class="block font-mono-data text-body-sm text-on-surface">OPERATIONAL // ALPHA-9</span>
+</div>
+<div class="px-md py-sm glass-panel rounded-lg border-l-2 border-error">
+<span class="block font-label-caps text-[10px] text-error">PRIORITY</span>
+<span class="block font-mono-data text-body-sm text-on-surface">ELEVATED</span>
+</div>
+</div>
+</header>
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-lg">
+<!-- Left Column: Intake Form -->
+<section class="xl:col-span-7 space-y-lg">
+<div class="glass-panel p-lg rounded-xl accent-bar">
+<h3 class="font-title-sm text-title-sm text-primary mb-lg">General Information</h3>
+<form class="space-y-md">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<div class="space-y-xs">
+<label class="font-label-caps text-label-caps text-on-surface-variant">Full Name</label>
+<input class="w-full bg-surface-container-high border-outline-variant/30 rounded focus:border-primary focus:ring-1 focus:ring-primary text-on-surface py-md" placeholder="Enter citizen name" type="text"/>
+</div>
+<div class="space-y-xs">
+<label class="font-label-caps text-label-caps text-on-surface-variant">Phone Number</label>
+<input class="w-full bg-surface-container-high border-outline-variant/30 rounded focus:border-primary focus:ring-1 focus:ring-primary text-on-surface py-md" placeholder="+1 (555) 000-0000" type="tel"/>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<div class="space-y-xs relative">
+<label class="font-label-caps text-label-caps text-on-surface-variant">Incident Location</label>
+<div class="relative">
+<input class="w-full bg-surface-container-high border-outline-variant/30 rounded focus:border-primary focus:ring-1 focus:ring-primary text-on-surface py-md pr-12" placeholder="Search address or use pin" type="text"/>
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-secondary hover:text-primary transition-colors" type="button">
+<span class="material-symbols-outlined">location_on</span>
+</button>
+</div>
+</div>
+<div class="space-y-xs">
+<label class="font-label-caps text-label-caps text-on-surface-variant">Complaint Category</label>
+<select class="w-full bg-surface-container-high border-outline-variant/30 rounded focus:border-primary focus:ring-1 focus:ring-primary text-on-surface py-md">
+<option>Public Safety</option>
+<option>Traffic</option>
+<option>Noise</option>
+<option>Infrastructure</option>
+<option>Misconduct</option>
+<option>Other</option>
+</select>
+</div>
+</div>
+<div class="space-y-xs">
+<label class="font-label-caps text-label-caps text-on-surface-variant">Detailed Description</label>
+<textarea class="w-full bg-surface-container-high border-outline-variant/30 rounded focus:border-primary focus:ring-1 focus:ring-primary text-on-surface p-md" placeholder="Provide a comprehensive narrative of the incident..." rows="5"></textarea>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<div class="space-y-xs">
+<label class="font-label-caps text-label-caps text-on-surface-variant">Upload Evidence (Image)</label>
+<div class="border-2 border-dashed border-outline-variant/30 rounded-lg p-lg flex flex-col items-center justify-center gap-sm bg-surface-container-low/40 hover:bg-primary/5 transition-colors group cursor-pointer">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">image</span>
+<span class="text-body-sm text-on-surface-variant">Drag or browse image files</span>
+<div class="w-full bg-surface-variant h-1 rounded-full overflow-hidden mt-sm">
+<div class="bg-primary h-full w-[0%]" id="progress-img"></div>
+</div>
+</div>
+</div>
+<div class="space-y-xs">
+<label class="font-label-caps text-label-caps text-on-surface-variant">Upload Video Footage</label>
+<div class="border-2 border-dashed border-outline-variant/30 rounded-lg p-lg flex flex-col items-center justify-center gap-sm bg-surface-container-low/40 hover:bg-primary/5 transition-colors group cursor-pointer">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-secondary transition-colors">videocam</span>
+<span class="text-body-sm text-on-surface-variant">Drag or browse video files</span>
+<div class="w-full bg-surface-variant h-1 rounded-full overflow-hidden mt-sm">
+<div class="bg-secondary h-full w-[0%]" id="progress-vid"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="pt-lg">
+<button class="w-full py-lg bg-primary text-on-primary font-bold font-label-caps uppercase tracking-[0.2em] rounded-lg shadow-[0_0_15px_rgba(37,99,235,0.4)] hover:brightness-110 active:scale-[0.98] transition-all" type="submit">Submit Formal Complaint</button>
+</div>
+</form>
+</div>
+<div class="glass-panel p-md rounded-xl overflow-hidden">
+<div class="w-full h-48 rounded overflow-hidden relative grayscale opacity-70 contrast-125">
+<img class="w-full h-full object-cover" data-location="Chicago" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDR_3Ond7t7sV8BsPQGsp2lpmxcVOx5uU91cyzI0UinL0sTmQGzwCro0nE_q79I5oGU0G8cul9xIj9qXdQ4Y0doC614x4aIT7f0_PXg4JIz-ahTpn5HMHlWdGCaMNSUVxEVZRlcxG8UxhIxyfLmFHCLupzwGsMcv9ACMtmCPn6Qtw8xu8dL6i9YdOFGJ_VSkYLvc5JuZWrObedJodruv7gUD5TNyF8eU_57yLsRBW_rE9xOBHOOdTIdRQ"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-dim to-transparent"></div>
+<div class="absolute bottom-4 left-4 flex items-center gap-sm">
+<div class="w-4 h-4 bg-primary rounded-full animate-ping"></div>
+<span class="font-mono-data text-body-sm text-primary">MAP PREVIEW SYNCED</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Right Column: Strategic Overview -->
+<section class="xl:col-span-5 space-y-lg">
+<!-- Complaint Statistics -->
+<div class="grid grid-cols-3 gap-md">
+<div class="glass-panel p-md rounded-lg text-center flex flex-col justify-center items-center">
+<span class="font-label-caps text-[10px] text-on-surface-variant mb-xs">RESOLVED TODAY</span>
+<span class="font-display-lg text-headline-md text-primary font-bold">142</span>
+</div>
+<div class="glass-panel p-md rounded-lg text-center flex flex-col justify-center items-center">
+<span class="font-label-caps text-[10px] text-on-surface-variant mb-xs">AVG RESPONSE</span>
+<span class="font-display-lg text-headline-md text-secondary font-bold">12m</span>
+</div>
+<div class="glass-panel p-md rounded-lg text-center flex flex-col justify-center items-center">
+<span class="font-label-caps text-[10px] text-on-surface-variant mb-xs">SATISFACTION</span>
+<span class="font-display-lg text-headline-md text-tertiary font-bold">94%</span>
+</div>
+</div>
+<!-- Complaint Status Cards -->
+<div class="space-y-sm">
+<div class="glass-panel p-md rounded-xl flex items-center justify-between group cursor-pointer hover:bg-surface-bright transition-colors border-l-4 border-outline">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-outline">pending</span>
+<div>
+<h4 class="font-title-sm text-body-md font-bold">Pending Review</h4>
+<p class="text-body-sm text-on-surface-variant">28 active reports awaiting triage</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
+</div>
+<div class="glass-panel p-md rounded-xl flex items-center justify-between group cursor-pointer hover:bg-surface-bright transition-colors border-l-4 border-secondary pulse-border">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-secondary">manage_search</span>
+<div>
+<h4 class="font-title-sm text-body-md font-bold">Under Investigation</h4>
+<p class="text-body-sm text-on-surface-variant">15 field units dispatched for verification</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
+</div>
+<div class="glass-panel p-md rounded-xl flex items-center justify-between group cursor-pointer hover:bg-surface-bright transition-colors border-l-4 border-tertiary">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-tertiary">task_alt</span>
+<div>
+<h4 class="font-title-sm text-body-md font-bold">Resolution Pending</h4>
+<p class="text-body-sm text-on-surface-variant">6 cases in final administrative lock</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
+</div>
+</div>
+<!-- Recent Complaints Feed -->
+<div class="glass-panel rounded-xl accent-bar">
+<div class="p-md border-b border-outline-variant/20 flex justify-between items-center">
+<h3 class="font-label-caps text-label-caps text-primary">RECENT COMPLAINTS FEED</h3>
+<span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+</div>
+<div class="divide-y divide-outline-variant/20">
+<!-- Feed Item 1 -->
+<div class="p-md hover:bg-white/5 transition-colors">
+<div class="flex justify-between items-start mb-xs">
+<span class="font-mono-data text-[12px] text-secondary">#CMP-94102</span>
+<span class="bg-primary/10 text-primary px-xs py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">New</span>
+</div>
+<p class="text-body-sm mb-xs">Noise violation reported at Sector 4 Residential district.</p>
+<span class="text-[10px] text-on-surface-variant uppercase font-bold">Just now • 4th Ave & Main</span>
+</div>
+<!-- Feed Item 2 -->
+<div class="p-md hover:bg-white/5 transition-colors">
+<div class="flex justify-between items-start mb-xs">
+<span class="font-mono-data text-[12px] text-secondary">#CMP-94101</span>
+<span class="bg-secondary/10 text-secondary px-xs py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">Reviewing</span>
+</div>
+<p class="text-body-sm mb-xs">Suspicious vehicle loitering near public utility plant.</p>
+<span class="text-[10px] text-on-surface-variant uppercase font-bold">12 mins ago • Industrial Zone B</span>
+</div>
+<!-- Feed Item 3 -->
+<div class="p-md hover:bg-white/5 transition-colors">
+<div class="flex justify-between items-start mb-xs">
+<span class="font-mono-data text-[12px] text-secondary">#CMP-94098</span>
+<span class="bg-tertiary/10 text-tertiary px-xs py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">Actioned</span>
+</div>
+<p class="text-body-sm mb-xs">Pothole on exit ramp causing traffic slow-down.</p>
+<span class="text-[10px] text-on-surface-variant uppercase font-bold">1 hour ago • Highway 101 North</span>
+</div>
+<!-- Feed Item 4 -->
+<div class="p-md hover:bg-white/5 transition-colors">
+<div class="flex justify-between items-start mb-xs">
+<span class="font-mono-data text-[12px] text-secondary">#CMP-94092</span>
+<span class="bg-secondary/10 text-secondary px-xs py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">Reviewing</span>
+</div>
+<p class="text-body-sm mb-xs">Misconduct claim regarding traffic stop on 5th.</p>
+<span class="text-[10px] text-on-surface-variant uppercase font-bold">2 hours ago • Precinct 9 HQ</span>
+</div>
+</div>
+</div>
+<!-- Resolution Timeline -->
+<div class="glass-panel p-lg rounded-xl">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-lg">STANDARD RESOLUTION TIMELINE</h3>
+<div class="relative pl-lg border-l-2 border-outline-variant/30 space-y-lg">
+<div class="relative">
+<div class="absolute -left-[33px] top-1 w-4 h-4 rounded-full bg-primary ring-4 ring-primary/20"></div>
+<h5 class="font-bold text-body-md text-primary">01. Intake</h5>
+<p class="text-body-sm text-on-surface-variant">Automated validation and indexing in secure central repository.</p>
+</div>
+<div class="relative">
+<div class="absolute -left-[33px] top-1 w-4 h-4 rounded-full bg-secondary"></div>
+<h5 class="font-bold text-body-md text-secondary">02. Triage & Assignment</h5>
+<p class="text-body-sm text-on-surface-variant">AI-powered classification to specialized task force units.</p>
+</div>
+<div class="relative">
+<div class="absolute -left-[33px] top-1 w-4 h-4 rounded-full bg-tertiary/50"></div>
+<h5 class="font-bold text-body-md text-tertiary/50">03. Investigation</h5>
+<p class="text-body-sm text-on-surface-variant">Manual and sensor-based evidence gathering processes.</p>
+</div>
+<div class="relative">
+<div class="absolute -left-[33px] top-1 w-4 h-4 rounded-full bg-outline-variant"></div>
+<h5 class="font-bold text-body-md text-outline-variant">04. Final Disposition</h5>
+<p class="text-body-sm text-on-surface-variant">Official case closure and citizen feedback loop initiation.</p>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Scanning Line Overlay (Global) -->
+<div class="fixed top-0 left-0 w-full pointer-events-none z-10 opacity-10">
+<div class="scan-line"></div>
+</div>
+<script>
+        // Micro-interaction: Progress Bar Simulation for Uploads
+        document.querySelectorAll('.border-dashed').forEach(dropzone => {
+            dropzone.addEventListener('click', function() {
+                const bar = this.querySelector('div > div');
+                let width = 0;
+                const interval = setInterval(() => {
+                    if (width >= 100) {
+                        clearInterval(interval);
+                        bar.classList.add('bg-tertiary'); // Success color
+                    } else {
+                        width += Math.random() * 20;
+                        if (width > 100) width = 100;
+                        bar.style.width = width + '%';
+                    }
+                }, 150);
+            });
+        });
+
+        // Form Submission visual feedback
+        const form = document.querySelector('form');
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const originalText = btn.innerText;
+            btn.innerText = 'PROCESSING ENCRYPTED SUBMISSION...';
+            btn.disabled = true;
+            btn.classList.replace('bg-primary', 'bg-secondary');
+            
+            setTimeout(() => {
+                btn.innerText = 'SUBMISSION SUCCESSFUL';
+                btn.classList.replace('bg-secondary', 'bg-tertiary');
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                    btn.classList.replace('bg-tertiary', 'bg-primary');
+                    form.reset();
+                    document.querySelectorAll('[id^="progress-"]').forEach(p => p.style.width = '0%');
+                }, 2000);
+            }, 1500);
+        });
+    </script>
+</body></html>

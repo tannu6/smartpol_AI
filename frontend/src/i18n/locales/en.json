@@ -1,0 +1,35 @@
+{
+  "nav": {
+    "dashboard": "Command Center",
+    "complaints": "Complaints",
+    "timeline": "Timeline",
+    "evidence": "Evidence",
+    "settings": "Settings"
+  },
+  "complaint": {
+    "title": "File a Complaint",
+    "subtitle": "AI-powered incident reporting with real-time analysis",
+    "field_title": "Incident Title",
+    "field_category": "Category",
+    "field_location": "Location",
+    "field_description": "Detailed Description",
+    "submit": "Submit Complaint",
+    "success": "Complaint Registered Successfully",
+    "voice": "Voice Input",
+    "qr_scan": "Scan QR"
+  },
+  "ai": {
+    "urgency": "Urgency Score",
+    "readiness": "Readiness Score",
+    "classification": "Classification",
+    "entities": "Entities"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "search": "Search"
+  }
+}

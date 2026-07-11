@@ -1,0 +1,35 @@
+{
+  "nav": {
+    "dashboard": "કમાન્ડ સેન્ટર",
+    "complaints": "ફરિયાદો",
+    "timeline": "ટાઈમલાઈન",
+    "evidence": "પુરાવા",
+    "settings": "સેટિંગ્સ"
+  },
+  "complaint": {
+    "title": "ફરિયાદ નોંધાવો",
+    "subtitle": "AI-સંચાલિત ઘટના રિપોર્ટિંગ રીયલ-ટાઇમ વિશ્લેષણ સાથે",
+    "field_title": "ઘટના શીર્ષક",
+    "field_category": "કેટેગરી",
+    "field_location": "સ્થાન",
+    "field_description": "વિગતવાર વર્ણન",
+    "submit": "ફરિયાદ સબમિટ કરો",
+    "success": "ફરિયાદ સફળતાપૂર્વક નોંધાઈ",
+    "voice": "અવાજ ઇનપુટ",
+    "qr_scan": "QR સ્કેન"
+  },
+  "ai": {
+    "urgency": "તાકીદ સ્કોર",
+    "readiness": "તૈયારી સ્કોર",
+    "classification": "વર્ગીકરણ",
+    "entities": "એન્ટિટીઝ"
+  },
+  "common": {
+    "loading": "લોડ થઈ રહ્યું છે...",
+    "error": "એક ભૂલ આવી",
+    "save": "સાચવો",
+    "cancel": "રદ કરો",
+    "delete": "કાઢી નાખો",
+    "search": "શોધો"
+  }
+}

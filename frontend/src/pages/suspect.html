@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SmartPol AI | Intelligence Graph</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;family=Space+Mono&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        
+        @keyframes pulse-cyan {
+            0% { box-shadow: 0 0 0 0 rgba(76, 215, 246, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(76, 215, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(76, 215, 246, 0); }
+        }
+
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+
+        .glass-panel {
+            background: rgba(16, 26, 46, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(180, 197, 255, 0.15);
+        }
+
+        .node-link {
+            stroke-dasharray: 5;
+            animation: dash 10s linear infinite;
+        }
+
+        @keyframes dash {
+            to {
+                stroke-dashoffset: -100;
+            }
+        }
+
+        .cyber-grid {
+            background-image: linear-gradient(rgba(37, 99, 235, 0.05) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(37, 99, 235, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        .risk-gauge {
+            stroke-dasharray: 251.2;
+            stroke-dashoffset: 30; /* Adjust for score */
+            transition: stroke-dashoffset 1s ease-out;
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(9, 19, 39, 1);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(76, 215, 246, 0.3);
+            border-radius: 2px;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline-variant": "#434655",
+                        "on-tertiary-fixed": "#25005a",
+                        "on-background": "#d9e2fe",
+                        "on-tertiary-container": "#f7edff",
+                        "on-tertiary": "#3f008e",
+                        "secondary-fixed-dim": "#4cd7f6",
+                        "secondary": "#4cd7f6",
+                        "primary": "#b4c5ff",
+                        "on-secondary-container": "#00424e",
+                        "surface": "#091327",
+                        "primary-fixed": "#dbe1ff",
+                        "on-primary": "#002a78",
+                        "tertiary-container": "#8343f4",
+                        "outline": "#8d90a0",
+                        "on-primary-fixed": "#00174b",
+                        "tertiary": "#d2bbff",
+                        "surface-tint": "#b4c5ff",
+                        "surface-dim": "#091327",
+                        "surface-container-lowest": "#040e21",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-error": "#690005",
+                        "surface-container-low": "#111b2f",
+                        "secondary-fixed": "#acedff",
+                        "on-surface": "#d9e2fe",
+                        "error-container": "#93000a",
+                        "primary-container": "#2563eb",
+                        "surface-container-highest": "#2b354a",
+                        "on-surface-variant": "#c3c6d7",
+                        "surface-bright": "#2f394f",
+                        "on-secondary-fixed-variant": "#004e5c",
+                        "inverse-surface": "#d9e2fe",
+                        "tertiary-fixed-dim": "#d2bbff",
+                        "inverse-primary": "#0053db",
+                        "on-secondary-fixed": "#001f26",
+                        "on-error-container": "#ffdad6",
+                        "surface-container": "#161f34",
+                        "inverse-on-surface": "#273045",
+                        "error": "#ffb4ab",
+                        "surface-variant": "#2b354a",
+                        "background": "#091327",
+                        "secondary-container": "#03b5d3",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-tertiary-fixed-variant": "#5a00c6",
+                        "tertiary-fixed": "#eaddff",
+                        "on-secondary": "#003640",
+                        "on-primary-container": "#eeefff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "unit": "4px",
+                        "container-margin": "32px",
+                        "lg": "24px",
+                        "xl": "40px",
+                        "md": "16px",
+                        "gutter": "16px",
+                        "sm": "8px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "mono-data": ["Space Mono"],
+                        "label-caps": ["Inter"],
+                        "title-sm": ["Inter"],
+                        "body-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "mono-data": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                        "title-sm": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-body-md min-h-screen overflow-hidden">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 flex justify-between items-center px-lg h-16 w-full bg-surface-container/60 backdrop-blur-xl border-b border-outline-variant/30 shadow-[0_0_20px_rgba(37,99,235,0.2)]">
+<div class="flex items-center gap-md">
+<span class="font-headline-md text-headline-md font-bold tracking-tighter text-primary">SmartPol AI</span>
+<div class="h-6 w-[1px] bg-outline-variant/50 mx-md"></div>
+<div class="flex gap-md">
+<button class="font-title-sm text-title-sm text-on-surface-variant hover:bg-primary/10 transition-all duration-200 px-md py-xs rounded">Dashboard</button>
+<button class="font-title-sm text-title-sm text-primary font-bold border-b-2 border-primary px-md py-xs">Intelligence</button>
+<button class="font-title-sm text-title-sm text-on-surface-variant hover:bg-primary/10 transition-all duration-200 px-md py-xs rounded">Reports</button>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<div class="flex bg-surface-container-highest px-md py-xs rounded-full gap-sm items-center border border-outline-variant/30">
+<span class="material-symbols-outlined text-primary text-[18px]">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-body-sm w-48 p-0" placeholder="Global CID Search..." type="text"/>
+</div>
+<div class="flex gap-sm">
+<button class="p-xs text-on-surface-variant hover:bg-primary/10 rounded transition-all"><span class="material-symbols-outlined">notifications</span></button>
+<button class="p-xs text-on-surface-variant hover:bg-primary/10 rounded transition-all"><span class="material-symbols-outlined">shield</span></button>
+<button class="p-xs text-on-surface-variant hover:bg-primary/10 rounded transition-all"><span class="material-symbols-outlined">settings</span></button>
+</div>
+<div class="w-8 h-8 rounded-full border border-primary/30 overflow-hidden ml-md">
+<img class="w-full h-full object-cover" data-alt="A professional close-up portrait of a high-ranking digital security officer in a futuristic uniform, featuring a clean-shaven look and sharp focus. The background is a dark, tech-oriented command center with blue atmospheric lighting. The style is cinematic and hyper-realistic, reflecting a high-stakes intelligence environment with deep contrast and subtle cyan glows." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCRmGwdd-78gBYCEOs34VGgAMBNf6AkH1B3VEp5n2oIiCbMTGegqLNomoFggfErmUMSaBfPUUZdIdnjzYoW_c2J-2XzA52au6TaEThNkdVMLT6fpYbyGaVuRZZ-Rqxd316D8Fd5xVsZ50VVcdnq4vd-vNtk4y6QMyyaLJkyRvPTQkkcwWgcf048ebECbsvdNFbbHsv9k6Hh0YuR0t-Bg0wvUUtPcU9M5LOT_QDDvKxbGh3GvYSPz9hCvg"/>
+</div>
+</div>
+</nav>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-16 h-[calc(100vh-64px)] w-[280px] z-40 bg-surface-container-low/80 backdrop-blur-2xl flex flex-col py-lg gap-md border-r border-primary/15 transition-all duration-200 ease-out">
+<div class="px-md mb-md">
+<div class="flex items-center gap-md p-md bg-secondary-container/10 border border-secondary/20 rounded-lg">
+<div class="w-10 h-10 rounded bg-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary">radar</span>
+</div>
+<div>
+<p class="font-label-caps text-label-caps text-secondary uppercase tracking-widest">SMARTPOL AI</p>
+<p class="text-body-sm text-on-surface-variant/70">Central Command</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center px-lg py-md gap-md text-on-surface-variant/70 hover:bg-surface-bright/50 hover:text-on-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined">gavel</span>
+<span class="font-label-caps text-label-caps">Command</span>
+</a>
+<a class="flex items-center px-lg py-md gap-md bg-secondary-container/20 text-secondary border-l-4 border-secondary transition-all duration-200" href="#">
+<span class="material-symbols-outlined">psychology</span>
+<span class="font-label-caps text-label-caps">Intelligence</span>
+</a>
+<a class="flex items-center px-lg py-md gap-md text-on-surface-variant/70 hover:bg-surface-bright/50 hover:text-on-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined">local_police</span>
+<span class="font-label-caps text-label-caps">Patrols</span>
+</a>
+<a class="flex items-center px-lg py-md gap-md text-on-surface-variant/70 hover:bg-surface-bright/50 hover:text-on-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined">monitoring</span>
+<span class="font-label-caps text-label-caps">Analytics</span>
+</a>
+<a class="flex items-center px-lg py-md gap-md text-on-surface-variant/70 hover:bg-surface-bright/50 hover:text-on-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined">emergency</span>
+<span class="font-label-caps text-label-caps">Incidents</span>
+</a>
+<a class="flex items-center px-lg py-md gap-md text-on-surface-variant/70 hover:bg-surface-bright/50 hover:text-on-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-label-caps text-label-caps">Archive</span>
+</a>
+</nav>
+<div class="px-md mt-auto">
+<button class="w-full py-md bg-secondary text-on-secondary font-bold text-label-caps rounded flex items-center justify-center gap-sm active:scale-95 transition-transform shadow-[0_0_15px_rgba(76,215,246,0.4)]">
+<span class="material-symbols-outlined">send</span>
+                DISPATCH
+            </button>
+</div>
+<div class="pt-md mt-md border-t border-outline-variant/30">
+<a class="flex items-center px-lg py-sm gap-md text-on-surface-variant/70 hover:text-on-surface" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-label-caps text-label-caps">Support</span>
+</a>
+<a class="flex items-center px-lg py-sm gap-md text-on-surface-variant/70 hover:text-on-surface" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-caps text-label-caps">Sign Out</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-[280px] pt-16 h-screen relative flex flex-col overflow-hidden cyber-grid">
+<!-- Background Animation -->
+
+<div class="flex flex-1 p-gutter gap-gutter relative z-10 overflow-hidden">
+<!-- Left Panel: Intelligence Search -->
+<section class="w-[320px] glass-panel rounded-xl flex flex-col p-md border-l-2 border-l-secondary">
+<div class="mb-lg">
+<h2 class="font-label-caps text-label-caps text-primary tracking-widest flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">search</span>
+                        SUSPECT QUERY
+                    </h2>
+<div class="mt-md space-y-md">
+<div>
+<label class="font-label-caps text-[10px] text-outline uppercase block mb-xs">Identifier Type</label>
+<select class="w-full bg-surface-container-lowest border border-outline-variant rounded px-sm py-xs text-body-sm text-on-surface focus:border-primary focus:ring-1 focus:ring-primary transition-all">
+<option>UPI ID</option>
+<option>Phone Number</option>
+<option>Bank Account</option>
+<option>Passport ID</option>
+</select>
+</div>
+<div>
+<label class="font-label-caps text-[10px] text-outline uppercase block mb-xs">Input Value</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded px-sm py-xs text-body-sm text-on-surface focus:border-primary focus:ring-1 focus:ring-primary transition-all font-mono-data" placeholder="e.g. user@okhdfc" type="text"/>
+</div>
+<button class="w-full py-md bg-primary text-on-primary font-bold text-label-caps rounded flex items-center justify-center gap-sm active:scale-95 transition-transform shadow-[0_0_15px_rgba(37,99,235,0.4)]">
+                            CHECK SUSPECT
+                        </button>
+</div>
+</div>
+<div class="flex-1 overflow-hidden flex flex-col">
+<h3 class="font-label-caps text-[10px] text-outline uppercase tracking-widest border-b border-outline-variant/30 pb-xs mb-md">RECENT FLAGS</h3>
+<div class="flex-1 overflow-y-auto space-y-sm pr-xs">
+<!-- Flag Items -->
+<div class="p-sm bg-surface-container/40 rounded border-l border-error/50 hover:bg-surface-container-high transition-colors cursor-pointer group">
+<div class="flex justify-between items-start">
+<p class="font-mono-data text-body-sm text-primary">CID_88291</p>
+<span class="bg-error/10 text-error px-xs py-[2px] rounded text-[10px] font-bold">CRITICAL</span>
+</div>
+<p class="text-[11px] text-on-surface-variant mt-xs">+91 98XXX XXX42</p>
+<p class="text-[10px] text-outline mt-xs">2 mins ago • Mumbai North</p>
+</div>
+<div class="p-sm bg-surface-container/40 rounded border-l border-secondary hover:bg-surface-container-high transition-colors cursor-pointer">
+<div class="flex justify-between items-start">
+<p class="font-mono-data text-body-sm text-secondary">CID_88102</p>
+<span class="bg-secondary/10 text-secondary px-xs py-[2px] rounded text-[10px] font-bold">FOLLOW</span>
+</div>
+<p class="text-[11px] text-on-surface-variant mt-xs">upi_vortex@ybl</p>
+<p class="text-[10px] text-outline mt-xs">15 mins ago • Bangalore</p>
+</div>
+<div class="p-sm bg-surface-container/40 rounded border-l border-outline hover:bg-surface-container-high transition-colors cursor-pointer">
+<div class="flex justify-between items-start">
+<p class="font-mono-data text-body-sm text-on-surface">CID_87994</p>
+<span class="bg-surface-variant text-on-surface-variant px-xs py-[2px] rounded text-[10px] font-bold">CLOSED</span>
+</div>
+<p class="text-[11px] text-on-surface-variant mt-xs">acc_001928374</p>
+<p class="text-[10px] text-outline mt-xs">1 hr ago • Delhi</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Center Panel: Intelligence Graph -->
+<section class="flex-1 relative glass-panel rounded-xl overflow-hidden">
+<!-- HUD Overlays -->
+<div class="absolute top-md left-md z-20">
+<div class="bg-surface-container-lowest/80 px-md py-xs rounded border border-secondary/30 flex items-center gap-sm">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+<span class="font-mono-data text-[12px] text-secondary tracking-widest">LIVE GRAPH FEED : STABLE</span>
+</div>
+</div>
+<div class="absolute bottom-md right-md z-20 flex flex-col gap-sm items-end">
+<div class="bg-surface-container-lowest/80 px-md py-xs rounded border border-outline-variant/30 font-mono-data text-[10px] text-outline">
+                        COORD: 18.5204, 73.8567
+                    </div>
+<div class="flex gap-xs">
+<button class="p-xs bg-surface-container-lowest/80 rounded border border-outline-variant/30 hover:text-primary"><span class="material-symbols-outlined">zoom_in</span></button>
+<button class="p-xs bg-surface-container-lowest/80 rounded border border-outline-variant/30 hover:text-primary"><span class="material-symbols-outlined">zoom_out</span></button>
+<button class="p-xs bg-surface-container-lowest/80 rounded border border-outline-variant/30 hover:text-primary"><span class="material-symbols-outlined">refresh</span></button>
+</div>
+</div>
+<!-- Network Graph Simulation Area -->
+<div class="w-full h-full flex items-center justify-center relative">
+<svg class="w-full h-full" viewbox="0 0 800 500">
+<!-- Links -->
+<line class="node-link stroke-secondary opacity-40" stroke-width="2" x1="400" x2="250" y1="250" y2="150"></line>
+<line class="node-link stroke-secondary opacity-40" stroke-width="2" x1="400" x2="550" y1="250" y2="150"></line>
+<line class="node-link stroke-secondary opacity-40" stroke-width="2" x1="400" x2="200" y1="250" y2="300"></line>
+<line class="node-link stroke-secondary opacity-40" stroke-width="2" x1="400" x2="600" y1="250" y2="300"></line>
+<line class="node-link stroke-secondary opacity-40" stroke-width="2" x1="400" x2="400" y1="250" y2="100"></line>
+<line class="node-link stroke-secondary opacity-40" stroke-width="2" x1="400" x2="400" y1="250" y2="400"></line>
+<!-- Central Node -->
+<g transform="translate(400, 250)">
+<circle class="fill-surface-container border-2 stroke-secondary" r="45"></circle>
+<circle class="fill-secondary/10" r="38"></circle>
+<text class="material-symbols-outlined text-secondary text-[40px] text-center" font-family="Material Symbols Outlined" text-anchor="middle" y="5">person_alert</text>
+<rect class="fill-secondary shadow-lg" height="24" rx="4" width="120" x="-60" y="55"></rect>
+<text class="fill-on-secondary font-label-caps font-bold" font-size="10" text-anchor="middle" x="0" y="72">PRIORITY_TARGET</text>
+</g>
+<!-- Connected Nodes -->
+<!-- Phone -->
+<g class="cursor-pointer group" transform="translate(250, 150)">
+<circle class="fill-surface-container stroke-outline-variant group-hover:stroke-primary transition-all" r="25"></circle>
+<text class="material-symbols-outlined text-on-surface-variant text-[24px] group-hover:text-primary transition-all" font-family="Material Symbols Outlined" text-anchor="middle" y="5">phone_iphone</text>
+<text class="fill-outline font-mono-data" font-size="9" text-anchor="middle" x="0" y="45">+91 982...22</text>
+</g>
+<!-- UPI -->
+<g class="cursor-pointer group" transform="translate(550, 150)">
+<circle class="fill-surface-container stroke-outline-variant group-hover:stroke-primary transition-all" r="25"></circle>
+<text class="material-symbols-outlined text-on-surface-variant text-[24px] group-hover:text-primary transition-all" font-family="Material Symbols Outlined" text-anchor="middle" y="5">currency_rupee</text>
+<text class="fill-outline font-mono-data" font-size="9" text-anchor="middle" x="0" y="45">user@upi</text>
+</g>
+<!-- Bank -->
+<g class="cursor-pointer group" transform="translate(200, 300)">
+<circle class="fill-surface-container stroke-outline-variant group-hover:stroke-primary transition-all" r="25"></circle>
+<text class="material-symbols-outlined text-on-surface-variant text-[24px] group-hover:text-primary transition-all" font-family="Material Symbols Outlined" text-anchor="middle" y="5">account_balance</text>
+<text class="fill-outline font-mono-data" font-size="9" text-anchor="middle" x="0" y="45">ACC_88219</text>
+</g>
+<!-- WhatsApp -->
+<g class="cursor-pointer group" transform="translate(600, 300)">
+<circle class="fill-surface-container stroke-outline-variant group-hover:stroke-primary transition-all" r="25"></circle>
+<text class="material-symbols-outlined text-on-surface-variant text-[24px] group-hover:text-primary transition-all" font-family="Material Symbols Outlined" text-anchor="middle" y="5">forum</text>
+<text class="fill-outline font-mono-data" font-size="9" text-anchor="middle" x="0" y="45">WHATSAPP_ID</text>
+</g>
+<!-- Crypto -->
+<g class="cursor-pointer group" transform="translate(400, 100)">
+<circle class="fill-surface-container stroke-outline-variant group-hover:stroke-primary transition-all" r="25"></circle>
+<text class="material-symbols-outlined text-on-surface-variant text-[24px] group-hover:text-primary transition-all" font-family="Material Symbols Outlined" text-anchor="middle" y="5">currency_bitcoin</text>
+<text class="fill-outline font-mono-data" font-size="9" text-anchor="middle" x="0" y="45">0x71c...A2</text>
+</g>
+<!-- Email -->
+<g class="cursor-pointer group" transform="translate(400, 400)">
+<circle class="fill-surface-container stroke-outline-variant group-hover:stroke-primary transition-all" r="25"></circle>
+<text class="material-symbols-outlined text-on-surface-variant text-[24px] group-hover:text-primary transition-all" font-family="Material Symbols Outlined" text-anchor="middle" y="5">mail</text>
+<text class="fill-outline font-mono-data" font-size="9" text-anchor="middle" x="0" y="45">target@mail.com</text>
+</g>
+</svg>
+</div>
+</section>
+<!-- Right Panel: Risk Intelligence -->
+<section class="w-[360px] glass-panel rounded-xl flex flex-col p-md border-r-2 border-r-error">
+<div class="mb-lg text-center">
+<h2 class="font-label-caps text-label-caps text-error tracking-widest mb-md uppercase">Risk Assessment</h2>
+<div class="relative w-32 h-32 mx-auto">
+<svg class="w-full h-full" viewbox="0 0 100 100">
+<circle class="fill-none stroke-surface-container-highest" cx="50" cy="50" r="40" stroke-width="8"></circle>
+<circle class="fill-none stroke-error risk-gauge" cx="50" cy="50" r="40" stroke-linecap="round" stroke-width="8" style="stroke-dashoffset: 60;"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-display-lg-mobile font-display-lg-mobile text-error leading-none">88</span>
+<span class="text-[10px] text-outline font-bold uppercase">Critical</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-sm mb-lg">
+<div class="bg-surface-container/60 p-sm rounded border border-outline-variant/30">
+<p class="text-[10px] text-outline font-label-caps">MULE SCORE</p>
+<p class="text-title-sm text-primary font-mono-data">94.2%</p>
+</div>
+<div class="bg-surface-container/60 p-sm rounded border border-outline-variant/30">
+<p class="text-[10px] text-outline font-label-caps">SCAM CLUSTER</p>
+<p class="text-title-sm text-secondary font-mono-data">#V8-DX</p>
+</div>
+<div class="bg-surface-container/60 p-sm rounded border border-outline-variant/30">
+<p class="text-[10px] text-outline font-label-caps">COMPLAINTS</p>
+<p class="text-title-sm text-error font-mono-data">412</p>
+</div>
+<div class="bg-surface-container/60 p-sm rounded border border-outline-variant/30">
+<p class="text-[10px] text-outline font-label-caps">EVIDENCE</p>
+<p class="text-title-sm text-on-surface font-mono-data">24 items</p>
+</div>
+</div>
+<div class="flex-1 overflow-hidden flex flex-col">
+<h3 class="font-label-caps text-[10px] text-outline uppercase tracking-widest border-b border-outline-variant/30 pb-xs mb-md flex justify-between items-center">
+                        RELATED CASES
+                        <span class="text-primary cursor-pointer hover:underline">VIEW ALL</span>
+</h3>
+<div class="flex-1 overflow-y-auto space-y-md pr-xs">
+<div class="flex gap-md items-start p-sm rounded hover:bg-surface-container-high transition-colors">
+<div class="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="A gritty, high-contrast close-up of evidence documentation in a dark investigator's office. A single bright spotlight illuminates a document folder with 'SCAM ALERT' stamps and a blurry digital screen displaying network code in the background. Cinematic noir aesthetic with deep shadows and cool blue color grading." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAzLU6jQa6XD6bYEnDMS6kQTNcuu_I8Z6enqFfdediXGJPreqYfyaDnCB6K98VN-bcOReQv7D6L0ZvUDDxqcB2pMWdTZslILeN1dzp3obdSMtFXO748FGDre7PkojfnwE8EEYNxP_PkTPvaLj3SGn8K36-tjQhZ28rvo3rghWtZavzYm1K2r6nHlGngZzClM5EUBvRwuopNRMV1C7kZtF1m-7GbPQ-5E-eQKqSy9c_vXB4hDXK0HfKy-Q"/>
+</div>
+<div>
+<p class="text-body-sm font-bold text-on-surface">Cyber Fraud 2024-X1</p>
+<p class="text-[11px] text-on-surface-variant">Linked via common wallet address 0x71c...</p>
+</div>
+</div>
+<div class="flex gap-md items-start p-sm rounded hover:bg-surface-container-high transition-colors">
+<div class="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="A dark and moody overhead shot of a tactical workspace featuring a sleek tablet displaying biometric analysis of a suspect. The workspace is cluttered with digital sensors and high-tech equipment, illuminated by the cold blue glow of a computer screen. The style is industrial and authoritative, with high information density and sharp focus." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvGQ0XkaPAWubtPIS-bTfxGKJp8BfFzbvDUyNEehnRAVbq41Iefbmk57a5S27UW8jgo3ChrJmujUihkeGD-SO0Yfy6h9W2SPJNkYtPkH_TtKBl9MhF36IbNbidDcALLSHsIBcojEUxT4M_iJB4meI5YpwHjY4sKm5IUj4SmaiHkhoZW1rosMsQIDGgCM96-2PSG1Pi7nBwEnz2qFVSRbYzMpW86m8ORklntTShc277ApN5PixhJpXd9w"/>
+</div>
+<div>
+<p class="text-body-sm font-bold text-on-surface">Mule Ops Bangalore</p>
+<p class="text-[11px] text-on-surface-variant">Co-ordinated activity detected in Q1.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Bottom Section: Complaint Timeline -->
+<section class="h-[220px] glass-panel m-gutter mt-0 rounded-xl flex flex-col border-t-2 border-t-primary overflow-hidden relative">
+<!-- Timeline Header -->
+<div class="px-lg py-md border-b border-outline-variant/30 flex justify-between items-center bg-surface-container-low/50">
+<h2 class="font-label-caps text-label-caps text-primary tracking-widest uppercase flex items-center gap-sm">
+<span class="material-symbols-outlined text-[18px]">history</span>
+                    LINKED COMPLAINT TIMELINE
+                </h2>
+<div class="flex gap-md">
+<div class="flex items-center gap-xs">
+<span class="w-2 h-2 rounded-full bg-error"></span>
+<span class="text-[10px] text-outline">High Risk</span>
+</div>
+<div class="flex items-center gap-xs">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="text-[10px] text-outline">Moderate</span>
+</div>
+</div>
+</div>
+<!-- Horizontal Scroll Timeline -->
+<div class="flex-1 overflow-x-auto overflow-y-hidden p-md relative scroll-smooth">
+<!-- Continuous Line -->
+<div class="absolute left-md right-md top-[88px] h-[2px] bg-outline-variant/30"></div>
+<div class="flex items-center gap-[100px] px-xl relative">
+<!-- Event 1 -->
+<div class="relative flex-shrink-0 w-[240px]">
+<div class="mb-lg">
+<div class="bg-surface-container p-sm rounded border border-error/30">
+<p class="font-mono-data text-[12px] text-error font-bold">JAN 14, 2024</p>
+<p class="text-[11px] text-on-surface font-bold mt-xs">KYC Suspension Scam</p>
+<p class="text-[10px] text-on-surface-variant truncate">"Victim reported call from +91..."</p>
+</div>
+</div>
+<div class="w-4 h-4 bg-error rounded-full border-4 border-background absolute left-0 top-[72px] transform -translate-y-1/2"></div>
+</div>
+<!-- Event 2 -->
+<div class="relative flex-shrink-0 w-[240px]">
+<div class="mb-lg">
+<div class="bg-surface-container p-sm rounded border border-secondary/30">
+<p class="font-mono-data text-[12px] text-secondary font-bold">FEB 02, 2024</p>
+<p class="text-[11px] text-on-surface font-bold mt-xs">Impersonation Attempt</p>
+<p class="text-[10px] text-on-surface-variant truncate">"Targeted high net-worth individuals..."</p>
+</div>
+</div>
+<div class="w-4 h-4 bg-secondary rounded-full border-4 border-background absolute left-0 top-[72px] transform -translate-y-1/2"></div>
+</div>
+<!-- Event 3 -->
+<div class="relative flex-shrink-0 w-[240px]">
+<div class="mb-lg">
+<div class="bg-surface-container p-sm rounded border border-error/30">
+<p class="font-mono-data text-[12px] text-error font-bold">MAR 18, 2024</p>
+<p class="text-[11px] text-on-surface font-bold mt-xs">UPI Collect Fraud</p>
+<p class="text-[10px] text-on-surface-variant truncate">"Bulk UPI requests detected from ID..."</p>
+</div>
+</div>
+<div class="w-4 h-4 bg-error rounded-full border-4 border-background absolute left-0 top-[72px] transform -translate-y-1/2"></div>
+</div>
+<!-- Event 4 -->
+<div class="relative flex-shrink-0 w-[240px]">
+<div class="mb-lg">
+<div class="bg-surface-container p-sm rounded border border-primary/30">
+<p class="font-mono-data text-[12px] text-primary font-bold">APR 22, 2024</p>
+<p class="text-[11px] text-on-surface font-bold mt-xs">Network Anomaly</p>
+<p class="text-[10px] text-on-surface-variant truncate">"Automated scripts detected in logs..."</p>
+</div>
+</div>
+<div class="w-4 h-4 bg-primary rounded-full border-4 border-background absolute left-0 top-[72px] transform -translate-y-1/2"></div>
+</div>
+<!-- Event 5 -->
+<div class="relative flex-shrink-0 w-[240px]">
+<div class="mb-lg">
+<div class="bg-surface-container p-sm rounded border border-error/30">
+<p class="font-mono-data text-[12px] text-error font-bold">MAY 05, 2024</p>
+<p class="text-[11px] text-on-surface font-bold mt-xs">Mule Entry Transaction</p>
+<p class="text-[10px] text-on-surface-variant truncate">"Inbound transfer from flagged wallet..."</p>
+</div>
+</div>
+<div class="w-4 h-4 bg-error rounded-full border-4 border-background absolute left-0 top-[72px] transform -translate-y-1/2"></div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Global HUD Scanning Line -->
+<div class="fixed top-0 left-0 w-full h-[1px] bg-secondary/20 shadow-[0_0_10px_rgba(76,215,246,0.8)] z-[60] pointer-events-none" style="animation: scanline 4s linear infinite;"></div>
+<script>
+        // Micro-interactions for buttons and nodes
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('mousedown', () => btn.classList.add('scale-95'));
+            btn.addEventListener('mouseup', () => btn.classList.remove('scale-95'));
+        });
+
+        // Simulating some dynamic graph motion
+        const nodes = document.querySelectorAll('g.cursor-pointer');
+        nodes.forEach(node => {
+            node.addEventListener('mouseenter', () => {
+                node.style.filter = 'drop-shadow(0 0 8px #4cd7f6)';
+            });
+            node.addEventListener('mouseleave', () => {
+                node.style.filter = 'none';
+            });
+        });
+    </script>
+</body></html>
