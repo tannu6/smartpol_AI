@@ -10,8 +10,10 @@ export default function AppLayout({ children, title, subtitle, showSearch = true
         <main className="flex-1 flex flex-col md:ml-[280px] h-full overflow-hidden">
           <Navbar title={title} showSearch={showSearch} />
           <div className="flex-1 overflow-y-auto">
+          <div className="max-w-screen-2xl mx-auto p-4">
             {children}
           </div>
+        </div>
         </main>
       </div>
     </div>

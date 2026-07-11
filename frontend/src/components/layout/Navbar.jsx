@@ -1,5 +1,6 @@
 import { useAuth } from '../../context/AuthContext'
 import { useApp } from '../../context/AppContext'
+import NotificationBell from '../ui/NotificationBell'
 
 export default function Navbar({ title = 'SmartPol AI', showSearch = true }) {
   const { user } = useAuth()
@@ -22,7 +23,7 @@ export default function Navbar({ title = 'SmartPol AI', showSearch = true }) {
       </div>
       <div className="flex items-center gap-lg">
         <div className="flex gap-md">
-          <button className="material-symbols-outlined text-primary hover:brightness-125 transition-all active:scale-95">notifications</button>
+          <NotificationBell />
           <button className="material-symbols-outlined text-primary hover:brightness-125 transition-all active:scale-95">security</button>
           <button className="material-symbols-outlined text-primary hover:brightness-125 transition-all active:scale-95">settings</button>
         </div>

@@ -10,7 +10,7 @@ export default function RegisterPage() {
   const navigate = useNavigate()
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const { register, handleSubmit, watch } = useForm({ defaultValues: { role: ROLES.CITIZEN } })
+  const { register, handleSubmit, getValues } = useForm({ defaultValues: { role: ROLES.CITIZEN } })
 
   const onSubmit = async (data) => {
     setLoading(true)
