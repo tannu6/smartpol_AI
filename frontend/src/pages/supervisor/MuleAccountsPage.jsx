@@ -1,0 +1,5 @@
+import { useEffect, useState } from 'react'
+import AppLayout from '../../components/layout/AppLayout'
+import { DataTable } from '../../components/ui/DataTable'
+import { muleService } from '../../services/api'
+export default function MuleAccountsPage() { const [items, setItems] = useState([]); useEffect(() => { muleService.list().then(({ data }) => setItems(data)).catch(() => {}) }, []); return <AppLayout title="SmartPol AI" subtitle="Mule Account Detection"><div className="p-lg space-y-lg"><h2 className="font-display-lg-mobile text-primary">Mule Account Detection</h2><div className="glass-panel p-md rounded-xl"><DataTable data={items} columns={[{ key: 'account_id', label: 'Account' }, { key: 'bank_name', label: 'Bank' }, { key: 'transaction_count', label: 'Transactions' }, { key: 'total_amount', label: 'Exposure (INR)' }, { key: 'risk_level', label: 'Risk', render: r => <span className="text-error font-bold uppercase">{r.risk_level}</span> }, { key: 'status', label: 'Status' }]} /></div></div></AppLayout> }

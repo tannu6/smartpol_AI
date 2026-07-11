@@ -1,3 +1,4 @@
+import hashlib
 import uuid
 from datetime import timedelta
 
@@ -214,14 +215,22 @@ class UploadView(APIView):
         complaint = Complaint.objects.filter(id=complaint_id).first()
         if not complaint:
             return Response({'detail': 'Complaint not found.'}, status=404)
+        if request.user.role == User.ROLE_CITIZEN and complaint.citizen_id != request.user.id:
+            return Response({'detail': 'Forbidden.'}, status=403)
         file_obj = request.FILES.get('file')
+        if not file_obj:
+            return Response({'detail': 'A file is required.'}, status=400)
+        digest = hashlib.sha256()
+        for chunk in file_obj.chunks():
+            digest.update(chunk)
+        file_obj.seek(0)
         evidence = Evidence.objects.create(
             complaint=complaint,
             uploaded_by=request.user,
             file=file_obj,
             file_name=file_obj.name if file_obj else 'unknown',
             file_type=request.data.get('file_type', 'document'),
-            hash_value=uuid.uuid4().hex,
+            hash_value=digest.hexdigest(),
         )
         ComplaintTimeline.objects.create(
             complaint=complaint, event='Evidence Uploaded',
@@ -308,7 +317,10 @@ def secretagent_message_view(request):
     recipient_id = request.data.get('recipient_id')
     body = request.data.get('body', '')
     is_duress = request.data.get('duress_code') == request.user.duress_code and request.user.duress_code
-    recipient = User.objects.filter(id=recipient_id).first() or User.objects.filter(role=User.ROLE_ADMIN).first()
+    recipient = User.objects.filter(id=recipient_id, role__in=[User.ROLE_OFFICER, User.ROLE_SUPERVISOR]).first()
+    recipient = recipient or User.objects.filter(role=User.ROLE_OFFICER).first() or User.objects.filter(role=User.ROLE_SUPERVISOR).first()
+    if not recipient:
+        return Response({'detail': 'No assigned officer is available.'}, status=409)
     msg = Message.objects.create(
         sender=request.user, recipient=recipient, body=body,
         encrypted=True, is_urgent=request.data.get('urgent', False),
@@ -328,7 +340,7 @@ def secretagent_message_view(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def secretagent_inbox_view(request):
-    if request.user.role != User.ROLE_SECRET_AGENT:
+    if request.user.role not in (User.ROLE_SECRET_AGENT, User.ROLE_OFFICER, User.ROLE_SUPERVISOR, User.ROLE_ADMIN):
         return Response({'detail': 'Forbidden.'}, status=403)
     messages = Message.objects.filter(recipient=request.user)
     return Response(MessageSerializer(messages[:50], many=True).data)

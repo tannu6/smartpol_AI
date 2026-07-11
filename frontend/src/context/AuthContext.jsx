@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { authService } from '../services/api'
 import { DEFAULT_ROUTE_BY_ROLE } from '../config/navigation'
@@ -10,19 +11,36 @@ export function AuthProvider({ children }) {
   })
   const [loading, setLoading] = useState(true)
 
+  const logout = useCallback(() => {
+    localStorage.removeItem('accessToken')
+    localStorage.removeItem('refreshToken')
+    localStorage.removeItem('user')
+    setUser(null)
+  }, [])
+
   useEffect(() => {
-    const token = localStorage.getItem('accessToken')
-    if (token && user) {
-      authService.me().then(({ data }) => {
+    let active = true
+    const restoreSession = async () => {
+      const token = localStorage.getItem('accessToken')
+      if (!token || !localStorage.getItem('user')) {
+        if (active) setLoading(false)
+        return
+      }
+      try {
+        const { data } = await authService.me()
+        if (active) {
         setUser(data)
         localStorage.setItem('user', JSON.stringify(data))
-      }).catch(() => {
+        }
+      } catch {
         logout()
-      }).finally(() => setLoading(false))
-    } else {
-      setLoading(false)
+      } finally {
+        if (active) setLoading(false)
+      }
     }
-  }, [])
+    restoreSession()
+    return () => { active = false }
+  }, [logout])
 
   const login = useCallback(async (username, password) => {
     const { data } = await authService.login(username, password)
@@ -40,13 +58,6 @@ export function AuthProvider({ children }) {
     localStorage.setItem('user', JSON.stringify(data.user))
     setUser(data.user)
     return data.user
-  }, [])
-
-  const logout = useCallback(() => {
-    localStorage.removeItem('accessToken')
-    localStorage.removeItem('refreshToken')
-    localStorage.removeItem('user')
-    setUser(null)
   }, [])
 
   const getDefaultRoute = useCallback(() => {

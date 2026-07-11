@@ -16,7 +16,7 @@ export default function LoginPage() {
     setLoading(true)
     setError('')
     try {
-      const user = await login(data.username, data.password)
+      await login(data.username, data.password)
       setAuthorized(true)
       setTimeout(() => navigate(getDefaultRoute() || '/'), 800)
     } catch (err) {
