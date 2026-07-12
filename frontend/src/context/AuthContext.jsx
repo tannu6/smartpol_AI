@@ -11,7 +11,15 @@ export function AuthProvider({ children }) {
   })
   const [loading, setLoading] = useState(true)
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
+    const refresh = localStorage.getItem('refreshToken')
+    if (refresh) {
+      try {
+        await authService.logout(refresh)
+      } catch (err) {
+        console.error('Logout error', err)
+      }
+    }
     localStorage.removeItem('accessToken')
     localStorage.removeItem('refreshToken')
     localStorage.removeItem('user')
@@ -29,8 +37,8 @@ export function AuthProvider({ children }) {
       try {
         const { data } = await authService.me()
         if (active) {
-        setUser(data)
-        localStorage.setItem('user', JSON.stringify(data))
+          setUser(data)
+          localStorage.setItem('user', JSON.stringify(data))
         }
       } catch {
         logout()
@@ -60,9 +68,12 @@ export function AuthProvider({ children }) {
     return data.user
   }, [])
 
-  const getDefaultRoute = useCallback(() => {
-    if (!user) return '/login'
-    return DEFAULT_ROUTE_BY_ROLE[user.role] || '/login'
+  // Accept an optional user override so callers can pass the freshly returned user
+  // without waiting for the async state update.
+  const getDefaultRoute = useCallback((userOverride) => {
+    const u = userOverride || user
+    if (!u) return '/login'
+    return DEFAULT_ROUTE_BY_ROLE[u.role] || '/login'
   }, [user])
 
   return (

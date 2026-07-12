@@ -1,6 +1,7 @@
 import { useAuth } from '../../context/AuthContext'
 import { useApp } from '../../context/AppContext'
 import NotificationBell from '../ui/NotificationBell'
+import LanguageSelector from '../ui/LanguageSelector'
 
 export default function Navbar({ title = 'SmartPol AI', showSearch = true }) {
   const { user } = useAuth()
@@ -22,10 +23,11 @@ export default function Navbar({ title = 'SmartPol AI', showSearch = true }) {
         )}
       </div>
       <div className="flex items-center gap-lg">
-        <div className="flex gap-md">
+        <div className="flex items-center gap-md">
+          <LanguageSelector />
           <NotificationBell />
-          <button className="material-symbols-outlined text-primary hover:brightness-125 transition-all active:scale-95">security</button>
-          <button className="material-symbols-outlined text-primary hover:brightness-125 transition-all active:scale-95">settings</button>
+          <button onClick={() => alert('Security configuration panel is coming in v2.0.')} className="material-symbols-outlined text-primary hover:brightness-125 transition-all active:scale-95">security</button>
+          <button onClick={() => alert('System Settings panel is coming in v2.0.')} className="material-symbols-outlined text-primary hover:brightness-125 transition-all active:scale-95">settings</button>
         </div>
         <div className="h-8 w-px bg-primary/20 mx-sm" />
         <div className="flex items-center gap-md">

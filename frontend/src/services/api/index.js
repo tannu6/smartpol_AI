@@ -3,7 +3,9 @@ import api from './client'
 export const authService = {
   login: (username, password) => api.post('/auth/login/', { username, password }),
   register: (data) => api.post('/auth/register/', data),
+  logout: (refresh) => api.post('/auth/logout/', { refresh }),
   forgotPassword: (email) => api.post('/auth/forgot-password/', { email }),
+  resetPassword: (token, password, password_confirm) => api.post('/auth/reset-password/', { token, password, password_confirm }),
   me: () => api.get('/auth/me/'),
 }
 
