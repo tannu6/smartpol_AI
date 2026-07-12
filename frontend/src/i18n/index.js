@@ -16,6 +16,10 @@ i18n
       gu: { translation: gu },
     },
     fallbackLng: 'en',
+    detection: {
+      order: ['localStorage', 'navigator'],
+      caches: ['localStorage']
+    },
     interpolation: { escapeValue: false },
   })
 

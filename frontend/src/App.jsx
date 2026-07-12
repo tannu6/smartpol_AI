@@ -7,6 +7,7 @@ import { ROLES } from './config/navigation'
 import LoginPage from './pages/auth/LoginPage'
 import RegisterPage from './pages/auth/RegisterPage'
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage'
+import ResetPasswordPage from './pages/auth/ResetPasswordPage'
 import UnauthorizedPage from './pages/UnauthorizedPage'
 
 import ComplaintPage from './pages/citizen/ComplaintPage'
@@ -69,6 +70,7 @@ export default function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
             <Route path="/citizen/complaint" element={<ProtectedRoute roles={[ROLES.CITIZEN]}><ComplaintPage /></ProtectedRoute>} />
@@ -77,12 +79,12 @@ export default function App() {
             <Route path="/citizen/timeline/:id" element={<ProtectedRoute roles={[ROLES.CITIZEN]}><ComplaintTimelinePage /></ProtectedRoute>} />
             <Route path="/citizen/evidence" element={<ProtectedRoute roles={[ROLES.CITIZEN]}><EvidenceUploadPage /></ProtectedRoute>} />
 
-            <Route path="/officer/dashboard" element={<ProtectedRoute roles={[ROLES.OFFICER]}><OfficerDashboardPage /></ProtectedRoute>} />
-            <Route path="/officer/priority" element={<ProtectedRoute roles={[ROLES.OFFICER]}><PriorityQueuePage /></ProtectedRoute>} />
-            <Route path="/officer/alerts" element={<ProtectedRoute roles={[ROLES.OFFICER]}><AlertsPage /></ProtectedRoute>} />
-            <Route path="/officer/investigation" element={<ProtectedRoute roles={[ROLES.OFFICER]}><InvestigationPage /></ProtectedRoute>} />
-            <Route path="/officer/evidence" element={<ProtectedRoute roles={[ROLES.OFFICER]}><EvidenceQueuePage /></ProtectedRoute>} />
-            <Route path="/officer/mission" element={<ProtectedRoute roles={[ROLES.OFFICER]}><MissionControlPage /></ProtectedRoute>} />
+            <Route path="/officer/dashboard" element={<ProtectedRoute roles={[ROLES.OFFICER, ROLES.SUPERVISOR, ROLES.ADMIN]}><OfficerDashboardPage /></ProtectedRoute>} />
+            <Route path="/officer/priority" element={<ProtectedRoute roles={[ROLES.OFFICER, ROLES.SUPERVISOR, ROLES.ADMIN]}><PriorityQueuePage /></ProtectedRoute>} />
+            <Route path="/officer/alerts" element={<ProtectedRoute roles={[ROLES.OFFICER, ROLES.SUPERVISOR, ROLES.ADMIN]}><AlertsPage /></ProtectedRoute>} />
+            <Route path="/officer/investigation" element={<ProtectedRoute roles={[ROLES.OFFICER, ROLES.SUPERVISOR, ROLES.ADMIN]}><InvestigationPage /></ProtectedRoute>} />
+            <Route path="/officer/evidence" element={<ProtectedRoute roles={[ROLES.OFFICER, ROLES.SUPERVISOR, ROLES.ADMIN]}><EvidenceQueuePage /></ProtectedRoute>} />
+            <Route path="/officer/mission" element={<ProtectedRoute roles={[ROLES.OFFICER, ROLES.SUPERVISOR, ROLES.ADMIN]}><MissionControlPage /></ProtectedRoute>} />
             <Route path="/officer/complaints/:id" element={<ProtectedRoute roles={[ROLES.OFFICER, ROLES.SUPERVISOR, ROLES.ADMIN]}><ComplaintDetailsPage /></ProtectedRoute>} />
 
             <Route path="/supervisor/analytics" element={<ProtectedRoute roles={[ROLES.SUPERVISOR, ROLES.ADMIN]}><AnalyticsPage /></ProtectedRoute>} />

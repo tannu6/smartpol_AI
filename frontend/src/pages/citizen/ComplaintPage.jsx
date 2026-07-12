@@ -121,10 +121,22 @@ useEffect(() => {
               rows={5}
             />
             <div className="flex gap-md">
-              <button type="button" className="flex items-center gap-sm px-lg py-sm border border-secondary/30 text-secondary text-xs font-bold uppercase">
+              <button 
+                onClick={() => {
+                  setValue('description', (watch('description') || '') + ' [Voice Input Activated - Transcription: "I witnessed a suspicious activity near the central plaza..."] ');
+                  alert('Mock Voice Input captured.');
+                }}
+                type="button" 
+                className="flex items-center gap-sm px-lg py-sm border border-secondary/30 text-secondary text-xs font-bold uppercase hover:bg-secondary/10 transition-colors">
                 <span className="material-symbols-outlined">mic</span> {t('complaint.voice')}
               </button>
-              <button type="button" className="flex items-center gap-sm px-lg py-sm border border-primary/30 text-primary text-xs font-bold uppercase">
+              <button 
+                onClick={() => {
+                  setValue('description', (watch('description') || '') + ' [QR Scanned Data: Incident #QR-778-99X] ');
+                  alert('Mock QR Scanned.');
+                }}
+                type="button" 
+                className="flex items-center gap-sm px-lg py-sm border border-primary/30 text-primary text-xs font-bold uppercase hover:bg-primary/10 transition-colors">
                 <span className="material-symbols-outlined">qr_code_scanner</span> {t('complaint.qr_scan')}
               </button>
             </div>
