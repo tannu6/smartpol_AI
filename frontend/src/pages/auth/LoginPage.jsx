@@ -19,9 +19,9 @@ export default function LoginPage() {
     setLoading(true)
     setError('')
     try {
-      await login(data.username, data.password)
+      const user = await login(data.username, data.password)
       setAuthorized(true)
-      setTimeout(() => navigate(getDefaultRoute() || '/'), 900)
+      setTimeout(() => navigate(getDefaultRoute(user) || '/'), 900)
     } catch (err) {
       setError(err.response?.data?.detail || t('errors.invalidCredentials'))
       setLoading(false)
@@ -84,18 +84,18 @@ export default function LoginPage() {
           </div>
 
           <h1 style={{ fontSize: 48, fontWeight: 800, color: '#fff', margin: '0 0 8px', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-            SmartPol AI
+            {t('landing.hero.title', 'SmartPol AI')}
           </h1>
           <p style={{ fontSize: 13, fontWeight: 700, color: '#4cd7f6', letterSpacing: '0.22em', textTransform: 'uppercase', margin: '0 0 40px', opacity: 0.9 }}>
-            AI Powered Smart Policing System
+            {t('landing.hero.subtitle', 'AI Powered Smart Policing System')}
           </p>
 
           {/* Status badges */}
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
             {[
-              { label: 'SECURE CORE', value: 'ONLINE', color: '#4cd7f6', bg: 'rgba(76,215,246,0.08)', border: 'rgba(76,215,246,0.25)' },
-              { label: 'ENCRYPTION', value: 'AES-256', color: '#b4c5ff', bg: 'rgba(180,197,255,0.08)', border: 'rgba(180,197,255,0.2)' },
-              { label: 'THREAT LEVEL', value: 'AMBER', color: '#fbbf24', bg: 'rgba(251,191,36,0.08)', border: 'rgba(251,191,36,0.2)' },
+              { label: t('auth.login.badges.secureCore', 'SECURE CORE'), value: t('auth.login.badges.online', 'ONLINE'), color: '#4cd7f6', bg: 'rgba(76,215,246,0.08)', border: 'rgba(76,215,246,0.25)' },
+              { label: t('auth.login.badges.encryption', 'ENCRYPTION'), value: 'AES-256', color: '#b4c5ff', bg: 'rgba(180,197,255,0.08)', border: 'rgba(180,197,255,0.2)' },
+              { label: t('auth.login.badges.threatLevel', 'THREAT LEVEL'), value: t('auth.login.badges.amber', 'AMBER'), color: '#fbbf24', bg: 'rgba(251,191,36,0.08)', border: 'rgba(251,191,36,0.2)' },
             ].map(b => (
               <div key={b.label} style={{
                 padding: '8px 16px',
@@ -113,10 +113,10 @@ export default function LoginPage() {
           {/* Feature list */}
           <div style={{ marginTop: 48, display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 340, margin: '48px auto 0' }}>
             {[
-              { icon: 'psychology', text: 'AI-Powered Crime Prediction' },
-              { icon: 'hub', text: 'Real-Time Intelligence Fusion' },
-              { icon: 'gps_fixed', text: 'Live Patrol & War Room' },
-              { icon: 'verified_user', text: 'End-to-End Encrypted Comms' },
+              { icon: 'psychology', text: t('auth.login.features.prediction', 'AI-Powered Crime Prediction') },
+              { icon: 'hub', text: t('auth.login.features.fusion', 'Real-Time Intelligence Fusion') },
+              { icon: 'gps_fixed', text: t('auth.login.features.patrol', 'Live Patrol & War Room') },
+              { icon: 'verified_user', text: t('auth.login.features.comms', 'End-to-End Encrypted Comms') },
             ].map(f => (
               <div key={f.text} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px', borderRadius: 8, background: 'rgba(180,197,255,0.04)', border: '1px solid rgba(180,197,255,0.08)' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: 18, color: '#4cd7f6' }}>{f.icon}</span>
@@ -127,7 +127,7 @@ export default function LoginPage() {
         </div>
 
         <div style={{ position: 'absolute', bottom: 20, left: 20, fontSize: 10, color: '#8d90a0', fontFamily: "'Space Mono', monospace", letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-          System Version 4.0.2 // Terminal Access // Node 7G
+          {t('auth.login.systemVersion', 'System Version 4.0.2 // Terminal Access // Node 7G')}
         </div>
       </section>
 
@@ -156,7 +156,7 @@ export default function LoginPage() {
             }}>
               <span className="material-symbols-outlined" style={{ fontSize: 36, color: '#b4c5ff', fontVariationSettings: "'FILL' 1" }}>shield</span>
             </div>
-            <h2 style={{ fontSize: 24, fontWeight: 800, color: '#fff', margin: 0 }}>SmartPol AI</h2>
+            <h2 style={{ fontSize: 24, fontWeight: 800, color: '#fff', margin: 0 }}>{t('landing.hero.title', 'SmartPol AI')}</h2>
           </div>
 
           {/* Glass card */}
@@ -173,21 +173,21 @@ export default function LoginPage() {
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg, #2563eb, #4cd7f6, transparent)' }} />
 
             <div style={{ marginBottom: 28 }}>
-              <h2 style={{ fontSize: 22, fontWeight: 700, color: '#fff', margin: '0 0 6px' }}>{t('auth.login.title')}</h2>
-              <p style={{ fontSize: 14, color: '#8d90a0', margin: 0 }}>{t('auth.login.subtitle')}</p>
+              <h2 style={{ fontSize: 22, fontWeight: 700, color: '#fff', margin: '0 0 6px' }}>{t('auth.login.title', 'Command Login')}</h2>
+              <p style={{ fontSize: 14, color: '#8d90a0', margin: 0 }}>{t('auth.login.subtitle', 'Enter your tactical credentials.')}</p>
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {/* Username */}
               <div>
                 <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#8d90a0', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 6 }}>
-                  {t('auth.login.username')}
+                  {t('auth.login.username', 'Username or Email')}
                 </label>
                 <div style={{ position: 'relative' }}>
                   <span className="material-symbols-outlined" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 20, color: '#8d90a0', pointerEvents: 'none' }}>mail</span>
                   <input
                     type="text"
-                    placeholder={t('auth.login.usernamePlaceholder')}
+                    placeholder={t('auth.login.usernamePlaceholder', 'Officer ID / Email')}
                     autoComplete="username"
                     style={{
                       width: '100%',
@@ -216,13 +216,13 @@ export default function LoginPage() {
               {/* Password */}
               <div>
                 <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#8d90a0', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 6 }}>
-                  {t('auth.login.password')}
+                  {t('auth.login.password', 'Password')}
                 </label>
                 <div style={{ position: 'relative' }}>
                   <span className="material-symbols-outlined" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 20, color: '#8d90a0', pointerEvents: 'none' }}>lock</span>
                   <input
                     type={showPassword ? 'text' : 'password'}
-                    placeholder={t('auth.login.passwordPlaceholder')}
+                    placeholder={t('auth.login.passwordPlaceholder', '••••••••')}
                     autoComplete="current-password"
                     style={{
                       width: '100%',
@@ -259,11 +259,11 @@ export default function LoginPage() {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
                   <input type="checkbox" style={{ width: 15, height: 15, accentColor: '#2563eb' }} />
-                  <span style={{ fontSize: 13, color: '#8d90a0' }}>{t('auth.login.persistSession')}</span>
+                  <span style={{ fontSize: 13, color: '#8d90a0' }}>{t('auth.login.persistSession', 'Keep me logged in')}</span>
                 </label>
                 <Link to="/forgot-password" style={{ fontSize: 12, fontWeight: 600, color: '#b4c5ff', textDecoration: 'none' }}
                   onMouseEnter={e => e.target.style.color = '#4cd7f6'} onMouseLeave={e => e.target.style.color = '#b4c5ff'}>
-                  {t('auth.login.forgotPassword')}
+                  {t('auth.login.forgotPassword', 'Forgot Password?')}
                 </Link>
               </div>
 
@@ -314,7 +314,7 @@ export default function LoginPage() {
                 {authorized ? (
                   <>
                     <span className="material-symbols-outlined" style={{ fontSize: 20 }}>check_circle</span>
-                    {t('auth.login.authorized')}
+                    {t('auth.login.authorized', 'Authorized')}
                   </>
                 ) : loading ? (
                   <>
@@ -322,12 +322,12 @@ export default function LoginPage() {
                       <circle style={{ opacity: 0.25 }} cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path style={{ opacity: 0.75 }} fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                     </svg>
-                    {t('auth.login.submitting')}
+                    {t('auth.login.submitting', 'Authenticating...')}
                   </>
                 ) : (
                   <>
                     <span className="material-symbols-outlined" style={{ fontSize: 20 }}>login</span>
-                    {t('auth.login.submit')}
+                    {t('auth.login.submit', 'Login')}
                   </>
                 )}
               </button>
@@ -335,17 +335,17 @@ export default function LoginPage() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div style={{ flex: 1, height: 1, background: 'rgba(180,197,255,0.1)' }} />
                 <span style={{ fontSize: 10, color: '#8d90a0', fontFamily: "'Space Mono', monospace", letterSpacing: '0.1em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
-                  {t('auth.login.demoHint')}
+                  {t('auth.login.demoHint', 'Demo System Active')}
                 </span>
                 <div style={{ flex: 1, height: 1, background: 'rgba(180,197,255,0.1)' }} />
               </div>
 
               {/* Register link */}
               <p style={{ textAlign: 'center', fontSize: 14, color: '#8d90a0', margin: 0 }}>
-                {t('auth.login.noAccount')} {' '}
+                {t('auth.login.noAccount', 'Don\'t have an account?')} {' '}
                 <Link to="/register" style={{ color: '#b4c5ff', fontWeight: 600, textDecoration: 'none' }}
                   onMouseEnter={e => e.target.style.color = '#4cd7f6'} onMouseLeave={e => e.target.style.color = '#b4c5ff'}>
-                  {t('auth.login.registerLink')}
+                  {t('auth.login.registerLink', 'Register here')}
                 </Link>
               </p>
             </form>

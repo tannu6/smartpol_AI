@@ -62,7 +62,7 @@ function Field({ label, icon, type = 'text', register: reg, error, placeholder, 
 
 export default function RegisterPage() {
   const { t } = useTranslation()
-  const { register: registerUser, getDefaultRoute } = useAuth()
+  const { register: registerUser } = useAuth()
   const navigate = useNavigate()
   const [apiError, setApiError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -77,10 +77,21 @@ export default function RegisterPage() {
     setLoading(true)
     setApiError('')
     try {
-      await registerUser(data)
-      navigate(getDefaultRoute())
+      const result = await registerUser(data)
+      // After register, OTP is required — redirect to verify-otp
+      if (result?.requires_otp && result?.user_id) {
+        let url = `/verify-otp?user_id=${result.user_id}`
+        if (result.demo_otp) url += `&demo_otp=${result.demo_otp}`
+        navigate(url)
+      } else {
+        navigate('/login')
+      }
     } catch (err) {
-      setApiError(err.response?.data?.detail || t('errors.generic'))
+      const errorData = err.response?.data
+      const msg = errorData?.detail ||
+        Object.values(errorData || {}).flat().join(' ') ||
+        t('errors.generic')
+      setApiError(msg)
       setLoading(false)
     }
   }
@@ -119,9 +130,9 @@ export default function RegisterPage() {
           }}>
             <span className="material-symbols-outlined" style={{ fontSize: 32, color: '#b4c5ff', fontVariationSettings: "'FILL' 1" }}>shield</span>
           </div>
-          <h1 style={{ fontSize: 22, fontWeight: 800, color: '#fff', margin: 0 }}>SmartPol AI</h1>
+          <h1 style={{ fontSize: 22, fontWeight: 800, color: '#fff', margin: 0 }}>{t('landing.hero.title', 'SmartPol AI')}</h1>
           <p style={{ fontSize: 12, color: '#4cd7f6', letterSpacing: '0.15em', textTransform: 'uppercase', margin: '4px 0 0', fontFamily: "'Space Mono', monospace" }}>
-            {t('auth.register.subtitle')}
+            {t('auth.register.tagline', 'System Enrollment System')}
           </p>
         </div>
 
@@ -136,37 +147,37 @@ export default function RegisterPage() {
         }}>
           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg, #2563eb, #4cd7f6, transparent)' }} />
 
-          <h2 style={{ fontSize: 20, fontWeight: 700, color: '#fff', margin: '0 0 6px' }}>{t('auth.register.title')}</h2>
-          <p style={{ fontSize: 13, color: '#8d90a0', margin: '0 0 24px' }}>{t('auth.register.description')}</p>
+          <h2 style={{ fontSize: 20, fontWeight: 700, color: '#fff', margin: '0 0 6px' }}>{t('auth.register.title', 'System Registration')}</h2>
+          <p style={{ fontSize: 13, color: '#8d90a0', margin: '0 0 24px' }}>{t('auth.register.description', 'Create your operative account')}</p>
 
           <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
 
-            <Field label={t('auth.register.username')} icon="person" placeholder={t('auth.register.usernamePlaceholder')}
+            <Field label={t('auth.register.username', 'Username')} icon="person" placeholder={t('auth.register.usernamePlaceholder', 'e.g. jdoe')}
               register={register('username', { required: t('forms.required'), minLength: { value: 3, message: t('forms.usernameTooShort') } })}
               error={errors.username} />
 
-            <Field label={t('auth.register.email')} icon="mail" type="email" placeholder="operative@smartpol.gov"
+            <Field label={t('auth.register.email', 'Email Address')} icon="mail" type="email" placeholder={t('auth.register.emailPlaceholder', 'operative@smartpol.gov')}
               register={register('email', { required: t('forms.required'), pattern: { value: /\S+@\S+\.\S+/, message: t('forms.invalidEmail') } })}
               error={errors.email} />
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <div>
                 <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#8d90a0', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 6 }}>
-                  {t('auth.register.firstName')}
+                  {t('auth.register.firstName', 'First Name')}
                 </label>
-                <input placeholder={t('auth.register.firstPlaceholder')} style={{ ...INPUT_NO_ICON_STYLE }} {...register('first_name')} />
+                <input placeholder={t('auth.register.firstPlaceholder', 'John')} style={{ ...INPUT_NO_ICON_STYLE }} {...register('first_name')} />
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#8d90a0', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 6 }}>
-                  {t('auth.register.lastName')}
+                  {t('auth.register.lastName', 'Last Name')}
                 </label>
-                <input placeholder={t('auth.register.lastPlaceholder')} style={{ ...INPUT_NO_ICON_STYLE }} {...register('last_name')} />
+                <input placeholder={t('auth.register.lastPlaceholder', 'Doe')} style={{ ...INPUT_NO_ICON_STYLE }} {...register('last_name')} />
               </div>
             </div>
 
             <div>
               <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#8d90a0', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 6 }}>
-                {t('auth.register.role')}
+                {t('auth.register.role', 'Select Role')}
               </label>
               <div style={{ position: 'relative' }}>
                 <span className="material-symbols-outlined" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 20, color: '#8d90a0', pointerEvents: 'none' }}>badge</span>
@@ -176,7 +187,7 @@ export default function RegisterPage() {
                 >
                   {roleOptions.map(opt => (
                     <option key={opt.value} value={opt.value} style={{ background: '#091327', color: '#fff' }}>
-                      {t(`roles.${opt.value}`)}
+                      {t(`roles.${opt.value}`, opt.label)}
                     </option>
                   ))}
                 </select>
@@ -186,12 +197,20 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            <Field label={t('auth.register.password')} icon="lock" type={showPass ? 'text' : 'password'} placeholder={t('auth.register.passwordPlaceholder')}
+            <Field label={t('auth.register.password', 'Password')} icon="lock" type={showPass ? 'text' : 'password'} placeholder={t('auth.register.passwordPlaceholder', '••••••••')}
               showToggle onToggle={() => setShowPass(v => !v)} showPass={showPass}
-              register={register('password', { required: t('forms.required'), minLength: { value: 6, message: t('forms.passwordTooShort') } })}
+              register={register('password', {
+                required: t('forms.required'),
+                minLength: { value: 8, message: t('forms.passwordTooShort') },
+                validate: v => {
+                  if (!/[A-Z]/.test(v)) return t('forms.passwordNeedsUppercase')
+                  if (!/[0-9]/.test(v)) return t('forms.passwordNeedsNumber')
+                  return true
+                }
+              })}
               error={errors.password} />
 
-            <Field label={t('auth.register.confirmPassword')} icon="lock_reset" type={showConfirm ? 'text' : 'password'} placeholder={t('auth.register.confirmPlaceholder')}
+            <Field label={t('auth.register.confirmPassword', 'Confirm Password')} icon="lock_reset" type={showConfirm ? 'text' : 'password'} placeholder={t('auth.register.confirmPlaceholder', '••••••••')}
               showToggle onToggle={() => setShowConfirm(v => !v)} showPass={showConfirm}
               register={register('password_confirm', {
                 required: t('forms.required'),
@@ -238,20 +257,20 @@ export default function RegisterPage() {
                     <circle style={{ opacity: 0.25 }} cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path style={{ opacity: 0.75 }} fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
-                  {t('auth.register.submitting')}
+                  {t('auth.register.submitting', 'Registering...')}
                 </>
               ) : (
                 <>
                   <span className="material-symbols-outlined" style={{ fontSize: 20 }}>person_add</span>
-                  {t('auth.register.submit')}
+                  {t('auth.register.submit', 'Register')}
                 </>
               )}
             </button>
 
             <p style={{ textAlign: 'center', fontSize: 14, color: '#8d90a0', margin: 0 }}>
-              {t('auth.register.alreadyRegistered')}{' '}
+              {t('auth.register.alreadyRegistered', 'Already have an account?')}{' '}
               <Link to="/login" style={{ color: '#b4c5ff', fontWeight: 600, textDecoration: 'none' }}>
-                {t('auth.register.loginLink')}
+                {t('auth.register.loginLink', 'Login here')}
               </Link>
             </p>
           </form>

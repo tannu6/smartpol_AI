@@ -10,17 +10,14 @@ i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    resources: {
-      en: { translation: en },
-      hi: { translation: hi },
-      gu: { translation: gu },
-    },
+    resources: { en: { translation: en }, hi: { translation: hi }, gu: { translation: gu } },
     fallbackLng: 'en',
+    interpolation: { escapeValue: false },
     detection: {
       order: ['localStorage', 'navigator'],
-      caches: ['localStorage']
+      caches: ['localStorage'],
+      lookupLocalStorage: 'smartpol_lang',
     },
-    interpolation: { escapeValue: false },
   })
 
 export default i18n

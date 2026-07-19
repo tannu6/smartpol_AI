@@ -23,6 +23,7 @@ class User(AbstractUser):
     avatar_url = models.URLField(blank=True)
     duress_code = models.CharField(max_length=50, blank=True)
     phone = models.CharField(max_length=20, blank=True)
+    is_verified = models.BooleanField(default=True)
 
 
 class Complaint(models.Model):
@@ -100,6 +101,18 @@ class Message(models.Model):
     class Meta:
         ordering = ['-created_at']
 
+
+class AnonymousTip(models.Model):
+    tracking_id = models.CharField(max_length=50, unique=True)
+    body = models.TextField()  # Will store encrypted text
+    status = models.CharField(max_length=20, default='restricted')
+    category = models.CharField(max_length=50, default='general')
+    risk_level = models.CharField(max_length=20, default='unknown')
+    notes = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
 
 class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
@@ -188,3 +201,34 @@ class SystemLog(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+
+
+class OTPRecord(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='otp_records')
+    # Stored as a password hash; the raw code is sent only by email.
+    otp_code = models.CharField(max_length=128)
+    expires_at = models.DateTimeField()
+    is_used = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def is_valid(self):
+        from django.utils import timezone
+        return not self.is_used and self.expires_at > timezone.now()
+
+
+class PasswordResetToken(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reset_tokens')
+    token = models.CharField(max_length=64, unique=True)
+    expires_at = models.DateTimeField()
+    is_used = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def is_valid(self):
+        from django.utils import timezone
+        return not self.is_used and self.expires_at > timezone.now()

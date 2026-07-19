@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError as DjangoValidationError
 from .models import (
     Complaint, ComplaintTimeline, Evidence, Message, Notification,
     Identifier, MuleAlert, ScamDNA, OfficerAssignment, SuspectNode,
@@ -13,12 +15,18 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'first_name', 'last_name', 'role',
-                  'badge_id', 'district', 'avatar_url', 'phone']
-        read_only_fields = ['id']
+                  'badge_id', 'district', 'avatar_url', 'phone', 'is_verified']
+        read_only_fields = ['id', 'is_verified']
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'district', 'avatar_url', 'phone']
 
 
 class RegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, min_length=6)
+    password = serializers.CharField(write_only=True, trim_whitespace=False)
     password_confirm = serializers.CharField(write_only=True)
 
     class Meta:
@@ -29,7 +37,14 @@ class RegisterSerializer(serializers.ModelSerializer):
     def validate(self, data):
         if data['password'] != data['password_confirm']:
             raise serializers.ValidationError({'password': 'Passwords do not match.'})
-        if data.get('role') in ('admin', 'secret_agent'):
+        try:
+            validate_password(data['password'])
+        except DjangoValidationError as exc:
+            raise serializers.ValidationError({'password': list(exc.messages)})
+        if User.objects.filter(email__iexact=data['email']).exists():
+            raise serializers.ValidationError({'email': 'An account with this email already exists.'})
+        # In production this would be restricted, but for MVP let them register roles
+        if 'role' not in data:
             data['role'] = User.ROLE_CITIZEN
         return data
 
@@ -76,6 +91,37 @@ class ComplaintCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Complaint
         fields = ['title', 'description', 'category', 'location']
+
+    def validate_title(self, value):
+        value = value.strip()
+        if len(value) < 5:
+            raise serializers.ValidationError('Use a title of at least 5 characters.')
+        return value
+
+    def validate_description(self, value):
+        value = value.strip()
+        if len(value) < 20:
+            raise serializers.ValidationError('Provide at least 20 characters of incident detail.')
+        return value
+
+
+class ComplaintStatusSerializer(serializers.ModelSerializer):
+    note = serializers.CharField(write_only=True, required=False, allow_blank=True, max_length=1000)
+
+    class Meta:
+        model = Complaint
+        fields = ['status', 'assigned_officer', 'note']
+
+    def validate_status(self, value):
+        valid = [c[0] for c in Complaint.STATUS_CHOICES]
+        if value not in valid:
+            raise serializers.ValidationError(f'Invalid status. Must be one of: {", ".join(valid)}')
+        return value
+
+    def validate_assigned_officer(self, value):
+        if value and value.role not in (User.ROLE_OFFICER, User.ROLE_SUPERVISOR):
+            raise serializers.ValidationError('A complaint can only be assigned to an officer or supervisor.')
+        return value
 
 
 class MessageSerializer(serializers.ModelSerializer):

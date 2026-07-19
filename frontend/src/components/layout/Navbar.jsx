@@ -1,11 +1,13 @@
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../context/AuthContext'
 import { useApp } from '../../context/AppContext'
 import NotificationBell from '../ui/NotificationBell'
-import LanguageSelector from '../ui/LanguageSelector'
+import LanguageSwitcher from '../ui/LanguageSwitcher'
 
 export default function Navbar({ title = 'SmartPol AI', showSearch = true }) {
   const { user } = useAuth()
   const { toggleSidebar } = useApp()
+  const { t } = useTranslation()
 
   return (
     <header className="flex justify-between items-center w-full px-lg h-16 sticky top-0 z-50 bg-surface/60 backdrop-blur-xl border-b border-primary/15 shadow-[0_0_20px_rgba(37,99,235,0.2)]">
@@ -17,17 +19,21 @@ export default function Navbar({ title = 'SmartPol AI', showSearch = true }) {
         {showSearch && (
           <div className="relative cyber-input hidden lg:block">
             <span className="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-primary/60">search</span>
-            <input className="bg-surface-container-highest/40 border-none pl-12 pr-md py-2 w-80 text-sm focus:ring-1 focus:ring-primary/40 rounded-sm font-mono-data" placeholder="Scan identification or case ID..." type="text" />
+            <input className="bg-surface-container-highest/40 border-none pl-12 pr-md py-2 w-80 text-sm focus:ring-1 focus:ring-primary/40 rounded-sm font-mono-data" placeholder={t('common.search')} type="text" />
             <div className="scan-line" />
           </div>
         )}
       </div>
       <div className="flex items-center gap-lg">
-        <div className="flex items-center gap-md">
-          <LanguageSelector />
+        <LanguageSwitcher />
+        <div className="flex gap-md">
           <NotificationBell />
-          <button onClick={() => alert('Security configuration panel is coming in v2.0.')} className="material-symbols-outlined text-primary hover:brightness-125 transition-all active:scale-95">security</button>
-          <button onClick={() => alert('System Settings panel is coming in v2.0.')} className="material-symbols-outlined text-primary hover:brightness-125 transition-all active:scale-95">settings</button>
+          <button className="material-symbols-outlined text-primary hover:brightness-125 transition-all active:scale-95">security</button>
+          {user?.role === 'citizen' ? (
+            <a href="/citizen/profile" className="material-symbols-outlined text-primary hover:brightness-125 transition-all active:scale-95 text-decoration-none">settings</a>
+          ) : (
+            <button className="material-symbols-outlined text-primary hover:brightness-125 transition-all active:scale-95">settings</button>
+          )}
         </div>
         <div className="h-8 w-px bg-primary/20 mx-sm" />
         <div className="flex items-center gap-md">

@@ -61,10 +61,17 @@ export function AuthProvider({ children }) {
 
   const register = useCallback(async (formData) => {
     const { data } = await authService.register(formData)
-    localStorage.setItem('accessToken', data.tokens.access)
-    localStorage.setItem('refreshToken', data.tokens.refresh)
-    localStorage.setItem('user', JSON.stringify(data.user))
-    setUser(data.user)
+    // If OTP required, don't set tokens yet - return the pending state
+    if (data.requires_otp) {
+      return { requires_otp: true, user_id: data.user_id }
+    }
+    // Fallback: direct login (e.g., OTP disabled)
+    if (data.tokens) {
+      localStorage.setItem('accessToken', data.tokens.access)
+      localStorage.setItem('refreshToken', data.tokens.refresh)
+      localStorage.setItem('user', JSON.stringify(data.user))
+      setUser(data.user)
+    }
     return data.user
   }, [])
 

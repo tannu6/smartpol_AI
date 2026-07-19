@@ -1,25 +1,18 @@
 import { useState, useEffect } from 'react'
 
 export default function OfflineBanner() {
-  const [offline, setOffline] = useState(!navigator.onLine)
-
+  const [online, setOnline] = useState(navigator.onLine)
   useEffect(() => {
-    const goOffline = () => setOffline(true)
-    const goOnline = () => setOffline(false)
-    window.addEventListener('offline', goOffline)
-    window.addEventListener('online', goOnline)
-    return () => {
-      window.removeEventListener('offline', goOffline)
-      window.removeEventListener('online', goOnline)
-    }
+    const on = () => setOnline(true)
+    const off = () => setOnline(false)
+    window.addEventListener('online', on)
+    window.addEventListener('offline', off)
+    return () => { window.removeEventListener('online', on); window.removeEventListener('offline', off) }
   }, [])
-
-  if (!offline) return null
-
+  if (online) return null
   return (
-    <div className="fixed top-0 left-0 right-0 z-[100] bg-error/90 text-white text-center py-2 text-xs font-bold tracking-widest uppercase backdrop-blur-md">
-      <span className="material-symbols-outlined text-sm align-middle mr-2">wifi_off</span>
-      SYSTEM OFFLINE — RECONNECTING...
+    <div className="fixed top-16 left-0 right-0 z-[60] bg-error text-white text-center text-xs font-bold py-2 md:pl-[280px]">
+      ⚠ You're offline — changes will sync automatically once reconnected.
     </div>
   )
 }

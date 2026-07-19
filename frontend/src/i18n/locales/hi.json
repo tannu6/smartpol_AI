@@ -1,242 +1,602 @@
 {
   "nav": {
-    "dashboard": "कमांड सेंटर",
-    "complaints": "शिकायतें",
-    "timeline": "टाइमलाइन",
-    "evidence": "साक्ष्य",
-    "settings": "सेटिंग्स",
+    "timeline": "समयरेखा",
     "priority": "प्राथमिकता कतार",
     "alerts": "अलर्ट",
     "investigation": "जांच",
+    "evidence": "सबूत कतार",
     "mission": "मिशन नियंत्रण",
-    "analytics": "विश्लेषण",
+    "analytics": "विश्लेषिकी",
     "warRoom": "वॉर रूम",
     "heatmap": "हीटमैप",
-    "prediction": "अपराध पूर्वानुमान",
-    "patrol": "गश्त",
-    "fusion": "इंटेलिजेंस फ्यूजन",
+    "prediction": "अपराध भविष्यवाणी",
+    "patrol": "गश्ती",
+    "fusion": "खुफिया संलयन",
     "scamDna": "स्कैम डीएनए लैब",
-    "muleDetection": "मुले डिटेक्शन",
+    "muleDetection": "खच्चर खाता पहचान",
     "suspects": "संदिग्ध ग्राफ",
     "agentCommand": "कमांड सेंटर",
     "encryptedChat": "एन्क्रिप्टेड चैट",
     "missions": "मिशन",
-    "urgentMessages": "अर्जेंट संदेश",
-    "missionTimeline": "मिशन टाइमलाइन",
+    "urgentMessages": "तत्काल संदेश",
+    "missionTimeline": "मिशन समयरेखा",
     "adminDashboard": "एडमिन डैशबोर्ड",
-    "manageUsers": "उपयोगकर्ता प्रबंधन",
-    "manageOfficers": "अधिकारी प्रबंधन",
-    "manageAgents": "एजेंट प्रबंधन",
-    "roles": "भूमिकाएं और अनुमतियां",
+    "manageUsers": "उपयोगकर्ता प्रबंधित करें",
+    "manageOfficers": "अधिकारी प्रबंधित करें",
+    "manageAgents": "एजेंट प्रबंधित करें",
+    "roles": "भूमिकाएँ और अनुमतियाँ",
     "systemLogs": "सिस्टम लॉग",
     "evidenceVault": "साक्ष्य तिजोरी",
-    "systemConfig": "सिस्टम कॉन्फिग",
-    "logout": "लॉगआउट",
-    "dispatch": "डिस्पैच"
-  },
-  "sidebar": {
-    "fileComplaint": "शिकायत दर्ज करें",
-    "myComplaints": "मेरी शिकायतें",
-    "uploadEvidence": "साक्ष्य अपलोड करें",
-    "title": "स्मार्टपोल AI",
-    "tagline": "AI स्मार्ट पुलिसिंग"
+    "systemConfig": "सिस्टम कॉन्फ़िगरेशन",
+    "dashboard": "डैशबोर्ड",
+    "operations": "संचालन",
+    "intelligence": "खुफिया",
+    "archives": "अभिलेख",
+    "settings": "सेटिंग्स",
+    "logout": "लॉग आउट",
+    "dispatch": "यूनिट भेजें"
   },
   "auth": {
-    "login": {
-      "title": "कमांड लॉगिन",
-      "subtitle": "ग्रिड तक पहुंचने के लिए अपनी रणनीतिक साख दर्ज करें।",
-      "username": "ऑपरेटर आईडी / ईमेल",
-      "password": "एक्सेस कुंजी",
-      "usernamePlaceholder": "operator@smartpol.gov",
-      "passwordPlaceholder": "••••••••••••",
-      "persistSession": "सत्र बनाए रखें",
-      "forgotPassword": "आपातकालीन रीसेट",
-      "submit": "एक्सेस अधिकृत करें",
-      "submitting": "प्रमाणीकरण...",
-      "authorized": "अधिकृत",
-      "noAccount": "खाता नहीं है?",
-      "registerLink": "यहाँ पंजीकरण करें",
-      "demoHint": "डेमो: password123"
+    "otp": {
+      "enterAllDigits": "कृपया सभी 6 अंक दर्ज करें।",
+      "invalidOtp": "अमान्य ओटीपी कोड।",
+      "subtitle": "सुरक्षित सत्यापन",
+      "successTitle": "सत्यापन सफल",
+      "successMessage": "आपकी पहचान सत्यापित हो गई है। पुनर्निर्देशित किया जा रहा है...",
+      "title": "ओटीपी दर्ज करें",
+      "description": "हमने आपके ईमेल पर 6 अंकों का सत्यापन कोड भेजा है।",
+      "verifying": "सत्यापित किया जा रहा है...",
+      "verify": "कोड सत्यापित करें",
+      "resendIn": "पुनः भेजें:",
+      "resending": "पुनः भेजा जा रहा है...",
+      "resend": "कोड पुनः भेजें",
+      "securityNote": "यह कोड 10 मिनट के लिए मान्य है। इसे किसी के साथ साझा न करें।",
+      "wrongEmail": "गलत ईमेल?",
+      "reRegister": "फिर से पंजीकरण करें"
     },
+    "login_title": "कमांड लॉगिन",
+    "login_subtitle": "ग्रिड तक पहुंचने के लिए अपनी साख दर्ज करें।",
+    "operator_id": "ऑपरेटर आईडी / ईमेल",
+    "access_key": "एक्सेस कुंजी",
+    "persistent_session": "सत्र बनाए रखें",
+    "emergency_reset": "आपातकालीन रीसेट",
+    "authorize": "पहुंच अधिकृत करें",
+    "no_account": "खाता नहीं है?",
     "register": {
-      "title": "खाता बनाएं",
-      "subtitle": "अपना SmartPol AI ऑपरेटिव खाता पंजीकृत करें",
-      "tagline": "नया ऑपरेटिव पंजीकरण",
+      "title": "पंजीकरण",
+      "description": "अपना खाता बनाएं",
       "username": "उपयोगकर्ता नाम",
-      "email": "ईमेल पता",
-      "firstName": "पहला नाम",
+      "email": "ईमेल",
+      "firstName": "प्रथम नाम",
       "lastName": "अंतिम नाम",
-      "role": "भूमिका / विभाग",
+      "role": "भूमिका",
       "password": "पासवर्ड",
       "confirmPassword": "पासवर्ड की पुष्टि करें",
-      "usernamePlaceholder": "operative_id",
-      "emailPlaceholder": "operative@smartpol.gov",
-      "firstNamePlaceholder": "पहला नाम",
-      "lastNamePlaceholder": "अंतिम नाम",
-      "passwordPlaceholder": "न्यूनतम 6 अक्षर",
-      "confirmPasswordPlaceholder": "पासवर्ड दोहराएं",
-      "submit": "खाता बनाएं",
-      "submitting": "खाता बनाया जा रहा है...",
-      "alreadyRegistered": "पहले से पंजीकृत?",
-      "loginLink": "यहाँ लॉगिन करें"
+      "submit": "पंजीकरण करें",
+      "alreadyRegistered": "पहले से पंजीकृत हैं?",
+      "loginLink": "लॉगिन करें",
+      "tagline": "नामांकन प्रणाली"
     },
-    "forgotPassword": {
-      "title": "आपातकालीन रीसेट",
-      "subtitle": "अपना पंजीकृत ईमेल पता दर्ज करें। हम आपको एक्सेस कुंजी रीसेट करने के निर्देश भेजेंगे।",
-      "email": "पंजीकृत ईमेल",
-      "emailPlaceholder": "operator@smartpol.gov",
-      "submit": "रीसेट लिंक भेजें",
-      "submitting": "रीसेट लिंक भेजा जा रहा है...",
-      "backToLogin": "लॉगिन पर वापस जाएं",
-      "rememberedPassword": "पासवर्ड याद आया?",
-      "securityNote": "सुरक्षा के लिए, हम यह पुष्टि नहीं करेंगे कि यह ईमेल हमारे सिस्टम में है। सबमिट करने के बाद अपना इनबॉक्स जांचें।",
-      "successTitle": "अपना इनबॉक्स जांचें",
-      "successMessage": "यदि यह ईमेल हमारे सिस्टम में पंजीकृत है, तो आपको पासवर्ड रीसेट निर्देश जल्द ही प्राप्त होंगे।",
-      "successNote": "यदि आपको दिखाई न दे तो अपना स्पैम फ़ोल्डर जांचें।",
-      "returnToLogin": "लॉगिन पर वापस जाएं"
-    },
-    "resetPassword": {
-      "title": "नया पासवर्ड सेट करें",
-      "subtitle": "नीचे अपनी नई एक्सेस कुंजी दर्ज करें। इसे मजबूत बनाएं।",
-      "newPassword": "नया पासवर्ड",
-      "confirmPassword": "पासवर्ड की पुष्टि करें",
-      "newPasswordPlaceholder": "न्यूनतम 6 अक्षर",
-      "confirmPasswordPlaceholder": "नया पासवर्ड दोहराएं",
-      "submit": "पासवर्ड रीसेट करें",
-      "submitting": "रीसेट हो रहा है...",
-      "successTitle": "पासवर्ड रीसेट",
-      "successMessage": "आपका पासवर्ड सफलतापूर्वक अपडेट कर दिया गया है। आप अब अपने नए क्रेडेंशियल से लॉगिन कर सकते हैं।",
-      "goToLogin": "लॉगिन पर जाएं",
-      "invalidToken": "अमान्य या समाप्त रीसेट लिंक",
-      "invalidTokenMessage": "यह रीसेट लिंक अमान्य या समाप्त हो गया है। कृपया नया अनुरोध करें।"
+    "login": {
+      "title": "कमांड लॉगिन",
+      "subtitle": "ग्रिड तक पहुंचने के लिए अपनी साख दर्ज करें।",
+      "username": "ऑपरेटर आईडी / ईमेल",
+      "password": "एक्सेस कुंजी",
+      "submit": "पहुंच अधिकृत करें",
+      "persistSession": "सत्र बनाए रखें",
+      "forgotPassword": "आपातकालीन रीसेट",
+      "noAccount": "खाता नहीं है?",
+      "registerLink": "पंजीकरण करें"
     }
-  },
-  "dashboard": {
-    "welcome": "स्वागत है",
-    "myComplaints": "मेरी शिकायतें",
-    "pending": "लंबित",
-    "resolved": "हल किया गया",
-    "priorityQueue": "प्राथमिकता कतार",
-    "goldenHour": "गोल्डन आवर",
-    "activeCases": "सक्रिय मामले",
-    "totalComplaints": "कुल शिकायतें",
-    "activeOfficers": "सक्रिय अधिकारी",
-    "unreadMessages": "अपठित संदेश",
-    "urgentMessages": "अर्जेंट संदेश",
-    "activeMissions": "सक्रिय मिशन",
-    "totalUsers": "कुल उपयोगकर्ता",
-    "officers": "अधिकारी",
-    "agents": "एजेंट",
-    "systemLogs": "सिस्टम लॉग"
   },
   "complaint": {
+    "classification": "वर्गीकरण",
+    "qr_code": "क्यूआर कोड",
+    "scan_to_track": "ट्रैक करने के लिए स्कैन करें",
+    "file_another": "एक और शिकायत दर्ज करें",
+    "summary_placeholder": "घटना का संक्षिप्त सारांश",
+    "categories": {
+      "general": "सामान्य",
+      "financial_fraud": "वित्तीय धोखाधड़ी",
+      "assault": "हमला",
+      "cybercrime": "साइबर अपराध",
+      "theft": "चोरी",
+      "emergency": "आपातकाल / एसओएस"
+    },
+    "location_placeholder": "यह कहाँ हुआ?",
+    "description_placeholder": "घटना का विस्तार से वर्णन करें...",
+    "mock_voice_alert": "मॉक वॉइस इनपुट कैप्चर किया गया।",
+    "mock_voice_text": "[वॉयस इनपुट सक्रिय - प्रतिलेखन: \"मैंने केंद्रीय प्लाजा के पास एक संदिग्ध गतिविधि देखी...\"] ",
+    "mock_qr_alert": "मॉक क्यूआर स्कैन किया गया।",
+    "mock_qr_text": "[क्यूआर स्कैन किया गया डेटा: घटना #QR-778-99X] ",
     "title": "शिकायत दर्ज करें",
-    "subtitle": "AI-संचालित घटना रिपोर्टिंग रीयल-टाइम विश्लेषण के साथ",
-    "field_title": "घटना का शीर्षक",
+    "subtitle": "AI विश्लेषण के साथ अपनी रिपोर्ट सबमिट करें",
+    "field_title": "शीर्षक",
     "field_category": "श्रेणी",
     "field_location": "स्थान",
-    "field_description": "विस्तृत विवरण",
-    "submit": "शिकायत जमा करें",
-    "success": "शिकायत सफलतापूर्वक पंजीकृत",
-    "voice": "आवाज इनपुट",
+    "field_description": "विवरण",
+    "submit": "शिकायत सबमिट करें",
+    "voice": "वॉइस शिकायत",
     "qr_scan": "QR स्कैन",
-    "noComplaints": "अभी तक कोई शिकायत दर्ज नहीं",
-    "status": {
-      "pending": "लंबित",
-      "investigating": "जांच जारी",
-      "resolved": "हल किया गया",
-      "escalated": "एस्केलेट किया गया"
-    }
+    "success": "शिकायत सफलतापूर्वक दर्ज हुई"
   },
   "ai": {
+    "analysis_preview": "AI विश्लेषण पूर्वावलोकन",
+    "fraud_label": "धोखाधड़ी",
+    "entities_label": "संस्थाएं",
+    "phones_found": "फोन मिले",
+    "dna_match": "डीएनए मिलान",
+    "confidence": "एआई विश्वास",
     "urgency": "तात्कालिकता स्कोर",
-    "readiness": "तत्परता स्कोर",
-    "classification": "वर्गीकरण",
-    "entities": "इकाइयां"
+    "fraud_probability": "धोखाधड़ी संभावना",
+    "threat_level": "खतरे का स्तर",
+    "risk_level": "जोखिम स्तर",
+    "readiness": "तैयारी स्कोर",
+    "priority": "प्राथमिकता स्कोर",
+    "reasoning": "तर्क",
+    "next_action": "अगली सुझाई गई कार्रवाई"
   },
-  "forms": {
-    "required": "यह फ़ील्ड आवश्यक है",
-    "invalidEmail": "कृपया एक वैध ईमेल पता दर्ज करें",
-    "passwordTooShort": "पासवर्ड कम से कम 6 अक्षरों का होना चाहिए",
-    "passwordMismatch": "पासवर्ड मेल नहीं खाते",
-    "usernameTooShort": "उपयोगकर्ता नाम कम से कम 3 अक्षरों का होना चाहिए"
-  },
-  "buttons": {
-    "save": "सहेजें",
-    "cancel": "रद्द करें",
-    "delete": "हटाएं",
-    "edit": "संपादित करें",
-    "view": "देखें",
-    "submit": "सबमिट करें",
-    "back": "वापस",
-    "next": "अगला",
-    "refresh": "रीफ्रेश",
-    "export": "निर्यात",
-    "upload": "अपलोड",
-    "download": "डाउनलोड",
-    "confirm": "पुष्टि करें",
-    "close": "बंद करें",
+  "common": {
+    "loading": "लोड हो रहा है...",
+    "no_data": "कोई डेटा उपलब्ध नहीं",
     "search": "खोजें",
+    "export_csv": "CSV निर्यात करें",
     "filter": "फ़िल्टर",
-    "assign": "असाइन करें",
-    "escalate": "एस्केलेट करें",
-    "resolve": "हल करें"
+    "offline_banner": "आप ऑफ़लाइन हैं — पुनः कनेक्ट होते ही परिवर्तन अपने आप सिंक हो जाएंगे।"
   },
-  "tables": {
-    "id": "आईडी",
-    "name": "नाम",
-    "status": "स्थिति",
-    "date": "तारीख",
-    "action": "कार्रवाई",
-    "category": "श्रेणी",
-    "priority": "प्राथमिकता",
-    "assignedTo": "को सौंपा गया",
-    "createdAt": "बनाया गया",
-    "updatedAt": "अपडेट किया गया",
-    "noData": "कोई डेटा उपलब्ध नहीं",
-    "loading": "डेटा लोड हो रहा है...",
-    "showing": "दिखाया जा रहा है",
-    "of": "का",
-    "entries": "प्रविष्टियां"
+  "sidebar": {
+    "title": "स्मार्टपोल AI",
+    "fileComplaint": "शिकायत दर्ज करें",
+    "myComplaints": "मेरी शिकायतें",
+    "uploadEvidence": "सबूत अपलोड करें"
   },
-  "notifications": {
-    "title": "सूचनाएं",
-    "markAllRead": "सभी को पढ़ा गया चिह्नित करें",
-    "noNotifications": "कोई सूचना नहीं",
-    "new": "नया",
-    "goldenHour": "गोल्डन आवर अलर्ट",
-    "duressAlert": "डुरेस अलर्ट",
-    "systemAlert": "सिस्टम अलर्ट"
+  "complaints": {
+    "title": "मेरी शिकायतें",
+    "table": {
+      "id": "आईडी",
+      "title": "शीर्षक",
+      "category": "श्रेणी",
+      "status": "स्थिति",
+      "urgency": "तात्कालिकता",
+      "actions": ""
+    },
+    "timeline_link": "समयरेखा →"
   },
-  "errors": {
-    "generic": "एक त्रुटि हुई। कृपया पुनः प्रयास करें।",
-    "network": "नेटवर्क त्रुटि। अपना कनेक्शन जांचें।",
-    "unauthorized": "आप इस पेज तक पहुंचने के अधिकृत नहीं हैं।",
-    "notFound": "पेज नहीं मिला।",
-    "serverError": "सर्वर त्रुटि। बाद में पुनः प्रयास करें।",
-    "invalidCredentials": "अमान्य क्रेडेंशियल। कृपया पुनः प्रयास करें।",
-    "sessionExpired": "आपका सत्र समाप्त हो गया है। कृपया फिर से लॉगिन करें।",
-    "emailNotFound": "ईमेल पता नहीं मिला।",
-    "tokenExpired": "रीसेट लिंक समाप्त हो गया है। कृपया नया अनुरोध करें।",
-    "tokenInvalid": "अमान्य रीसेट टोकन।"
+  "timeline": {
+    "title": "शिकायत समयरेखा",
+    "subtitle": "जांच की नब्ज",
+    "urgency_label": "तात्कालिकता:",
+    "qr_label": "क्यूआर:",
+    "no_events": "अभी तक कोई समयरेखा घटना नहीं।"
+  },
+  "evidence": {
+    "title": "सबूत अपलोड करें",
+    "subtitle": "साक्ष्य अपलोड",
+    "select_complaint": "शिकायत चुनें",
+    "upload_button": "साक्ष्य तिजोरी में अपलोड करें",
+    "uploaded": "अपलोड किया गया:",
+    "hash": "हैश:"
+  },
+  "officerDashboard": {
+    "appTitle": "स्मार्टपोल AI",
+    "appSubtitle": "सेक्टर 7G — हाई अलर्ट",
+    "generateReports": "रिपोर्ट जनरेट करें",
+    "createAlert": "अलर्ट बनाएं",
+    "assignPatrol": "गश्ती सौंपें",
+    "predictCrime": "अपराध की भविष्यवाणी करें",
+    "kpi": {
+      "todayCrimes": {
+        "label": "आज के अपराध",
+        "trend": "+12% कल की तुलना में"
+      },
+      "highRiskAreas": {
+        "label": "उच्च जोखिम क्षेत्र",
+        "subtext": "सक्रिय निगरानी"
+      },
+      "emergencyAlerts": {
+        "label": "आपातकालीन अलर्ट",
+        "subtext": "लंबित प्रेषण"
+      },
+      "patrolUnits": {
+        "label": "गश्ती इकाइयाँ",
+        "subtext": "82% तैनात"
+      },
+      "predictionAccuracy": {
+        "label": "भविष्यवाणी सटीकता",
+        "subtext": "अनुकूलित"
+      }
+    },
+    "charts": {
+      "crimeTrendMatrix": "अपराध प्रवृत्ति मैट्रिक्स",
+      "incidentSegments": "घटना खंड"
+    },
+    "table": {
+      "title": "सक्रिय क्षेत्र की घटनाएं",
+      "badge": "लाइव_फीड",
+      "columns": {
+        "id": "आईडी",
+        "type": "प्रकार",
+        "location": "स्थान",
+        "status": "स्थिति",
+        "severity": "गंभीरता"
+      }
+    }
+  },
+  "priorityQueue": {
+    "appTitle": "स्मार्टपोल AI",
+    "appSubtitle": "प्राथमिकता कतार",
+    "goldenHourActive": "गोल्डन ऑवर सक्रिय",
+    "title": "प्राथमिकता कतार",
+    "columns": {
+      "priority": "प्राथमिकता",
+      "case": "केस",
+      "title": "शीर्षक",
+      "urgency": "तात्कालिकता",
+      "readiness": "तैयारी",
+      "status": "स्थिति"
+    }
+  },
+  "alerts": {
+    "appTitle": "स्मार्टपोल AI",
+    "appSubtitle": "आपातकालीन अलर्ट केंद्र",
+    "liveStatus": "लाइव स्थिति: गंभीर",
+    "title": "आपातकालीन अलर्ट केंद्र",
+    "activeSos": "सक्रिय एसओएस",
+    "total": "कुल",
+    "stats": {
+      "goldenHour": {
+        "title": "गोल्डन ऑवर",
+        "priority": "प्राथमिकता 1",
+        "description": "अनसुलझा"
+      },
+      "cybercrime": {
+        "title": "साइबर अपराध",
+        "priority": "प्राथमिकता 2",
+        "description": "ट्रैकिंग"
+      },
+      "general": {
+        "title": "सामान्य",
+        "priority": "प्राथमिकता 3",
+        "description": "परामर्श"
+      }
+    },
+    "repositoryTitle": "अलर्ट रिपॉजिटरी",
+    "noActiveAlerts": "कोई सक्रिय अलर्ट नहीं।",
+    "columns": {
+      "alertId": "अलर्ट आईडी",
+      "type": "प्रकार",
+      "priority": "प्राथमिकता",
+      "link": "लिंक",
+      "status": "स्थिति"
+    },
+    "initiateEmergency1": "आपातकाल",
+    "initiateEmergency2": "प्रोटोकॉल प्रारंभ करें"
+  },
+  "investigation": {
+    "appTitle": "स्मार्टपोल AI",
+    "appSubtitle": "जांच रिपोर्ट जनरेटर",
+    "title": "जांच रिपोर्ट जनरेटर",
+    "description": "एआई-संचालित जांच तत्परता विश्लेषण",
+    "form": {
+      "caseNotes": {
+        "label": "केस नोट्स",
+        "placeholder": "जांच विवरण, गवाहों के बयान, सबूत का सारांश दर्ज करें..."
+      },
+      "generateBtn": "जांच रिपोर्ट तैयार करें"
+    },
+    "results": {
+      "entityExtraction": {
+        "title": "संस्था निष्कर्षण",
+        "phones": "फोन:",
+        "emails": "ईमेल:",
+        "amounts": "राशि:",
+        "none": "कोई नहीं"
+      },
+      "aiScores": {
+        "title": "एआई स्कोर",
+        "urgency": "तात्कालिकता:",
+        "fraudClass": "धोखाधड़ी वर्ग:",
+        "readiness": "तैयारी:",
+        "readinessHigh": "उच्च",
+        "goldenHour": "गोल्डन ऑवर:",
+        "yes": "हाँ ⚡",
+        "no": "नहीं"
+      }
+    }
+  },
+  "evidenceQueue": {
+    "appTitle": "स्मार्टपोल AI",
+    "appSubtitle": "सबूत कतार",
+    "title": "सबूत कतार",
+    "noEvidence": "समीक्षा के लिए कोई साक्ष्य लंबित नहीं है।",
+    "hashLabel": "हैश:",
+    "pendingReview": "लंबित समीक्षा"
+  },
+  "missionControl": {
+    "appTitle": "स्मार्टपोल AI",
+    "appSubtitle": "मिशन नियंत्रण",
+    "title": "मिशन नियंत्रण",
+    "kpis": {
+      "activeMissions": "सक्रिय मिशन",
+      "unitsDeployed": "तैनात इकाइयाँ",
+      "responseTime": "प्रतिक्रिया समय",
+      "criticalAlerts": "गंभीर अलर्ट"
+    },
+    "liveUnitMap": {
+      "title": "लाइव यूनिट मैप",
+      "overlay": "सामरिक मानचित्र ओवरले — सेक्टर 7G"
+    },
+    "unitStatus": {
+      "title": "यूनिट स्थिति",
+      "patrolling": "गश्त",
+      "responding": "जवाब देना",
+      "inBriefing": "ब्रीफिंग में"
+    }
+  },
+  "agentWorkspace": {
+    "title": {
+      "chat": "एन्क्रिप्टेड संचार",
+      "missions": "सक्रिय मिशन",
+      "urgent": "तत्काल खुफिया",
+      "timeline": "मिशन समयरेखा",
+      "command": "कमांड सेंटर"
+    },
+    "appLayout": {
+      "title": "स्मार्टपोल AI",
+      "subtitle": "सुरक्षित चैनल"
+    },
+    "stats": {
+      "unread": "अपठित:",
+      "urgent": "तत्काल:",
+      "missions": "मिशन:"
+    },
+    "input": {
+      "placeholder": "एन्क्रिप्टेड परिचालन खुफिया...",
+      "markUrgent": "तत्काल चिह्नित करें",
+      "transmit": "प्रसारित करें"
+    },
+    "message": {
+      "defaultSubject": "सुरक्षित प्रसारण"
+    }
+  },
+  "adminWorkspace": {
+    "title": {
+      "dashboard": "सिस्टम प्रशासन",
+      "roles": "भूमिकाएँ और अनुमतियाँ",
+      "config": "सिस्टम कॉन्फ़िगरेशन",
+      "dynamic": "एडमिन: {{mode}}"
+    },
+    "logs": {
+      "time": "समय",
+      "operator": "ऑपरेटर",
+      "action": "कार्रवाई",
+      "details": "विवरण"
+    },
+    "evidence": {
+      "evidence": "साक्ष्य",
+      "type": "प्रकार",
+      "sha256": "SHA-256",
+      "uploaded": "अपलोड किया गया"
+    },
+    "users": {
+      "username": "उपयोगकर्ता नाम",
+      "email": "ईमेल",
+      "role": "भूमिका",
+      "district": "जिला",
+      "badge": "बैज"
+    },
+    "appLayout": {
+      "title": "स्मार्टपोल AI",
+      "subtitle": "प्रशासनिक नियंत्रण"
+    },
+    "roles": {
+      "message": "प्रशासनिक भूमिका असाइनमेंट 'उपयोगकर्ता प्रबंधित करें' के माध्यम से उपलब्ध है।"
+    },
+    "config": {
+      "message": "डेमो मोड SQLite और स्थानीय मीडिया भंडारण का उपयोग करता है।"
+    }
+  },
+  "analytics": {
+    "title": "सामरिक विश्लेषिकी डैशबोर्ड",
+    "subtitle": "सामरिक विश्लेषिकी",
+    "totalCases": "कुल मामले",
+    "avgUrgency": "औसत तात्कालिकता",
+    "officersActive": "सक्रिय अधिकारी",
+    "scamClusters": "घोटाले के क्लस्टर",
+    "crimeTrends": "7-दिवसीय अपराध रुझान",
+    "categoryDistribution": "श्रेणी वितरण",
+    "officerPerformance": "अधिकारी प्रदर्शन"
+  },
+  "fusion": {
+    "title": "इंटेलिजेंस फ्यूजन सेंटर",
+    "subtitle": "इंटेलिजेंस फ्यूजन सेंटर",
+    "linkedIdentifiers": "लिंक्ड आइडेंटिफ़ायर",
+    "fusionStatus": "संलयन स्थिति",
+    "dataSources": "डेटा स्रोत",
+    "fuseReport": "एक रिपोर्ट फ्यूज करें",
+    "placeholder": "संस्थाओं को सहसंबंधित करने के लिए शिकायत या फील्ड रिपोर्ट पेस्ट करें...",
+    "runFusion": "फ्यूजन चलाएं"
+  },
+  "heatmap": {
+    "title": "अपराध हीटमैप",
+    "subtitle": "सामरिक हीटमैप",
+    "hotZones": "हॉट जोन",
+    "dataPoints": "डेटा पॉइंट",
+    "coverage": "कवरेज",
+    "refresh": "ताज़ा करें",
+    "tacticalDensity": "सामरिक अपराध घनत्व"
+  },
+  "mule": {
+    "title": "खच्चर खाता पहचान",
+    "subtitle": "खच्चर खाता पहचान",
+    "colAccount": "खाता",
+    "colBank": "बैंक",
+    "colTransactions": "लेन-देन",
+    "colExposure": "जोखिम (INR)",
+    "colRisk": "जोखिम",
+    "colStatus": "स्थिति"
+  },
+  "patrol": {
+    "title": "गश्ती अनुकूलन",
+    "subtitle": "गश्ती अनुकूलन",
+    "unitsDeployed": "तैनात इकाइयाँ",
+    "activePatrols": "सक्रिय गश्त",
+    "avgResponse": "औसत प्रतिक्रिया",
+    "coverage": "कवरेज",
+    "patrolUnits": "गश्ती इकाइयाँ",
+    "eff": "क्षमता"
+  },
+  "prediction": {
+    "title": "एआई अपराध भविष्यवाणी",
+    "subtitle": "अपराध भविष्यवाणी",
+    "modelAccuracy": "मॉडल सटीकता",
+    "highRiskZones": "उच्च जोखिम क्षेत्र",
+    "predictions": "भविष्यवाणियां",
+    "horizon": "क्षितिज",
+    "historicalBaseline": "ऐतिहासिक बेसलाइन",
+    "predictedIncidents": "अनुमानित घटनाएं"
+  },
+  "scamDna": {
+    "title": "स्कैम डीएनए प्रयोगशाला",
+    "subtitle": "स्कैम डीएनए प्रयोगशाला",
+    "colPatternId": "पैटर्न आईडी",
+    "colName": "स्कैम फैमिली",
+    "colCategory": "श्रेणी",
+    "colLinkedCases": "लिंक्ड मामले",
+    "colConfidence": "विश्वास"
+  },
+  "suspects": {
+    "title": "संदिग्ध संबंध ग्राफ",
+    "subtitle": "संदिग्ध संबंध ग्राफ"
+  },
+  "warRoom": {
+    "title": "स्ट्रैटेजिक कमांड वॉर रूम",
+    "subtitle": "स्ट्रैटेजिक कमांड वॉर रूम",
+    "threatLevel": "खतरे का स्तर",
+    "activeOps": "सक्रिय ऑप्स",
+    "intelFeeds": "इंटेल फीड्स",
+    "unitsReady": "इकाइयां तैयार",
+    "tacticalOverview": "सामरिक अवलोकन",
+    "realTimeAlerts": "रीयल-टाइम अलर्ट"
   },
   "roles": {
     "citizen": "नागरिक",
     "officer": "अधिकारी",
-    "supervisor": "पर्यवेक्षक",
-    "secret_agent": "गुप्त एजेंट",
-    "admin": "सिस्टम एडमिन"
+    "supervisor": "पर्यवेक्षक"
   },
-  "common": {
-    "loading": "लोड हो रहा है...",
-    "error": "एक त्रुटि हुई",
-    "save": "सहेजें",
-    "cancel": "रद्द करें",
-    "delete": "हटाएं",
-    "search": "खोजें",
-    "language": "भाषा",
-    "english": "English",
-    "hindi": "हिंदी",
-    "gujarati": "ગુજરાતી"
+  "landing": {
+    "hero": {
+      "title": "एआई-संचालित साइबर धोखाधड़ी पहचान और स्मार्ट पुलिसिंग",
+      "subtitle": "नागरिकों, कानून प्रवर्तन और एआई को जोड़ने वाला मंच।",
+      "ctaPrimary": "धोखाधड़ी की रिपोर्ट करें",
+      "ctaSecondary": "लॉगिन करें"
+    },
+    "nav": {
+      "capabilities": "क्षमताएं",
+      "howItWorks": "यह कैसे काम करता है",
+      "intelligence": "बुद्धिमत्ता",
+      "roles": "भूमिकाएँ",
+      "console": "कमांड सेंटर",
+      "login": "लॉगिन"
+    },
+    "capabilities": {
+      "0": {
+        "title": "एआई धोखाधड़ी पहचान",
+        "desc": "जटिल घोटाले पैटर्न की पहचान।"
+      },
+      "1": {
+        "title": "वास्तविक समय जोखिम स्कोरिंग",
+        "desc": "गतिशील खतरे का स्तर।"
+      },
+      "2": {
+        "title": "शिकायत बुद्धिमत्ता",
+        "desc": "स्वचालित डेटा निष्कर्षण।"
+      },
+      "3": {
+        "title": "साक्ष्य प्रबंधन",
+        "desc": "सुरक्षित डेटा वॉल्ट।"
+      },
+      "4": {
+        "title": "घोटाले का विश्लेषण",
+        "desc": "आपराधिक नेटवर्क मैपिंग।"
+      },
+      "5": {
+        "title": "पुलिस उपकरण",
+        "desc": "खुफिया प्राथमिकता।"
+      },
+      "6": {
+        "title": "पूर्वानुमान विश्लेषण",
+        "desc": "खतरे के क्षेत्रों का पूर्वानुमान।"
+      },
+      "title": "मंच की क्षमताएं"
+    },
+    "workflow": {
+      "0": {
+        "title": "रिपोर्ट",
+        "desc": "नागरिक शिकायत दर्ज करते हैं।"
+      },
+      "1": {
+        "title": "विश्लेषण",
+        "desc": "एआई डेटा को स्कैन करता है।"
+      },
+      "2": {
+        "title": "पहचान",
+        "desc": "खतरों को चिह्नित किया जाता है।"
+      },
+      "3": {
+        "title": "जांच",
+        "desc": "अधिकारी खुफिया जानकारी प्राप्त करते हैं।"
+      },
+      "4": {
+        "title": "कार्रवाई",
+        "desc": "त्वरित समाधान और कार्रवाई।"
+      },
+      "title": "यह कैसे काम करता है"
+    },
+    "intelligence": {
+      "title": "एआई बुद्धिमत्ता इंजन",
+      "desc": "हमारा इंजन मिलीसेकंड में डेटा का विश्लेषण करता है, जोखिम स्कोर की गणना करता है, और कार्रवाई योग्य अंतर्दृष्टि प्रदान करता है।",
+      "features": {
+        "0": "जोखिम स्कोर विश्लेषण",
+        "1": "संदिग्ध पैटर्न पहचान",
+        "2": "इकाई संबंध मैपिंग",
+        "3": "पूर्वानुमानित अपराध अंतर्दृष्टि"
+      }
+    },
+    "security": {
+      "0": "सुरक्षित साक्ष्य वॉल्ट",
+      "1": "भूमिका-आधारित पहुंच",
+      "2": "अपरिवर्तनीय ऑडिट लॉग",
+      "3": "एन्क्रिप्टेड संचार",
+      "4": "सुरक्षित प्रमाणीकरण",
+      "title": "सैन्य-स्तर की सुरक्षा"
+    },
+    "roles": {
+      "title": "एक मंच, विशिष्ट भूमिकाएँ",
+      "subtitle": "कानून प्रवर्तन के हर स्तर के लिए अनुकूलित इंटरफेस।",
+      "tabs": {
+        "0": "नागरिक",
+        "1": "अधिकारी",
+        "2": "पर्यवेक्षक",
+        "3": "खुफिया एजेंट",
+        "4": "प्रशासक"
+      },
+      "desc": {
+        "0": "सुरक्षित शिकायत पोर्टल, स्थिति ट्रैकिंग और साक्ष्य अपलोड।",
+        "1": "लाइव घटना फ़ीड, प्राथमिकता कतार और एआई-समृद्ध जांच डोज़ियर।",
+        "2": "रणनीतिक कमांड ग्रिड, हीटमैप और खुफिया फ्यूजन।",
+        "3": "एन्क्रिप्टेड संचार, गुप्त मिशन टाइमलाइन।",
+        "4": "संपूर्ण प्रणाली की निगरानी और एक्सेस नियंत्रण।"
+      }
+    },
+    "cta": {
+      "title": "सुरक्षित करने के लिए तैयार हैं?",
+      "subtitle": "स्मार्ट पुलिसिंग की अगली पीढ़ी में शामिल हों।",
+      "primary": "अभी रिपोर्ट करें",
+      "secondary": "पंजीकरण करें"
+    },
+    "footer": {
+      "desc": "उन्नत एआई-संचालित साइबर धोखाधड़ी पहचान प्रणाली।"
+    }
   }
 }

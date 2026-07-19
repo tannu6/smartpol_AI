@@ -8,12 +8,16 @@ import LoginPage from './pages/auth/LoginPage'
 import RegisterPage from './pages/auth/RegisterPage'
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage'
 import ResetPasswordPage from './pages/auth/ResetPasswordPage'
+import OTPVerificationPage from './pages/auth/OTPVerificationPage'
+import LandingPage from './pages/LandingPage'
 import UnauthorizedPage from './pages/UnauthorizedPage'
+import AnonymousTipPage from './pages/public/AnonymousTipPage'
 
 import ComplaintPage from './pages/citizen/ComplaintPage'
 import ComplaintsListPage from './pages/citizen/ComplaintsListPage'
 import ComplaintTimelinePage from './pages/citizen/ComplaintTimelinePage'
 import EvidenceUploadPage from './pages/citizen/EvidenceUploadPage'
+import CitizenProfilePage from './pages/citizen/CitizenProfilePage'
 
 import OfficerDashboardPage from './pages/officer/OfficerDashboardPage'
 import PriorityQueuePage from './pages/officer/PriorityQueuePage'
@@ -22,6 +26,7 @@ import InvestigationPage from './pages/officer/InvestigationPage'
 import EvidenceQueuePage from './pages/officer/EvidenceQueuePage'
 import MissionControlPage from './pages/officer/MissionControlPage'
 import ComplaintDetailsPage from './pages/officer/ComplaintDetailsPage'
+import AnonymousTipsPage from './pages/officer/AnonymousTipsPage'
 
 import AnalyticsPage from './pages/supervisor/AnalyticsPage'
 import WarRoomPage from './pages/supervisor/WarRoomPage'
@@ -52,12 +57,15 @@ function RootRedirect() {
   const { isAuthenticated, loading, getDefaultRoute } = useAuth()
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-primary font-mono-data animate-pulse">INITIALIZING SECURE CORE...</div>
+      <div style={{ minHeight: '100vh', background: '#040e21', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ color: '#4cd7f6', fontFamily: "'Space Mono', monospace", fontSize: 13, letterSpacing: '0.15em', animation: 'pulse 1.5s ease-in-out infinite' }}>INITIALIZING SECURE CORE...</div>
       </div>
     )
   }
-  return <Navigate to={isAuthenticated ? getDefaultRoute() : '/login'} replace />
+  // Authenticated users go to their dashboard
+  if (isAuthenticated) return <Navigate to={getDefaultRoute()} replace />
+  // Unauthenticated users see landing page
+  return <LandingPage />
 }
 
 export default function App() {
@@ -69,8 +77,10 @@ export default function App() {
             <Route path="/" element={<RootRedirect />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/verify-otp" element={<OTPVerificationPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route path="/anonymous-tip" element={<AnonymousTipPage />} />
             <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
             <Route path="/citizen/complaint" element={<ProtectedRoute roles={[ROLES.CITIZEN]}><ComplaintPage /></ProtectedRoute>} />
@@ -78,6 +88,7 @@ export default function App() {
             <Route path="/citizen/timeline" element={<ProtectedRoute roles={[ROLES.CITIZEN]}><ComplaintTimelinePage /></ProtectedRoute>} />
             <Route path="/citizen/timeline/:id" element={<ProtectedRoute roles={[ROLES.CITIZEN]}><ComplaintTimelinePage /></ProtectedRoute>} />
             <Route path="/citizen/evidence" element={<ProtectedRoute roles={[ROLES.CITIZEN]}><EvidenceUploadPage /></ProtectedRoute>} />
+            <Route path="/citizen/profile" element={<ProtectedRoute roles={[ROLES.CITIZEN]}><CitizenProfilePage /></ProtectedRoute>} />
 
             <Route path="/officer/dashboard" element={<ProtectedRoute roles={[ROLES.OFFICER, ROLES.SUPERVISOR, ROLES.ADMIN]}><OfficerDashboardPage /></ProtectedRoute>} />
             <Route path="/officer/priority" element={<ProtectedRoute roles={[ROLES.OFFICER, ROLES.SUPERVISOR, ROLES.ADMIN]}><PriorityQueuePage /></ProtectedRoute>} />
@@ -86,12 +97,13 @@ export default function App() {
             <Route path="/officer/evidence" element={<ProtectedRoute roles={[ROLES.OFFICER, ROLES.SUPERVISOR, ROLES.ADMIN]}><EvidenceQueuePage /></ProtectedRoute>} />
             <Route path="/officer/mission" element={<ProtectedRoute roles={[ROLES.OFFICER, ROLES.SUPERVISOR, ROLES.ADMIN]}><MissionControlPage /></ProtectedRoute>} />
             <Route path="/officer/complaints/:id" element={<ProtectedRoute roles={[ROLES.OFFICER, ROLES.SUPERVISOR, ROLES.ADMIN]}><ComplaintDetailsPage /></ProtectedRoute>} />
+            <Route path="/officer/anonymous-tips" element={<ProtectedRoute roles={[ROLES.OFFICER, ROLES.SUPERVISOR, ROLES.ADMIN]}><AnonymousTipsPage /></ProtectedRoute>} />
 
             <Route path="/supervisor/analytics" element={<ProtectedRoute roles={[ROLES.SUPERVISOR, ROLES.ADMIN]}><AnalyticsPage /></ProtectedRoute>} />
             <Route path="/supervisor/war-room" element={<ProtectedRoute roles={[ROLES.SUPERVISOR, ROLES.ADMIN]}><WarRoomPage /></ProtectedRoute>} />
             <Route path="/supervisor/heatmap" element={<ProtectedRoute roles={[ROLES.SUPERVISOR, ROLES.ADMIN]}><HeatmapPage /></ProtectedRoute>} />
-            <Route path="/supervisor/prediction" element={<ProtectedRoute roles={[ROLES.SUPERVISOR, ROLES.ADMIN]}><PredictionPage /></ProtectedRoute>} />
-            <Route path="/supervisor/patrol" element={<ProtectedRoute roles={[ROLES.SUPERVISOR, ROLES.ADMIN]}><PatrolPage /></ProtectedRoute>} />
+            <Route path="/supervisor/prediction" element={<ProtectedRoute roles={[ROLES.SUPERVISOR, ROLES.ADMIN, ROLES.OFFICER]}><PredictionPage /></ProtectedRoute>} />
+            <Route path="/supervisor/patrol" element={<ProtectedRoute roles={[ROLES.SUPERVISOR, ROLES.ADMIN, ROLES.OFFICER]}><PatrolPage /></ProtectedRoute>} />
             <Route path="/supervisor/fusion" element={<ProtectedRoute roles={[ROLES.SUPERVISOR, ROLES.ADMIN]}><FusionPage /></ProtectedRoute>} />
             <Route path="/supervisor/scam-dna" element={<ProtectedRoute roles={[ROLES.SUPERVISOR, ROLES.ADMIN]}><ScamDnaPage /></ProtectedRoute>} />
             <Route path="/supervisor/mule-accounts" element={<ProtectedRoute roles={[ROLES.SUPERVISOR, ROLES.ADMIN]}><MuleAccountsPage /></ProtectedRoute>} />

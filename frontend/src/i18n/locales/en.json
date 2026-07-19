@@ -1,13 +1,10 @@
 {
   "nav": {
-    "dashboard": "Command Center",
-    "complaints": "Complaints",
     "timeline": "Timeline",
-    "evidence": "Evidence",
-    "settings": "Settings",
     "priority": "Priority Queue",
     "alerts": "Alerts",
     "investigation": "Investigation",
+    "evidence": "Evidence Queue",
     "mission": "Mission Control",
     "analytics": "Analytics",
     "warRoom": "War Room",
@@ -31,212 +28,502 @@
     "systemLogs": "System Logs",
     "evidenceVault": "Evidence Vault",
     "systemConfig": "System Config",
+    "dashboard": "Dashboard",
+    "operations": "Operations",
+    "intelligence": "Intelligence",
+    "archives": "Archives",
+    "settings": "Settings",
     "logout": "Logout",
-    "dispatch": "DISPATCH"
-  },
-  "sidebar": {
-    "fileComplaint": "File Complaint",
-    "myComplaints": "My Complaints",
-    "uploadEvidence": "Upload Evidence",
-    "title": "SmartPol AI",
-    "tagline": "AI Smart Policing"
+    "dispatch": "Dispatch Unit"
   },
   "auth": {
+    "otp": {
+      "enterAllDigits": "Please enter all 6 digits.",
+      "invalidOtp": "Invalid OTP code.",
+      "subtitle": "SECURE VERIFICATION",
+      "successTitle": "Verification Successful",
+      "successMessage": "Your identity has been verified. Redirecting...",
+      "title": "Enter OTP",
+      "description": "We've sent a 6-digit verification code to your email.",
+      "verifying": "Verifying...",
+      "verify": "Verify Code",
+      "resendIn": "Resend in",
+      "resending": "Resending...",
+      "resend": "Resend Code",
+      "securityNote": "This code is valid for 10 minutes. Do not share it with anyone.",
+      "wrongEmail": "Wrong email?",
+      "reRegister": "Register again"
+    },
+    "login_title": "Command Login",
+    "login_subtitle": "Enter your tactical credentials to access the grid.",
+    "operator_id": "Operator ID / Email",
+    "access_key": "Access Key",
+    "persistent_session": "Persistent Session",
+    "emergency_reset": "Emergency Reset",
+    "authorize": "Authorize Access",
+    "no_account": "No account?",
+    "register": {
+      "title": "Register",
+      "description": "Create your account",
+      "username": "Username",
+      "email": "Email",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "role": "Role",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "submit": "Register",
+      "alreadyRegistered": "Already registered?",
+      "loginLink": "Login",
+      "tagline": "Enrollment System"
+    },
     "login": {
       "title": "Command Login",
       "subtitle": "Enter your tactical credentials to access the grid.",
       "username": "Operator ID / Email",
       "password": "Access Key",
-      "usernamePlaceholder": "operator@smartpol.gov",
-      "passwordPlaceholder": "••••••••••••",
+      "submit": "Authorize Access",
       "persistSession": "Persistent Session",
       "forgotPassword": "Emergency Reset",
-      "submit": "Authorize Access",
-      "submitting": "Authenticating...",
-      "authorized": "AUTHORIZED",
       "noAccount": "No account?",
-      "registerLink": "Register here",
-      "demoHint": "Demo: password123"
-    },
-    "register": {
-      "title": "Create Account",
-      "subtitle": "Register your SmartPol AI operative account",
-      "tagline": "New Operative Registration",
-      "username": "Username",
-      "email": "Email Address",
-      "firstName": "First Name",
-      "lastName": "Last Name",
-      "role": "Role / Division",
-      "password": "Password",
-      "confirmPassword": "Confirm Password",
-      "usernamePlaceholder": "operative_id",
-      "emailPlaceholder": "operative@smartpol.gov",
-      "firstNamePlaceholder": "First",
-      "lastNamePlaceholder": "Last",
-      "passwordPlaceholder": "Min. 6 characters",
-      "confirmPasswordPlaceholder": "Repeat password",
-      "submit": "Create Account",
-      "submitting": "Creating Account...",
-      "alreadyRegistered": "Already registered?",
-      "loginLink": "Login here"
+      "registerLink": "Register"
     },
     "forgotPassword": {
-      "title": "Emergency Reset",
-      "subtitle": "Enter your registered email address. We'll send you instructions to reset your access key.",
-      "email": "Registered Email",
-      "emailPlaceholder": "operator@smartpol.gov",
-      "submit": "Send Reset Link",
-      "submitting": "Sending Reset Link...",
       "backToLogin": "Back to Login",
-      "rememberedPassword": "Remembered your password?",
-      "securityNote": "For security, we won't confirm whether this email exists in our system. Check your inbox after submission.",
-      "successTitle": "Check Your Inbox",
-      "successMessage": "If this email is registered in our system, you will receive password reset instructions shortly.",
-      "successNote": "Check your spam folder if you don't see it.",
-      "returnToLogin": "Return to Login"
+      "successTitle": "Reset Link Dispatched",
+      "successMessage": "If the operator ID matches our records, a secure reset link has been dispatched.",
+      "successNote": "Check your encrypted inbox.",
+      "returnToLogin": "Return to Login",
+      "title": "Emergency Reset",
+      "subtitle": "Initiate protocol to recover operator access.",
+      "email": "Operator Email",
+      "emailPlaceholder": "operator@smartpol.gov",
+      "securityNote": "Protocol requires verified email. IP will be logged.",
+      "submitting": "Authenticating...",
+      "submit": "Dispatch Reset Link",
+      "rememberedPassword": "Recovered access?"
     },
     "resetPassword": {
-      "title": "Set New Password",
-      "subtitle": "Enter your new access key below. Make it strong.",
-      "newPassword": "New Password",
-      "confirmPassword": "Confirm Password",
-      "newPasswordPlaceholder": "Min. 6 characters",
-      "confirmPasswordPlaceholder": "Repeat new password",
-      "submit": "Reset Password",
-      "submitting": "Resetting...",
-      "successTitle": "Password Reset",
-      "successMessage": "Your password has been successfully updated. You can now log in with your new credentials.",
-      "goToLogin": "Go to Login",
-      "invalidToken": "Invalid or expired reset link",
-      "invalidTokenMessage": "This reset link is invalid or has expired. Please request a new one."
+      "title": "Establish New Key",
+      "subtitle": "Enter your new tactical access key.",
+      "newPassword": "New Access Key",
+      "confirmPassword": "Confirm Access Key",
+      "submit": "Initialize Key",
+      "successTitle": "Key Established",
+      "successMessage": "Your tactical access key has been updated successfully.",
+      "returnToLogin": "Proceed to Login"
     }
-  },
-  "dashboard": {
-    "welcome": "Welcome",
-    "myComplaints": "My Complaints",
-    "pending": "Pending",
-    "resolved": "Resolved",
-    "priorityQueue": "Priority Queue",
-    "goldenHour": "Golden Hour",
-    "activeCases": "Active Cases",
-    "totalComplaints": "Total Complaints",
-    "activeOfficers": "Active Officers",
-    "unreadMessages": "Unread Messages",
-    "urgentMessages": "Urgent Messages",
-    "activeMissions": "Active Missions",
-    "totalUsers": "Total Users",
-    "officers": "Officers",
-    "agents": "Agents",
-    "systemLogs": "System Logs"
   },
   "complaint": {
+    "classification": "Classification",
+    "qr_code": "QR Code",
+    "scan_to_track": "Scan to track",
+    "file_another": "File Another Complaint",
+    "summary_placeholder": "Brief summary of incident",
+    "categories": {
+      "general": "General",
+      "financial_fraud": "Financial Fraud",
+      "assault": "Assault",
+      "cybercrime": "Cybercrime",
+      "theft": "Theft",
+      "emergency": "Emergency / SOS"
+    },
+    "location_placeholder": "Where did this occur?",
+    "description_placeholder": "Describe the incident in detail...",
+    "mock_voice_alert": "Mock Voice Input captured.",
+    "mock_voice_text": "[Voice Input Activated - Transcription: \"I witnessed a suspicious activity near the central plaza...\"] ",
+    "mock_qr_alert": "Mock QR Scanned.",
+    "mock_qr_text": "[QR Scanned Data: Incident #QR-778-99X] ",
     "title": "File a Complaint",
-    "subtitle": "AI-powered incident reporting with real-time analysis",
-    "field_title": "Incident Title",
+    "subtitle": "Submit your report with AI-powered analysis",
+    "field_title": "Title",
     "field_category": "Category",
     "field_location": "Location",
-    "field_description": "Detailed Description",
+    "field_description": "Description",
     "submit": "Submit Complaint",
-    "success": "Complaint Registered Successfully",
-    "voice": "Voice Input",
-    "qr_scan": "Scan QR",
-    "noComplaints": "No complaints filed yet",
-    "status": {
-      "pending": "Pending",
-      "investigating": "Investigating",
-      "resolved": "Resolved",
-      "escalated": "Escalated"
-    }
+    "voice": "Voice Complaint",
+    "qr_scan": "QR Scan",
+    "success": "Complaint Filed Successfully"
   },
   "ai": {
+    "analysis_preview": "AI Analysis Preview",
+    "fraud_label": "Fraud",
+    "entities_label": "Entities",
+    "phones_found": "phones found",
+    "dna_match": "DNA Match",
+    "confidence": "AI Confidence",
     "urgency": "Urgency Score",
+    "fraud_probability": "Fraud Probability",
+    "threat_level": "Threat Level",
+    "risk_level": "Risk Level",
     "readiness": "Readiness Score",
-    "classification": "Classification",
-    "entities": "Entities"
+    "priority": "Priority Score",
+    "reasoning": "Reasoning",
+    "next_action": "Suggested Next Action"
   },
-  "forms": {
-    "required": "This field is required",
-    "invalidEmail": "Please enter a valid email address",
-    "passwordTooShort": "Password must be at least 6 characters",
-    "passwordMismatch": "Passwords do not match",
-    "usernameTooShort": "Username must be at least 3 characters"
-  },
-  "buttons": {
-    "save": "Save",
-    "cancel": "Cancel",
-    "delete": "Delete",
-    "edit": "Edit",
-    "view": "View",
-    "submit": "Submit",
-    "back": "Back",
-    "next": "Next",
-    "refresh": "Refresh",
-    "export": "Export",
-    "upload": "Upload",
-    "download": "Download",
-    "confirm": "Confirm",
-    "close": "Close",
+  "common": {
+    "loading": "Loading...",
+    "no_data": "No data available",
     "search": "Search",
+    "export_csv": "Export CSV",
     "filter": "Filter",
-    "assign": "Assign",
-    "escalate": "Escalate",
-    "resolve": "Resolve"
+    "offline_banner": "You're offline — changes will sync automatically once reconnected."
   },
-  "tables": {
-    "id": "ID",
-    "name": "Name",
-    "status": "Status",
-    "date": "Date",
-    "action": "Action",
-    "category": "Category",
-    "priority": "Priority",
-    "assignedTo": "Assigned To",
-    "createdAt": "Created At",
-    "updatedAt": "Updated At",
-    "noData": "No data available",
-    "loading": "Loading data...",
-    "showing": "Showing",
-    "of": "of",
-    "entries": "entries"
+  "sidebar": {
+    "title": "SmartPol AI",
+    "fileComplaint": "File Complaint",
+    "myComplaints": "My Complaints",
+    "uploadEvidence": "Upload Evidence"
   },
-  "notifications": {
-    "title": "Notifications",
-    "markAllRead": "Mark all read",
-    "noNotifications": "No notifications",
-    "new": "New",
-    "goldenHour": "Golden Hour Alert",
-    "duressAlert": "DURESS ALERT",
-    "systemAlert": "System Alert"
+  "complaints": {
+    "title": "My Complaints",
+    "table": {
+      "id": "ID",
+      "title": "Title",
+      "category": "Category",
+      "status": "Status",
+      "urgency": "Urgency",
+      "actions": ""
+    },
+    "timeline_link": "Timeline →"
   },
-  "errors": {
-    "generic": "An error occurred. Please try again.",
-    "network": "Network error. Check your connection.",
-    "unauthorized": "You are not authorized to access this page.",
-    "notFound": "Page not found.",
-    "serverError": "Server error. Please try again later.",
-    "invalidCredentials": "Invalid credentials. Please try again.",
-    "sessionExpired": "Your session has expired. Please log in again.",
-    "emailNotFound": "Email address not found.",
-    "tokenExpired": "Reset link has expired. Please request a new one.",
-    "tokenInvalid": "Invalid reset token."
+  "timeline": {
+    "title": "Complaint Timeline",
+    "subtitle": "Investigation Pulse",
+    "urgency_label": "Urgency:",
+    "qr_label": "QR:",
+    "no_events": "No timeline events yet."
+  },
+  "evidence": {
+    "title": "Upload Evidence",
+    "subtitle": "Evidence Upload",
+    "select_complaint": "Select Complaint",
+    "upload_button": "Upload to Evidence Vault",
+    "uploaded": "Uploaded:",
+    "hash": "Hash:"
+  },
+  "officerDashboard": {
+    "appTitle": "SmartPol AI",
+    "appSubtitle": "Sector 7G — High Alert",
+    "generateReports": "Generate Reports",
+    "createAlert": "Create Alert",
+    "assignPatrol": "Assign Patrol",
+    "predictCrime": "Predict Crime",
+    "kpi": {
+      "todayCrimes": {
+        "label": "Today's Crimes",
+        "trend": "+12% vs Yesterday"
+      },
+      "highRiskAreas": {
+        "label": "High Risk Areas",
+        "subtext": "Active Monitoring"
+      },
+      "emergencyAlerts": {
+        "label": "Emergency Alerts",
+        "subtext": "PENDING DISPATCH"
+      },
+      "patrolUnits": {
+        "label": "Patrolling Units",
+        "subtext": "82% DEPLOYED"
+      },
+      "predictionAccuracy": {
+        "label": "Prediction Accuracy",
+        "subtext": "Optimized"
+      }
+    },
+    "charts": {
+      "crimeTrendMatrix": "Crime Trend Matrix",
+      "incidentSegments": "Incident Segments"
+    },
+    "table": {
+      "title": "Active Field Incidents",
+      "badge": "LIVE_FEED",
+      "columns": {
+        "id": "ID",
+        "type": "Type",
+        "location": "Location",
+        "status": "Status",
+        "severity": "Severity"
+      }
+    }
+  },
+  "priorityQueue": {
+    "appTitle": "SmartPol AI",
+    "appSubtitle": "Priority Queue",
+    "goldenHourActive": "GOLDEN HOUR ACTIVE",
+    "title": "Priority Queue",
+    "columns": {
+      "priority": "Priority",
+      "case": "Case",
+      "title": "Title",
+      "urgency": "Urgency",
+      "readiness": "Readiness",
+      "status": "Status"
+    }
+  },
+  "alerts": {
+    "appTitle": "SmartPol AI",
+    "appSubtitle": "Emergency Alert Center",
+    "liveStatus": "LIVE STATUS: CRITICAL",
+    "title": "Emergency Alert Center",
+    "activeSos": "ACTIVE SOS",
+    "total": "TOTAL",
+    "stats": {
+      "goldenHour": {
+        "title": "Golden Hour",
+        "priority": "PRIORITY 1",
+        "description": "Unresolved"
+      },
+      "cybercrime": {
+        "title": "Cybercrime",
+        "priority": "PRIORITY 2",
+        "description": "Tracking"
+      },
+      "general": {
+        "title": "General",
+        "priority": "PRIORITY 3",
+        "description": "Advisory"
+      }
+    },
+    "repositoryTitle": "ALERTS REPOSITORY",
+    "noActiveAlerts": "No active alerts.",
+    "columns": {
+      "alertId": "ALERT ID",
+      "type": "TYPE",
+      "priority": "PRIORITY",
+      "link": "LINK",
+      "status": "STATUS"
+    },
+    "initiateEmergency1": "INITIATE EMERGENCY",
+    "initiateEmergency2": "PROTOCOL"
+  },
+  "investigation": {
+    "appTitle": "SmartPol AI",
+    "appSubtitle": "Investigation Report Generator",
+    "title": "Investigation Report Generator",
+    "description": "AI-powered investigation readiness analysis",
+    "form": {
+      "caseNotes": {
+        "label": "Case Notes",
+        "placeholder": "Enter investigation details, witness statements, evidence summary..."
+      },
+      "generateBtn": "Generate Investigation Report"
+    },
+    "results": {
+      "entityExtraction": {
+        "title": "Entity Extraction",
+        "phones": "Phones:",
+        "emails": "Emails:",
+        "amounts": "Amounts:",
+        "none": "None"
+      },
+      "aiScores": {
+        "title": "AI Scores",
+        "urgency": "Urgency:",
+        "fraudClass": "Fraud Class:",
+        "readiness": "Readiness:",
+        "readinessHigh": "High",
+        "goldenHour": "Golden Hour:",
+        "yes": "YES ⚡",
+        "no": "No"
+      }
+    }
+  },
+  "evidenceQueue": {
+    "appTitle": "SmartPol AI",
+    "appSubtitle": "Evidence Queue",
+    "title": "Evidence Queue",
+    "noEvidence": "No evidence pending review.",
+    "hashLabel": "HASH:",
+    "pendingReview": "PENDING REVIEW"
+  },
+  "missionControl": {
+    "appTitle": "SmartPol AI",
+    "appSubtitle": "Mission Control",
+    "title": "Mission Control",
+    "kpis": {
+      "activeMissions": "Active Missions",
+      "unitsDeployed": "Units Deployed",
+      "responseTime": "Response Time",
+      "criticalAlerts": "Critical Alerts"
+    },
+    "liveUnitMap": {
+      "title": "Live Unit Map",
+      "overlay": "Tactical map overlay — Sector 7G"
+    },
+    "unitStatus": {
+      "title": "Unit Status",
+      "patrolling": "Patrolling",
+      "responding": "Responding",
+      "inBriefing": "In Briefing"
+    }
+  },
+  "agentWorkspace": {
+    "title": {
+      "chat": "Encrypted Communications",
+      "missions": "Active Missions",
+      "urgent": "Urgent Intelligence",
+      "timeline": "Mission Timeline",
+      "command": "SecretAgent Command Center"
+    },
+    "appLayout": {
+      "title": "SmartPol AI",
+      "subtitle": "SecretAgent Secure Channel"
+    },
+    "stats": {
+      "unread": "Unread:",
+      "urgent": "Urgent:",
+      "missions": "Missions:"
+    },
+    "input": {
+      "placeholder": "Encrypted operational intelligence...",
+      "markUrgent": "Mark urgent",
+      "transmit": "TRANSMIT"
+    },
+    "message": {
+      "defaultSubject": "Secure transmission"
+    }
+  },
+  "adminWorkspace": {
+    "title": {
+      "dashboard": "System Administration",
+      "roles": "Roles & Permissions",
+      "config": "System Configuration",
+      "dynamic": "Admin: {{mode}}"
+    },
+    "logs": {
+      "time": "Time",
+      "operator": "Operator",
+      "action": "Action",
+      "details": "Details"
+    },
+    "evidence": {
+      "evidence": "Evidence",
+      "type": "Type",
+      "sha256": "SHA-256",
+      "uploaded": "Uploaded"
+    },
+    "users": {
+      "username": "Username",
+      "email": "Email",
+      "role": "Role",
+      "district": "District",
+      "badge": "Badge"
+    },
+    "appLayout": {
+      "title": "SmartPol AI",
+      "subtitle": "Administrative Control"
+    },
+    "roles": {
+      "message": "RBAC is enforced by protected routes and backend role permissions. Administrative role assignment is available through Manage Users."
+    },
+    "config": {
+      "message": "Demo mode uses SQLite and local media storage. Set Django environment variables before production deployment."
+    }
+  },
+  "analytics": {
+    "title": "Strategic Analytics Dashboard",
+    "subtitle": "Strategic Analytics",
+    "totalCases": "Total Cases",
+    "avgUrgency": "Avg Urgency",
+    "officersActive": "Officers Active",
+    "scamClusters": "Scam Clusters",
+    "crimeTrends": "7-Day Crime Trends",
+    "categoryDistribution": "Category Distribution",
+    "officerPerformance": "Officer Performance"
+  },
+  "fusion": {
+    "title": "Intelligence Fusion Center",
+    "subtitle": "Intelligence Fusion Center",
+    "linkedIdentifiers": "Linked Identifiers",
+    "fusionStatus": "Fusion Status",
+    "dataSources": "Data Sources",
+    "fuseReport": "Fuse a report",
+    "placeholder": "Paste a complaint or field report to correlate entities...",
+    "runFusion": "RUN FUSION"
+  },
+  "heatmap": {
+    "title": "Crime Heatmap",
+    "subtitle": "Tactical Heatmap",
+    "hotZones": "Hot Zones",
+    "dataPoints": "Data Points",
+    "coverage": "Coverage",
+    "refresh": "Refresh",
+    "tacticalDensity": "Tactical Crime Density"
+  },
+  "mule": {
+    "title": "Mule Account Detection",
+    "subtitle": "Mule Account Detection",
+    "colAccount": "Account",
+    "colBank": "Bank",
+    "colTransactions": "Transactions",
+    "colExposure": "Exposure (INR)",
+    "colRisk": "Risk",
+    "colStatus": "Status"
+  },
+  "patrol": {
+    "title": "Patrol Optimization",
+    "subtitle": "Patrol Optimization",
+    "unitsDeployed": "Units Deployed",
+    "activePatrols": "Active Patrols",
+    "avgResponse": "Avg Response",
+    "coverage": "Coverage",
+    "patrolUnits": "PATROL UNITS",
+    "eff": "Eff"
+  },
+  "prediction": {
+    "title": "AI Crime Prediction",
+    "subtitle": "Crime Prediction",
+    "modelAccuracy": "Model Accuracy",
+    "highRiskZones": "High Risk Zones",
+    "predictions": "Predictions",
+    "horizon": "Horizon",
+    "historicalBaseline": "Historical Baseline",
+    "predictedIncidents": "Predicted Incidents"
+  },
+  "scamDna": {
+    "title": "Scam DNA Laboratory",
+    "subtitle": "Scam DNA Laboratory",
+    "colPatternId": "Pattern ID",
+    "colName": "Scam Family",
+    "colCategory": "Category",
+    "colLinkedCases": "Linked Cases",
+    "colConfidence": "Confidence"
+  },
+  "suspects": {
+    "title": "Suspect Relationship Graph",
+    "subtitle": "Suspect Relationship Graph"
+  },
+  "warRoom": {
+    "title": "Strategic Command War Room",
+    "subtitle": "Strategic Command War Room",
+    "threatLevel": "Threat Level",
+    "activeOps": "Active Ops",
+    "intelFeeds": "Intel Feeds",
+    "unitsReady": "Units Ready",
+    "tacticalOverview": "Tactical Overview",
+    "realTimeAlerts": "Real-time Alerts"
   },
   "roles": {
     "citizen": "Citizen",
     "officer": "Officer",
-    "supervisor": "Supervisor",
-    "secret_agent": "Secret Agent",
-    "admin": "System Admin"
+    "supervisor": "Supervisor"
   },
-  "common": {
-    "loading": "Loading...",
-    "error": "An error occurred",
-    "save": "Save",
-    "cancel": "Cancel",
-    "delete": "Delete",
-    "search": "Search",
-    "language": "Language",
-    "english": "English",
-    "hindi": "हिंदी",
-    "gujarati": "ગુજરાતી"
+  "landing": {
+    "hero": {
+      "title": "SmartPol AI"
+    }
+  },
+  "forms": {
+    "required": "This field is required.",
+    "invalidEmail": "Please enter a valid email address."
+  },
+  "errors": {
+    "generic": "An unexpected error occurred. Please try again."
+  },
+  "unauthorized": {
+    "title": "Unauthorized Access",
+    "subtitle": "You do not have the required clearance level to view this sector.",
+    "back": "Return to Dashboard"
   }
 }

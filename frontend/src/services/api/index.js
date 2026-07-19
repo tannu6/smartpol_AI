@@ -6,7 +6,10 @@ export const authService = {
   logout: (refresh) => api.post('/auth/logout/', { refresh }),
   forgotPassword: (email) => api.post('/auth/forgot-password/', { email }),
   resetPassword: (token, password, password_confirm) => api.post('/auth/reset-password/', { token, password, password_confirm }),
+  verifyOtp: (user_id, otp_code) => api.post('/auth/verify-otp/', { user_id, code: otp_code }),
+  resendOtp: (user_id) => api.post('/auth/resend-otp/', { user_id }),
   me: () => api.get('/auth/me/'),
+  updateProfile: (data) => api.put('/auth/me/', data),
 }
 
 export const dashboardService = {
