@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import AppLayout from '../../components/layout/AppLayout'
 import { DataTable } from '../../components/ui/DataTable'
-import axios from 'axios'
+import { anonymousTipService } from '../../services/api'
 import { Lock, ShieldAlert, FileText, CheckCircle } from 'lucide-react'
 
 export default function AnonymousTipsPage() {
@@ -21,9 +21,7 @@ export default function AnonymousTipsPage() {
   const fetchTips = async () => {
     try {
       setLoading(true)
-      const res = await axios.get('/api/v1/officer/anonymous-tips/', {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      })
+      const res = await anonymousTipService.list()
       setTips(res.data)
     } catch (err) {
       setError('Failed to fetch secure anonymous tips queue.')
@@ -40,13 +38,11 @@ export default function AnonymousTipsPage() {
     if (!selectedTip) return
     try {
       setSaving(true)
-      await axios.put(`/api/v1/officer/anonymous-tips/${selectedTip.id}/`, {
+      await anonymousTipService.update(selectedTip.id, {
         status: updateStatus,
         category: updateCategory,
         risk_level: updateRisk,
         notes: updateNotes
-      }, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       })
       setSelectedTip(null)
       fetchTips()

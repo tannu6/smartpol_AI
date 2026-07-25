@@ -14,7 +14,7 @@ export default function Navbar({ title = 'SmartPol AI', showSearch = true }) {
   return (
     <header className="flex justify-between items-center w-full px-lg h-16 sticky top-0 z-50 bg-surface/60 backdrop-blur-xl border-b border-primary/15 shadow-[0_0_20px_rgba(37,99,235,0.2)]">
       <div className="flex items-center gap-xl">
-        <button className="md:hidden material-symbols-outlined text-primary" onClick={toggleSidebar}>menu</button>
+        <button className="lg:hidden material-symbols-outlined text-primary" onClick={toggleSidebar}>menu</button>
         <div className="font-display-lg-mobile text-display-lg-mobile font-bold tracking-tighter text-primary drop-shadow-[0_0_10px_rgba(180,197,255,0.4)]">
           {title}
         </div>

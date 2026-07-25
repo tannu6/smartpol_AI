@@ -33,7 +33,7 @@ export function DataTable({ columns, data }) {
         <thead>
           <tr className="border-b border-primary/20 bg-surface-container-high/50">
             {columns.map((col, i) => (
-              <th key={col.key || i} className="p-sm text-xs font-mono-data text-on-surface-variant uppercase tracking-wider">
+              <th key={col.key || i} className="p-sm text-xs font-label-caps text-on-surface-variant tracking-wider">
                 {col.label}
               </th>
             ))}

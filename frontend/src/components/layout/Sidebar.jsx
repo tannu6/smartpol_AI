@@ -22,7 +22,7 @@ export default function Sidebar({ subtitle = "District 7 Command" }) {
     <>
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/60 z-40 md:hidden"
+          className="fixed inset-0 bg-black/60 z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -30,7 +30,7 @@ export default function Sidebar({ subtitle = "District 7 Command" }) {
       <aside
         className={`fixed top-0 left-0 z-50 h-screen w-[280px] bg-surface-container-lowest/80 backdrop-blur-2xl border-r border-primary/10 flex flex-col py-md transition-transform duration-300
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
-        md:translate-x-0`}
+        lg:translate-x-0`}
       >
         <div className="px-md mb-xl">
           <div className="flex items-center gap-sm">

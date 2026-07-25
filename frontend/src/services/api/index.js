@@ -75,3 +75,9 @@ export const adminService = {
   updateUser: (id, data) => api.patch(`/admin/users/${id}/`, data),
   logs: () => api.get('/admin/logs/'),
 }
+
+export const anonymousTipService = {
+  list: () => api.get('/officer/anonymous-tips/'),
+  update: (id, data) => api.put(`/officer/anonymous-tips/${id}/`, data),
+  submit: (body) => api.post('/anonymous-tips/', { body }),
+}

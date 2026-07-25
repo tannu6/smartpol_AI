@@ -23,7 +23,7 @@ export default function AppLayout({
         <Sidebar subtitle={subtitle} />
 
         {/* Main Content */}
-        <main className="flex flex-1 flex-col md:ml-[280px] min-w-0">
+        <main className="flex flex-1 flex-col lg:ml-[280px] min-w-0">
 
           {/* Navbar */}
           <Navbar

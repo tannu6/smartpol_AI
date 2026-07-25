@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import AppLayout from '../../components/layout/AppLayout'
 import { KpiCard } from '../../components/ui/Card'
 import { DataTable } from '../../components/ui/DataTable'

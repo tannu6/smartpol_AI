@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { authService } from '../../services/api'
-import axios from 'axios'
+import { anonymousTipService } from '../../services/api'
 import LanguageSelector from '../../components/ui/LanguageSelector'
 
 const INPUT_STYLE = {
@@ -38,7 +37,7 @@ export default function AnonymousTipPage() {
     setLoading(true)
     setError('')
     try {
-      const response = await axios.post('/api/v1/anonymous-tips/', { body: tip })
+      const response = await anonymousTipService.submit(tip)
       setTrackingId(response.data.tracking_id)
       setTip('')
     } catch (err) {

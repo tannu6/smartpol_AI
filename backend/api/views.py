@@ -75,15 +75,14 @@ class RegisterView(APIView):
                 )
                 print(f"Email sent successfully to {user.email}")
             except Exception as e:
-                print(f"[DEMO MODE] Network simulation: Email delivery skipped. OTP is {otp}")
+                print(f"[DEMO MODE] Network simulation: Email delivery skipped. OTP is {code}")
                 
             log_action(user, 'REGISTER', f'User {user.username} registered (needs OTP)', request)
             
             return Response({
                 'requires_otp': True,
                 'user_id': user.id,
-                'detail': 'Registration successful. OTP required to activate account.',
-                'demo_otp': code
+                'detail': 'Registration successful. OTP required to activate account.'
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -200,10 +199,7 @@ class VerifyOTPView(APIView):
         if not otp_record or not otp_record.is_valid():
             return Response({'detail': 'OTP is invalid or expired.'}, status=status.HTTP_400_BAD_REQUEST)
         
-        # We assume the code matches for MVP if they just type anything 6 digits, or we can check
-        # But wait, the frontend sends 6 digits. Let's accept if it matches or if it's '123456'
-        if code != '123456' and code != otp_record.otp_code:
-            # Let's just accept 123456 for demo purposes since we can't always check email easily
+        if code != otp_record.otp_code:
             return Response({'detail': 'Invalid OTP.'}, status=status.HTTP_400_BAD_REQUEST)
             
         otp_record.is_used = True
@@ -252,10 +248,10 @@ class ResendOTPView(APIView):
             )
             print(f"Email sent successfully to {user.email}")
         except Exception as e:
-            print(f"[DEMO MODE] Network simulation: Email delivery skipped. OTP is {otp}")
+            print(f"[DEMO MODE] Network simulation: Email delivery skipped. OTP is {code}")
             
         log_action(user, 'RESEND_OTP', request=request)
-        return Response({'detail': 'OTP sent.', 'demo_otp': code})
+        return Response({'detail': 'OTP sent.'})
 
 
 @api_view(['GET', 'PUT', 'PATCH'])

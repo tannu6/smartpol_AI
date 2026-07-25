@@ -89,7 +89,7 @@ export default function OfficerDashboardPage() {
             <span className="material-symbols-outlined text-lg">auto_graph</span> {t('officerDashboard.predictCrime')}
           </Link>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-md">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-md">
           <KpiCard label={t('officerDashboard.kpi.todayCrimes.label')} value={kpis.today_crimes || 0} icon="local_police" accent="secondary" trend={t('officerDashboard.kpi.todayCrimes.trend')} />
           <KpiCard label={t('officerDashboard.kpi.highRiskAreas.label')} value={kpis.high_risk_areas || 0} icon="dangerous" accent="error" subtext={t('officerDashboard.kpi.highRiskAreas.subtext')} />
           <KpiCard label={t('officerDashboard.kpi.emergencyAlerts.label')} value={kpis.emergency_alerts || 0} icon="notifications_active" accent="secondary" subtext={t('officerDashboard.kpi.emergencyAlerts.subtext')} />

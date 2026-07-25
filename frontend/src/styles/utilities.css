@@ -28,23 +28,30 @@
   .text-on-error { color: var(--color-on-error); }
 
   /* ─── Typography ─── */
-  .font-display-lg { font-family: var(--font-display-lg); font-size: 48px; line-height: 56px; font-weight: 700; letter-spacing: -0.02em; }
-  .font-display-lg-mobile { font-family: var(--font-display-lg-mobile); font-size: 32px; line-height: 40px; font-weight: 700; }
-  .font-headline-md { font-family: var(--font-headline-md); font-size: 24px; line-height: 32px; font-weight: 600; }
-  .font-title-sm { font-family: var(--font-title-sm); font-size: 18px; line-height: 24px; font-weight: 600; }
-  .font-body-md { font-family: var(--font-body-md); font-size: 16px; line-height: 24px; }
-  .font-body-sm { font-family: var(--font-body-sm); font-size: 14px; line-height: 20px; }
-  .font-label-caps { font-family: var(--font-label-caps); font-size: 12px; line-height: 16px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
-  .font-mono-data { font-family: var(--font-mono-data); font-size: 14px; line-height: 20px; }
+  .font-display-lg { font-family: var(--font-display-lg); font-size: 40px; line-height: 48px; font-weight: 700; letter-spacing: -0.02em; }
+  .font-display-lg-mobile { font-family: var(--font-display-lg-mobile); font-size: 24px; line-height: 32px; font-weight: 700; }
+  .font-headline-md { font-family: var(--font-headline-md); font-size: 28px; line-height: 36px; font-weight: 700; }
+  .font-title-sm { font-family: var(--font-title-sm); font-size: 20px; line-height: 28px; font-weight: 600; }
+  .font-body-md { font-family: var(--font-body-md); font-size: 15px; line-height: 24px; }
+  .font-body-sm { font-family: var(--font-body-sm); font-size: 13px; line-height: 20px; }
+  .font-label-caps {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    text-transform: none;
+  }
+  .font-mono-data { font-family: "Space Mono", monospace; letter-spacing: 0; }
 
-  .text-display-lg { font-size: 48px; line-height: 56px; }
-  .text-display-lg-mobile { font-size: 32px; line-height: 40px; }
-  .text-headline-md { font-size: 24px; line-height: 32px; }
-  .text-title-sm { font-size: 18px; line-height: 24px; }
-  .text-body-md { font-size: 16px; line-height: 24px; }
-  .text-body-sm { font-size: 14px; line-height: 20px; }
-  .text-label-caps { font-size: 12px; line-height: 16px; text-transform: uppercase; }
-  .text-mono-data { font-family: var(--font-mono-data); font-size: 14px; line-height: 20px; }
+  .text-display-lg { font-size: 40px; line-height: 48px; }
+  .text-display-lg-mobile { font-size: 24px; line-height: 32px; }
+  .text-headline-md { font-size: 28px; line-height: 36px; }
+  .text-title-sm { font-size: 20px; line-height: 28px; }
+  .text-body-md { font-size: 15px; line-height: 24px; }
+  .text-body-sm { font-size: 13px; line-height: 20px; }
+  .text-label-caps { font-size: 11px; }
+  .text-mono-data { font-family: "Space Mono", monospace; font-size: 14px; line-height: 20px; }
+  .label-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 10px; }
 
   /* ─── Spacing ─── */
   .gap-xs { gap: var(--spacing-xs); }
@@ -113,16 +120,12 @@
     position: relative;
     background: rgba(16, 26, 46, 0.6);
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(180, 197, 255, 0.15);
+    border: 1px solid rgba(180, 197, 255, 0.12);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  .glass-panel::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 2px;
-    height: 16px;
-    background-color: var(--color-secondary);
+  .glass-panel:hover {
+    border-color: rgba(37, 99, 235, 0.3) !important;
+    box-shadow: 0 0 20px rgba(37, 99, 235, 0.1) !important;
   }
 
   /* ─── Buttons ─── */

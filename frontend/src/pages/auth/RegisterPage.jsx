@@ -6,56 +6,37 @@ import { useTranslation } from 'react-i18next'
 import LanguageSelector from '../../components/ui/LanguageSelector'
 import { ROLE_LABELS, ROLES } from '../../config/navigation'
 
-const INPUT_STYLE = {
-  width: '100%',
-  boxSizing: 'border-box',
-  paddingTop: 12,
-  paddingBottom: 12,
-  paddingLeft: 44,
-  paddingRight: 14,
-  background: 'rgba(4,14,33,0.8)',
-  border: '1px solid rgba(180,197,255,0.1)',
-  borderRadius: 8,
-  color: '#fff',
-  fontSize: 15,
-  outline: 'none',
-  fontFamily: 'Inter, sans-serif',
-  transition: 'border-color 0.2s, box-shadow 0.2s',
-}
-
-const INPUT_NO_ICON_STYLE = {
-  ...INPUT_STYLE,
-  paddingLeft: 14,
-}
-
 function Field({ label, icon, type = 'text', register: reg, error, placeholder, showToggle, onToggle, showPass }) {
   return (
     <div>
-      <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#8d90a0', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 6 }}>
+      <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">
         {label}
       </label>
-      <div style={{ position: 'relative' }}>
+      <div className="relative">
         {icon && (
-          <span className="material-symbols-outlined" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 20, color: '#8d90a0', pointerEvents: 'none' }}>
+          <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-xl text-on-surface-variant/60 pointer-events-none">
             {icon}
           </span>
         )}
         <input
           type={type}
           placeholder={placeholder}
-          style={{ ...(icon ? INPUT_STYLE : INPUT_NO_ICON_STYLE), paddingRight: showToggle ? 44 : 14, borderColor: error ? 'rgba(255,100,100,0.5)' : 'rgba(180,197,255,0.1)' }}
-          onFocus={e => { e.target.style.borderColor = '#2563eb'; e.target.style.boxShadow = '0 0 0 1px #2563eb, 0 0 14px rgba(37,99,235,0.2)'; }}
-          onBlur={e => { e.target.style.borderColor = error ? 'rgba(255,100,100,0.5)' : 'rgba(180,197,255,0.1)'; e.target.style.boxShadow = 'none'; }}
+          className={`w-full py-3 pr-4 bg-surface-container-lowest border rounded-lg text-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/25 transition-all ${
+            icon ? 'pl-11' : 'pl-4'
+          } ${showToggle ? 'pr-11' : 'pr-4'} ${error ? 'border-error/60' : 'border-outline-variant/10'}`}
           {...reg}
         />
         {showToggle && (
-          <button type="button" onClick={onToggle}
-            style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#8d90a0', padding: 4 }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 20 }}>{showPass ? 'visibility_off' : 'visibility'}</span>
+          <button
+            type="button"
+            onClick={onToggle}
+            className="absolute right-3.5 top-1/2 -translate-y-1/2 bg-none border-none cursor-pointer p-1 text-on-surface-variant/60 hover:text-on-surface"
+          >
+            <span className="material-symbols-outlined text-lg">{showPass ? 'visibility_off' : 'visibility'}</span>
           </button>
         )}
       </div>
-      {error && <p style={{ margin: '4px 0 0', fontSize: 12, color: '#ffb4ab' }}>{error.message || error}</p>}
+      {error && <p className="mt-1 text-xs text-error">{error.message || error}</p>}
     </div>
   )
 }
@@ -78,10 +59,8 @@ export default function RegisterPage() {
     setApiError('')
     try {
       const result = await registerUser(data)
-      // After register, OTP is required — redirect to verify-otp
       if (result?.requires_otp && result?.user_id) {
         let url = `/verify-otp?user_id=${result.user_id}`
-        if (result.demo_otp) url += `&demo_otp=${result.demo_otp}`
         navigate(url)
       } else {
         navigate('/login')
@@ -101,56 +80,33 @@ export default function RegisterPage() {
     .map(([value, label]) => ({ value, label }))
 
   return (
-    <main style={{ display: 'flex', minHeight: '100vh', width: '100%', background: '#040e21', alignItems: 'center', justifyContent: 'center', padding: '24px 20px' }}>
-      <div style={{ position: 'absolute', top: 20, right: 20, zIndex: 50 }}>
+    <main className="flex min-h-screen w-full bg-surface-container-lowest text-on-surface items-center justify-center p-6 relative overflow-hidden">
+      <div className="absolute top-5 right-5 z-50">
         <LanguageSelector />
       </div>
 
-      <div style={{
-        position: 'fixed', inset: 0, zIndex: 0,
-        backgroundImage: 'linear-gradient(rgba(37,99,235,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(37,99,235,0.05) 1px, transparent 1px)',
-        backgroundSize: '44px 44px',
-      }} />
-      <div style={{
-        position: 'fixed', top: '30%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 0,
-        width: 700, height: 700, borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(37,99,235,0.08) 0%, transparent 65%)',
-        pointerEvents: 'none',
-      }} />
+      <div className="fixed inset-0 z-0 cyber-grid opacity-30 pointer-events-none" />
+      <div className="fixed top-[30%] left-[50%] -translate-x-[50%] -translate-y-[50%] z-0 w-[700px] h-[700px] rounded-full bg-gradient-to-r from-primary/5 to-transparent blur-3xl pointer-events-none" />
 
-      <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 480, animation: 'slideUp 0.5s cubic-bezier(0.16,1,0.3,1) forwards' }}>
+      <div className="relative z-10 w-full max-w-[480px] animate-slide-up">
 
-        <div style={{ textAlign: 'center', marginBottom: 28 }}>
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            width: 60, height: 60, borderRadius: '50%',
-            background: 'rgba(37,99,235,0.15)',
-            border: '1.5px solid rgba(37,99,235,0.35)',
-            marginBottom: 12,
-          }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 32, color: '#b4c5ff', fontVariationSettings: "'FILL' 1" }}>shield</span>
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 border border-primary/20 mb-3">
+            <span className="material-symbols-outlined text-primary text-3xl font-fill-1">shield</span>
           </div>
-          <h1 style={{ fontSize: 22, fontWeight: 800, color: '#fff', margin: 0 }}>{t('landing.hero.title', 'SmartPol AI')}</h1>
-          <p style={{ fontSize: 12, color: '#4cd7f6', letterSpacing: '0.15em', textTransform: 'uppercase', margin: '4px 0 0', fontFamily: "'Space Mono', monospace" }}>
-            {t('auth.register.tagline', 'System Enrollment System')}
+          <h1 className="text-xl font-bold text-on-surface">{t('landing.hero.title', 'SmartPol AI')}</h1>
+          <p className="text-xs font-semibold text-secondary tracking-widest uppercase mt-1 opacity-90 font-mono-data">
+            {t('auth.register.tagline', 'System Enrollment')}
           </p>
         </div>
 
-        <div style={{
-          background: 'rgba(16,26,46,0.75)',
-          backdropFilter: 'blur(24px)',
-          border: '1px solid rgba(180,197,255,0.12)',
-          borderRadius: 16,
-          padding: '32px 28px',
-          position: 'relative',
-          overflow: 'hidden',
-        }}>
-          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg, #2563eb, #4cd7f6, transparent)' }} />
+        <div className="bg-surface-container border border-outline-variant/15 rounded-xl p-8 shadow-xl relative overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary via-secondary to-transparent" />
 
-          <h2 style={{ fontSize: 20, fontWeight: 700, color: '#fff', margin: '0 0 6px' }}>{t('auth.register.title', 'System Registration')}</h2>
-          <p style={{ fontSize: 13, color: '#8d90a0', margin: '0 0 24px' }}>{t('auth.register.description', 'Create your operative account')}</p>
+          <h2 className="text-h2 text-on-surface mb-1">{t('auth.register.title', 'System Registration')}</h2>
+          <p className="text-sm text-on-surface-variant mb-6">{t('auth.register.description', 'Create your operative account')}</p>
 
-          <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
 
             <Field label={t('auth.register.username', 'Username')} icon="person" placeholder={t('auth.register.usernamePlaceholder', 'e.g. jdoe')}
               register={register('username', { required: t('forms.required'), minLength: { value: 3, message: t('forms.usernameTooShort') } })}
@@ -160,38 +116,46 @@ export default function RegisterPage() {
               register={register('email', { required: t('forms.required'), pattern: { value: /\S+@\S+\.\S+/, message: t('forms.invalidEmail') } })}
               error={errors.email} />
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#8d90a0', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 6 }}>
+                <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">
                   {t('auth.register.firstName', 'First Name')}
                 </label>
-                <input placeholder={t('auth.register.firstPlaceholder', 'John')} style={{ ...INPUT_NO_ICON_STYLE }} {...register('first_name')} />
+                <input
+                  placeholder={t('auth.register.firstPlaceholder', 'John')}
+                  className="w-full py-3 px-4 bg-surface-container-lowest border border-outline-variant/10 rounded-lg text-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/25 transition-all"
+                  {...register('first_name')}
+                />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#8d90a0', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 6 }}>
+                <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">
                   {t('auth.register.lastName', 'Last Name')}
                 </label>
-                <input placeholder={t('auth.register.lastPlaceholder', 'Doe')} style={{ ...INPUT_NO_ICON_STYLE }} {...register('last_name')} />
+                <input
+                  placeholder={t('auth.register.lastPlaceholder', 'Doe')}
+                  className="w-full py-3 px-4 bg-surface-container-lowest border border-outline-variant/10 rounded-lg text-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/25 transition-all"
+                  {...register('last_name')}
+                />
               </div>
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#8d90a0', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 6 }}>
+              <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">
                 {t('auth.register.role', 'Select Role')}
               </label>
-              <div style={{ position: 'relative' }}>
-                <span className="material-symbols-outlined" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 20, color: '#8d90a0', pointerEvents: 'none' }}>badge</span>
+              <div className="relative">
+                <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-xl text-on-surface-variant/60 pointer-events-none">badge</span>
                 <select
-                  style={{ ...INPUT_STYLE, paddingRight: 14, appearance: 'none', cursor: 'pointer' }}
+                  className="w-full py-3 pl-11 pr-10 bg-surface-container-lowest border border-outline-variant/10 rounded-lg text-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/25 transition-all appearance-none cursor-pointer"
                   {...register('role')}
                 >
                   {roleOptions.map(opt => (
-                    <option key={opt.value} value={opt.value} style={{ background: '#091327', color: '#fff' }}>
+                    <option key={opt.value} value={opt.value} className="bg-surface-container text-on-surface">
                       {t(`roles.${opt.value}`, opt.label)}
                     </option>
                   ))}
                 </select>
-                <span className="material-symbols-outlined" style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 18, color: '#8d90a0', pointerEvents: 'none' }}>
+                <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-xl text-on-surface-variant/60 pointer-events-none">
                   expand_more
                 </span>
               </div>
@@ -239,67 +203,39 @@ export default function RegisterPage() {
               error={errors.password_confirm} />
 
             {apiError && (
-              <div style={{ padding: '10px 14px', background: 'rgba(147,0,10,0.2)', border: '1px solid rgba(255,180,171,0.3)', borderRadius: 8, display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-                <span className="material-symbols-outlined" style={{ fontSize: 18, color: '#ffb4ab', flexShrink: 0, marginTop: 1 }}>error</span>
-                <p style={{ margin: 0, fontSize: 13, color: '#ffb4ab', fontFamily: "'Space Mono', monospace", wordBreak: 'break-word' }}>{apiError}</p>
+              <div className="p-3 bg-error/10 border border-error/20 rounded-lg flex items-start gap-2">
+                <span className="material-symbols-outlined text-lg text-error flex-shrink-0 mt-0.5">error</span>
+                <p className="text-xs text-error font-mono-data break-all">{apiError}</p>
               </div>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              style={{
-                width: '100%',
-                paddingTop: 14,
-                paddingBottom: 14,
-                borderRadius: 8,
-                border: 'none',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                background: 'linear-gradient(135deg, #1d4ed8, #2563eb)',
-                color: '#fff',
-                fontSize: 14,
-                fontWeight: 700,
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 8,
-                boxShadow: '0 0 20px rgba(37,99,235,0.3)',
-                transition: 'all 0.2s ease',
-                opacity: loading ? 0.7 : 1,
-                marginTop: 4,
-              }}
+              className="w-full py-3.5 mt-2 rounded-lg border-none bg-primary text-on-primary font-bold text-xs tracking-wider uppercase flex items-center justify-center gap-2 transition-all cursor-pointer hover:brightness-105 disabled:opacity-75 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <>
-                  <svg style={{ animation: 'spin 1s linear infinite', width: 20, height: 20 }} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle style={{ opacity: 0.25 }} cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path style={{ opacity: 0.75 }} fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                  </svg>
+                  <div className="w-4 h-4 border-2 border-on-primary border-t-transparent rounded-full animate-spin" />
                   {t('auth.register.submitting', 'Registering...')}
                 </>
               ) : (
                 <>
-                  <span className="material-symbols-outlined" style={{ fontSize: 20 }}>person_add</span>
+                  <span className="material-symbols-outlined text-lg">person_add</span>
                   {t('auth.register.submit', 'Register')}
                 </>
               )}
             </button>
 
-            <p style={{ textAlign: 'center', fontSize: 14, color: '#8d90a0', margin: 0 }}>
+            <p className="text-center text-xs text-on-surface-variant mt-2">
               {t('auth.register.alreadyRegistered', 'Already have an account?')}{' '}
-              <Link to="/login" style={{ color: '#b4c5ff', fontWeight: 600, textDecoration: 'none' }}>
+              <Link to="/login" className="text-xs font-semibold text-primary hover:text-secondary transition-colors">
                 {t('auth.register.loginLink', 'Login here')}
               </Link>
             </p>
           </form>
         </div>
       </div>
-
-      <style>{`
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-      `}</style>
     </main>
   )
 }

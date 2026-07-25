@@ -29,257 +29,157 @@ export default function LoginPage() {
   }
 
   return (
-    <main style={{ display: 'flex', minHeight: '100vh', width: '100%', background: '#040e21' }}>
-      <div style={{ position: 'absolute', top: 20, right: 20, zIndex: 50 }} className="lg-lang-selector hidden lg:block">
+    <main className="flex min-h-screen w-full bg-surface-container-lowest text-on-surface">
+      <div className="absolute top-5 right-5 z-50 hidden lg:block">
         <LanguageSelector />
       </div>
 
-      {/* LEFT PANEL — Hero */}
-      <section
-        style={{
-          display: 'none',
-          position: 'relative',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: '58%',
-          overflow: 'hidden',
-          background: 'linear-gradient(135deg, #040e21 0%, #091327 40%, #0a1a3a 100%)',
-        }}
-        className="lg-hero-panel"
-      >
+      {/* LEFT PANEL — Hero (Attractive original design) */}
+      <section className="hidden lg:flex relative flex-col items-center justify-center w-[58%] overflow-hidden bg-gradient-to-br from-[#040e21] via-[#091327] to-[#0a1a3a] border-r border-outline-variant/10">
         {/* Grid overlay */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          backgroundImage: 'linear-gradient(rgba(37,99,235,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(37,99,235,0.07) 1px, transparent 1px)',
-          backgroundSize: '44px 44px',
-          opacity: 0.8,
-        }} />
+        <div className="absolute inset-0 cyber-grid opacity-25" />
 
         {/* Radial glow */}
-        <div style={{
-          position: 'absolute',
-          top: '35%', left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: 600, height: 600,
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(37,99,235,0.12) 0%, transparent 70%)',
-          pointerEvents: 'none',
-        }} />
+        <div className="absolute top-[35%] left-[50%] -translate-x-[50%] -translate-y-[50%] w-[600px] h-[600px] rounded-full bg-gradient-to-r from-primary/10 to-transparent blur-3xl pointer-events-none" />
 
         {/* Content */}
-        <div style={{ position: 'relative', zIndex: 10, textAlign: 'center', padding: '0 48px', animation: 'fadeInScale 0.8s ease forwards' }}>
+        <div className="relative z-10 text-center px-12 animate-fade-in">
           {/* Shield icon */}
-          <div style={{ marginBottom: 28 }}>
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              width: 120, height: 120,
-              borderRadius: '50%',
-              background: 'rgba(37,99,235,0.15)',
-              border: '2px solid rgba(37,99,235,0.4)',
-              animation: 'shieldPulse 3s ease-in-out infinite',
-            }}>
-              <span className="material-symbols-outlined" style={{ fontSize: 64, color: '#b4c5ff', fontVariationSettings: "'FILL' 1" }}>shield</span>
+          <div className="mb-7">
+            <div className="inline-flex items-center justify-center w-28 h-28 rounded-full bg-primary/15 border-2 border-primary/45 animate-pulse">
+              <span className="material-symbols-outlined text-primary text-5xl font-fill-1 drop-shadow-[0_0_10px_rgba(180,197,255,0.4)]">shield</span>
             </div>
           </div>
 
-          <h1 style={{ fontSize: 48, fontWeight: 800, color: '#fff', margin: '0 0 8px', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+          <h1 className="text-display-lg text-on-surface font-extrabold mb-2 tracking-tight">
             {t('landing.hero.title', 'SmartPol AI')}
           </h1>
-          <p style={{ fontSize: 13, fontWeight: 700, color: '#4cd7f6', letterSpacing: '0.22em', textTransform: 'uppercase', margin: '0 0 40px', opacity: 0.9 }}>
+          <p className="text-xs font-semibold text-secondary tracking-widest uppercase mb-10 opacity-90 font-mono-data">
             {t('landing.hero.subtitle', 'AI Powered Smart Policing System')}
           </p>
 
           {/* Status badges */}
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+          <div className="flex gap-3 justify-center flex-wrap">
             {[
-              { label: t('auth.login.badges.secureCore', 'SECURE CORE'), value: t('auth.login.badges.online', 'ONLINE'), color: '#4cd7f6', bg: 'rgba(76,215,246,0.08)', border: 'rgba(76,215,246,0.25)' },
-              { label: t('auth.login.badges.encryption', 'ENCRYPTION'), value: 'AES-256', color: '#b4c5ff', bg: 'rgba(180,197,255,0.08)', border: 'rgba(180,197,255,0.2)' },
-              { label: t('auth.login.badges.threatLevel', 'THREAT LEVEL'), value: t('auth.login.badges.amber', 'AMBER'), color: '#fbbf24', bg: 'rgba(251,191,36,0.08)', border: 'rgba(251,191,36,0.2)' },
+              { label: t('auth.login.badges.secureCore', 'SECURE CORE'), value: t('auth.login.badges.online', 'ONLINE'), color: 'text-secondary border-secondary/25 bg-secondary/5' },
+              { label: t('auth.login.badges.encryption', 'ENCRYPTION'), value: 'AES-256', color: 'text-primary border-primary/20 bg-primary/5' },
+              { label: t('auth.login.badges.threatLevel', 'THREAT LEVEL'), value: t('auth.login.badges.amber', 'AMBER'), color: 'text-yellow-400 border-yellow-400/20 bg-yellow-400/5' },
             ].map(b => (
-              <div key={b.label} style={{
-                padding: '8px 16px',
-                borderRadius: 8,
-                border: `1px solid ${b.border}`,
-                background: b.bg,
-                backdropFilter: 'blur(8px)',
-              }}>
-                <div style={{ fontSize: 9, fontWeight: 700, color: b.color, letterSpacing: '0.15em', fontFamily: "'Space Mono', monospace", opacity: 0.7 }}>{b.label}</div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: b.color, fontFamily: "'Space Mono', monospace" }}>{b.value}</div>
+              <div key={b.label} className={`px-4 py-2 border rounded-xl backdrop-blur-md ${b.color}`}>
+                <div className="text-[9px] font-bold tracking-wider font-mono-data opacity-70">{b.label}</div>
+                <div className="text-sm font-bold font-mono-data">{b.value}</div>
               </div>
             ))}
           </div>
 
           {/* Feature list */}
-          <div style={{ marginTop: 48, display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 340, margin: '48px auto 0' }}>
+          <div className="mt-12 flex flex-col gap-3 max-w-[340px] mx-auto">
             {[
               { icon: 'psychology', text: t('auth.login.features.prediction', 'AI-Powered Crime Prediction') },
               { icon: 'hub', text: t('auth.login.features.fusion', 'Real-Time Intelligence Fusion') },
               { icon: 'gps_fixed', text: t('auth.login.features.patrol', 'Live Patrol & War Room') },
               { icon: 'verified_user', text: t('auth.login.features.comms', 'End-to-End Encrypted Comms') },
             ].map(f => (
-              <div key={f.text} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px', borderRadius: 8, background: 'rgba(180,197,255,0.04)', border: '1px solid rgba(180,197,255,0.08)' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: 18, color: '#4cd7f6' }}>{f.icon}</span>
-                <span style={{ fontSize: 13, color: '#c3c6d7' }}>{f.text}</span>
+              <div key={f.text} className="flex items-center gap-3 p-3 rounded-xl bg-primary/5 border border-primary/10">
+                <span className="material-symbols-outlined text-secondary text-lg">{f.icon}</span>
+                <span className="text-sm text-on-surface-variant">{f.text}</span>
               </div>
             ))}
           </div>
         </div>
 
-        <div style={{ position: 'absolute', bottom: 20, left: 20, fontSize: 10, color: '#8d90a0', fontFamily: "'Space Mono', monospace", letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+        <div className="absolute bottom-5 left-5 text-[10px] text-on-surface-variant/50 font-mono-data tracking-wider uppercase">
           {t('auth.login.systemVersion', 'System Version 4.0.2 // Terminal Access // Node 7G')}
         </div>
       </section>
 
       {/* RIGHT PANEL — Form */}
-      <section style={{
-        flex: 1,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '24px 20px',
-        background: '#091327',
-        minHeight: '100vh',
-      }}>
-        <div style={{ width: '100%', maxWidth: 420, animation: 'slideUp 0.6s cubic-bezier(0.16,1,0.3,1) forwards' }}>
+      <section className="flex-1 flex items-center justify-center p-6 bg-surface-dim min-h-screen">
+        <div className="w-full max-w-[440px] animate-slide-up">
 
-          <div style={{ textAlign: 'center', marginBottom: 32, position: 'relative' }} className="mobile-logo">
-            <div style={{ position: 'absolute', top: -10, right: 0 }}>
+          <div className="text-center mb-8 relative lg:hidden">
+            <div className="absolute top-[-10px] right-0 scale-90">
               <LanguageSelector />
             </div>
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              width: 64, height: 64, borderRadius: '50%',
-              background: 'rgba(37,99,235,0.15)',
-              border: '2px solid rgba(37,99,235,0.3)',
-              marginBottom: 12,
-            }}>
-              <span className="material-symbols-outlined" style={{ fontSize: 36, color: '#b4c5ff', fontVariationSettings: "'FILL' 1" }}>shield</span>
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 border border-primary/20 mb-3">
+              <span className="material-symbols-outlined text-primary text-3xl font-fill-1">shield</span>
             </div>
-            <h2 style={{ fontSize: 24, fontWeight: 800, color: '#fff', margin: 0 }}>{t('landing.hero.title', 'SmartPol AI')}</h2>
+            <h2 className="text-xl font-bold text-on-surface">{t('landing.hero.title', 'SmartPol AI')}</h2>
           </div>
 
-          {/* Glass card */}
-          <div style={{
-            background: 'rgba(16,26,46,0.7)',
-            backdropFilter: 'blur(24px)',
-            border: '1px solid rgba(180,197,255,0.12)',
-            borderRadius: 16,
-            padding: '32px 28px',
-            position: 'relative',
-            overflow: 'hidden',
-          }}>
-            {/* Top accent line */}
-            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg, #2563eb, #4cd7f6, transparent)' }} />
+          {/* Attractive original card structure translated to Tailwind */}
+          <div className="bg-surface-container/70 backdrop-blur-xl border border-outline-variant/12 rounded-2xl p-8 shadow-2xl relative overflow-hidden group">
+            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-primary via-secondary to-transparent" />
 
-            <div style={{ marginBottom: 28 }}>
-              <h2 style={{ fontSize: 22, fontWeight: 700, color: '#fff', margin: '0 0 6px' }}>{t('auth.login.title', 'Command Login')}</h2>
-              <p style={{ fontSize: 14, color: '#8d90a0', margin: 0 }}>{t('auth.login.subtitle', 'Enter your tactical credentials.')}</p>
+            <div className="mb-6">
+              <h2 className="text-h2 text-on-surface font-bold mb-1.5">{t('auth.login.title', 'Command Login')}</h2>
+              <p className="text-sm text-on-surface-variant/80">{t('auth.login.subtitle', 'Enter your tactical credentials.')}</p>
             </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
               {/* Username */}
               <div>
-                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#8d90a0', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 6 }}>
+                <label className="block text-[11px] font-bold text-on-surface-variant/80 uppercase tracking-wider mb-1.5 font-mono-data">
                   {t('auth.login.username', 'Username or Email')}
                 </label>
-                <div style={{ position: 'relative' }}>
-                  <span className="material-symbols-outlined" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 20, color: '#8d90a0', pointerEvents: 'none' }}>mail</span>
+                <div className="relative">
+                  <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-xl text-on-surface-variant/50 pointer-events-none">mail</span>
                   <input
                     type="text"
                     placeholder={t('auth.login.usernamePlaceholder', 'Officer ID / Email')}
                     autoComplete="username"
-                    style={{
-                      width: '100%',
-                      boxSizing: 'border-box',
-                      paddingTop: 12,
-                      paddingBottom: 12,
-                      paddingLeft: 44,
-                      paddingRight: 14,
-                      background: 'rgba(4,14,33,0.8)',
-                      border: errors.username ? '1px solid rgba(255,100,100,0.6)' : '1px solid rgba(180,197,255,0.1)',
-                      borderRadius: 8,
-                      color: '#fff',
-                      fontSize: 15,
-                      outline: 'none',
-                      transition: 'border-color 0.2s, box-shadow 0.2s',
-                      fontFamily: 'Inter, sans-serif',
-                    }}
-                    onFocus={e => { e.target.style.borderColor = '#2563eb'; e.target.style.boxShadow = '0 0 0 1px #2563eb, 0 0 14px rgba(37,99,235,0.2)'; }}
-                    onBlur={e => { e.target.style.borderColor = errors.username ? 'rgba(255,100,100,0.6)' : 'rgba(180,197,255,0.1)'; e.target.style.boxShadow = 'none'; }}
+                    className={`w-full py-3 pl-11 pr-4 bg-surface-container-lowest/80 border rounded-lg text-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/25 transition-all ${
+                      errors.username ? 'border-error/60' : 'border-outline-variant/10'
+                    }`}
                     {...register('username', { required: t('forms.required') })}
                   />
                 </div>
-                {errors.username && <p style={{ margin: '4px 0 0', fontSize: 12, color: '#ffb4ab' }}>{errors.username.message}</p>}
+                {errors.username && <p className="mt-1 text-xs text-error font-mono-data">{errors.username.message}</p>}
               </div>
 
               {/* Password */}
               <div>
-                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#8d90a0', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 6 }}>
+                <label className="block text-[11px] font-bold text-on-surface-variant/80 uppercase tracking-wider mb-1.5 font-mono-data">
                   {t('auth.login.password', 'Password')}
                 </label>
-                <div style={{ position: 'relative' }}>
-                  <span className="material-symbols-outlined" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 20, color: '#8d90a0', pointerEvents: 'none' }}>lock</span>
+                <div className="relative">
+                  <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-xl text-on-surface-variant/50 pointer-events-none">lock</span>
                   <input
                     type={showPassword ? 'text' : 'password'}
                     placeholder={t('auth.login.passwordPlaceholder', '••••••••')}
                     autoComplete="current-password"
-                    style={{
-                      width: '100%',
-                      boxSizing: 'border-box',
-                      paddingTop: 12,
-                      paddingBottom: 12,
-                      paddingLeft: 44,
-                      paddingRight: 44,
-                      background: 'rgba(4,14,33,0.8)',
-                      border: errors.password ? '1px solid rgba(255,100,100,0.6)' : '1px solid rgba(180,197,255,0.1)',
-                      borderRadius: 8,
-                      color: '#fff',
-                      fontSize: 15,
-                      outline: 'none',
-                      transition: 'border-color 0.2s, box-shadow 0.2s',
-                      fontFamily: 'Inter, sans-serif',
-                    }}
-                    onFocus={e => { e.target.style.borderColor = '#2563eb'; e.target.style.boxShadow = '0 0 0 1px #2563eb, 0 0 14px rgba(37,99,235,0.2)'; }}
-                    onBlur={e => { e.target.style.borderColor = errors.password ? 'rgba(255,100,100,0.6)' : 'rgba(180,197,255,0.1)'; e.target.style.boxShadow = 'none'; }}
+                    className={`w-full py-3 pl-11 pr-11 bg-surface-container-lowest/80 border rounded-lg text-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/25 transition-all ${
+                      errors.password ? 'border-error/60' : 'border-outline-variant/10'
+                    }`}
                     {...register('password', { required: t('forms.required') })}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(v => !v)}
-                    style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: '#8d90a0' }}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 bg-none border-none cursor-pointer p-1 text-on-surface-variant/50 hover:text-on-surface"
                     title={showPassword ? 'Hide password' : 'Show password'}
                   >
-                    <span className="material-symbols-outlined" style={{ fontSize: 20 }}>{showPassword ? 'visibility_off' : 'visibility'}</span>
+                    <span className="material-symbols-outlined text-lg">{showPassword ? 'visibility_off' : 'visibility'}</span>
                   </button>
                 </div>
-                {errors.password && <p style={{ margin: '4px 0 0', fontSize: 12, color: '#ffb4ab' }}>{errors.password.message}</p>}
+                {errors.password && <p className="mt-1 text-xs text-error font-mono-data">{errors.password.message}</p>}
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-                  <input type="checkbox" style={{ width: 15, height: 15, accentColor: '#2563eb' }} />
-                  <span style={{ fontSize: 13, color: '#8d90a0' }}>{t('auth.login.persistSession', 'Keep me logged in')}</span>
+              <div className="flex items-center justify-between mt-1">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" className="w-4 h-4 rounded border-outline-variant/10 bg-surface-container-lowest text-primary cursor-pointer accent-primary" />
+                  <span className="text-xs text-on-surface-variant/80">{t('auth.login.persistSession', 'Keep me logged in')}</span>
                 </label>
-                <Link to="/forgot-password" style={{ fontSize: 12, fontWeight: 600, color: '#b4c5ff', textDecoration: 'none' }}
-                  onMouseEnter={e => e.target.style.color = '#4cd7f6'} onMouseLeave={e => e.target.style.color = '#b4c5ff'}>
+                <Link to="/forgot-password" className="text-xs font-semibold text-primary hover:text-secondary transition-colors">
                   {t('auth.login.forgotPassword', 'Forgot Password?')}
                 </Link>
               </div>
 
               {/* Error message */}
               {error && (
-                <div style={{
-                  padding: '10px 14px',
-                  background: 'rgba(147,0,10,0.2)',
-                  border: '1px solid rgba(255,180,171,0.3)',
-                  borderRadius: 8,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: 18, color: '#ffb4ab' }}>error</span>
-                  <p style={{ margin: 0, fontSize: 13, color: '#ffb4ab', fontFamily: "'Space Mono', monospace" }}>{error}</p>
+                <div className="p-3 bg-error/10 border border-error/20 rounded-lg flex items-center gap-2">
+                  <span className="material-symbols-outlined text-lg text-error">error</span>
+                  <p className="text-xs text-error font-mono-data">{error}</p>
                 </div>
               )}
 
@@ -287,64 +187,42 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading || authorized}
-                style={{
-                  width: '100%',
-                  paddingTop: 14,
-                  paddingBottom: 14,
-                  borderRadius: 8,
-                  border: 'none',
-                  cursor: loading || authorized ? 'not-allowed' : 'pointer',
-                  background: authorized ? 'linear-gradient(135deg, #059669, #10b981)' : 'linear-gradient(135deg, #1d4ed8, #2563eb)',
-                  color: '#fff',
-                  fontSize: 14,
-                  fontWeight: 700,
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 8,
-                  transition: 'all 0.3s ease',
-                  boxShadow: authorized ? '0 0 20px rgba(16,185,129,0.4)' : '0 0 20px rgba(37,99,235,0.3)',
-                  opacity: loading ? 0.8 : 1,
-                }}
-                onMouseEnter={e => { if (!loading && !authorized) e.currentTarget.style.boxShadow = '0 0 30px rgba(37,99,235,0.5)'; }}
-                onMouseLeave={e => { if (!loading && !authorized) e.currentTarget.style.boxShadow = '0 0 20px rgba(37,99,235,0.3)'; }}
+                className={`w-full py-3.5 mt-3 rounded-lg border-none font-bold text-xs tracking-wider uppercase flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                  authorized
+                    ? 'bg-gradient-to-r from-green-600 to-green-500 text-white shadow-lg'
+                    : 'bg-primary text-on-primary hover:brightness-105'
+                } disabled:opacity-80 disabled:cursor-not-allowed`}
               >
                 {authorized ? (
                   <>
-                    <span className="material-symbols-outlined" style={{ fontSize: 20 }}>check_circle</span>
+                    <span className="material-symbols-outlined text-lg">check_circle</span>
                     {t('auth.login.authorized', 'Authorized')}
                   </>
                 ) : loading ? (
                   <>
-                    <svg style={{ animation: 'spin 1s linear infinite', width: 20, height: 20 }} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle style={{ opacity: 0.25 }} cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path style={{ opacity: 0.75 }} fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
+                    <div className="w-4 h-4 border-2 border-on-primary border-t-transparent rounded-full animate-spin" />
                     {t('auth.login.submitting', 'Authenticating...')}
                   </>
                 ) : (
                   <>
-                    <span className="material-symbols-outlined" style={{ fontSize: 20 }}>login</span>
+                    <span className="material-symbols-outlined text-lg">login</span>
                     {t('auth.login.submit', 'Login')}
                   </>
                 )}
               </button>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div style={{ flex: 1, height: 1, background: 'rgba(180,197,255,0.1)' }} />
-                <span style={{ fontSize: 10, color: '#8d90a0', fontFamily: "'Space Mono', monospace", letterSpacing: '0.1em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+              <div className="flex items-center gap-3 mt-2">
+                <div className="flex-1 h-[1px] bg-outline-variant/10" />
+                <span className="text-[10px] text-on-surface-variant/40 font-mono-data tracking-wider uppercase">
                   {t('auth.login.demoHint', 'Demo System Active')}
                 </span>
-                <div style={{ flex: 1, height: 1, background: 'rgba(180,197,255,0.1)' }} />
+                <div className="flex-1 h-[1px] bg-outline-variant/10" />
               </div>
 
               {/* Register link */}
-              <p style={{ textAlign: 'center', fontSize: 14, color: '#8d90a0', margin: 0 }}>
+              <p className="text-center text-xs text-on-surface-variant/70 mt-2">
                 {t('auth.login.noAccount', 'Don\'t have an account?')} {' '}
-                <Link to="/register" style={{ color: '#b4c5ff', fontWeight: 600, textDecoration: 'none' }}
-                  onMouseEnter={e => e.target.style.color = '#4cd7f6'} onMouseLeave={e => e.target.style.color = '#b4c5ff'}>
+                <Link to="/register" className="text-xs font-semibold text-primary hover:text-secondary transition-colors font-semibold">
                   {t('auth.login.registerLink', 'Register here')}
                 </Link>
               </p>
@@ -352,14 +230,6 @@ export default function LoginPage() {
           </div>
         </div>
       </section>
-
-      <style>{`
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @media (min-width: 1024px) {
-          .lg-hero-panel { display: flex !important; }
-          .mobile-logo { display: none !important; }
-        }
-      `}</style>
     </main>
   )
 }
