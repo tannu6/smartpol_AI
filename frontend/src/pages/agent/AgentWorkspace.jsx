@@ -173,7 +173,13 @@ export default function AgentWorkspace({ mode = 'command' }) {
           <div className="flex items-center justify-between mb-md">
             <h3 className="font-headline-md text-on-surface flex items-center space-x-sm">
               <FileText className="w-6 h-6 text-primary" />
-              <span>{t('agentWorkspace.logs.title', 'Operation Logs')}</span>
+              <span>
+                {mode === 'missions' 
+                  ? 'Assigned Operations' 
+                  : mode === 'timeline' 
+                    ? 'Security Handshake History' 
+                    : t('agentWorkspace.logs.title', 'Operation Logs')}
+              </span>
             </h3>
             <button onClick={load} className="p-sm text-outline-variant hover:text-primary transition-colors rounded-full hover:bg-primary/10 cursor-pointer">
               <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin text-primary' : ''}`} />
@@ -193,14 +199,69 @@ export default function AgentWorkspace({ mode = 'command' }) {
                   <div className="h-5 bg-surface-variant rounded w-1/3" />
                   <div className="h-4 bg-surface-variant rounded w-full" />
                   <div className="h-4 bg-surface-variant rounded w-5/6" />
-                  <div className="h-3 bg-surface-container-highest rounded w-1/4 mt-md" />
                 </motion.div>
               ))
+            ) : mode === 'missions' ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-md w-full">
+                {[
+                  { id: 1, code: 'Operation Chakra', desc: 'Infiltrate high-volume UPI fake payment terminals and scam hubs near S.G. Highway, Ahmedabad.', progress: 65, status: 'Active', difficulty: 'Class A' },
+                  { id: 2, code: 'Operation Meghdoot', desc: 'Trace spoofed Domain DNS redirects pointing to counterfeit government portal addresses.', progress: 90, status: 'Final Phase', difficulty: 'Class B' },
+                  { id: 3, code: 'Operation Vajra', desc: 'Analyze ATM coordinate logs and physical cash drops connected to identified mule bank accounts.', progress: 20, status: 'Assigned', difficulty: 'Class S' }
+                ].map(m => (
+                  <div key={m.id} className="glass-panel p-lg rounded-xl border border-primary/20 space-y-md hover:border-primary/50 transition-all duration-300 relative group overflow-hidden">
+                    <div className="absolute top-0 left-0 w-1.5 h-full bg-primary" />
+                    <div className="flex justify-between items-start">
+                      <span className="text-[9px] font-mono-data tracking-widest px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
+                        {m.difficulty}
+                      </span>
+                      <span className={`text-[10px] font-mono-data uppercase tracking-wider font-bold ${m.status === 'Active' ? 'text-secondary' : 'text-primary'}`}>
+                        ● {m.status}
+                      </span>
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-on-surface text-sm uppercase tracking-tight">{m.code}</h4>
+                      <p className="text-xs text-on-surface-variant mt-1 leading-relaxed">{m.desc}</p>
+                    </div>
+                    <div className="space-y-sm pt-sm border-t border-primary/10">
+                      <div className="flex justify-between text-[10px] font-mono-data text-on-surface-variant">
+                        <span>COMPLETION RATE</span>
+                        <span>{m.progress}%</span>
+                      </div>
+                      <div className="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
+                        <div className="h-full bg-primary" style={{ width: `${m.progress}%` }} />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : mode === 'timeline' ? (
+              <div className="relative border-l border-primary/20 pl-lg ml-md space-y-lg w-full">
+                {[
+                  { time: '21:00 PM', title: 'Tactical Workspace Handshake', desc: 'Secure communication handshake established with responder command node.', status: 'secure' },
+                  { time: '18:30 PM', title: 'Scam DNA Analysis Triggered', desc: 'Flagged transaction sequence on bank account prefix 99 (SBI).', status: 'warning' },
+                  { time: '15:00 PM', title: 'Mule Alerts Ingestion Complete', desc: 'Synchronized live GPS nodes of responded unit logs.', status: 'info' },
+                  { time: '11:00 AM', title: 'Agent Deployment Config', desc: 'Initiated restricted access protocol for secret agent credentials.', status: 'secure' }
+                ].map((e, idx) => (
+                  <div key={idx} className="relative group">
+                    <div className="absolute -left-[37px] top-1.5 w-4 h-4 rounded-full bg-background border border-primary group-hover:scale-110 transition-transform flex items-center justify-center">
+                      <div className="w-1.5 h-1.5 rounded-full bg-secondary" />
+                    </div>
+                    <div className="glass-panel p-md rounded-lg border border-outline-variant space-y-sm ml-sm">
+                      <div className="flex justify-between items-center text-[10px] font-mono-data">
+                        <span className="text-secondary font-bold">{e.time}</span>
+                        <span className="text-on-surface-variant/70 uppercase">{e.status}</span>
+                      </div>
+                      <h4 className="text-sm font-bold text-on-surface">{e.title}</h4>
+                      <p className="text-xs text-on-surface-variant leading-relaxed">{e.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             ) : filteredMessages.length === 0 ? (
               <motion.div 
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="flex flex-col items-center justify-center p-xl bg-surface-container-low border border-dashed border-outline-variant rounded-xl text-center space-y-md shadow-inner"
+                className="flex flex-col items-center justify-center p-xl bg-surface-container-low border border-dashed border-outline-variant rounded-xl text-center space-y-md shadow-inner w-full"
               >
                 <div className="w-20 h-20 rounded-full bg-surface-variant flex items-center justify-center mb-sm shadow-lg">
                   <ShieldAlert className={`w-10 h-10 ${mode === 'urgent' ? 'text-error' : 'text-primary'}`} />
@@ -209,7 +270,7 @@ export default function AgentWorkspace({ mode = 'command' }) {
                   {mode === 'urgent' ? t('agentWorkspace.empty.urgent', 'No Urgent Directives') : t('agentWorkspace.empty.general', 'No Active Communications')}
                 </h4>
                 <p className="text-on-surface-variant max-w-md font-body-sm">
-                  {t('agentWorkspace.empty.description', 'Your channel is secure and quiet. Await further instructions or transmit a new report above.')}
+                  {t('agentWorkspace.empty.description', 'Your channel is secure and quiet. Await further instructions or transmit a new report.')}
                 </p>
               </motion.div>
             ) : (
@@ -219,14 +280,14 @@ export default function AgentWorkspace({ mode = 'command' }) {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.05 }}
-                  className={`p-lg rounded-xl border relative overflow-hidden group ${
+                  className={`p-lg rounded-xl border relative overflow-hidden group w-full ${
                     m.is_urgent 
                       ? 'bg-error-container/10 border-error/30 shadow-[0_0_15px_rgba(var(--color-error),0.1)]' 
                       : 'bg-surface-container border-outline-variant hover:border-primary/50'
                   } transition-colors`}
                 >
                   {m.is_urgent && (
-                    <div className="absolute top-0 right-0 px-md py-xs bg-error text-on-error font-label-caps uppercase tracking-wider rounded-bl-lg shadow-md">
+                    <div className="absolute top-0 right-0 px-md py-xs bg-error text-on-error font-label-caps uppercase tracking-wider rounded-bl-lg shadow-md text-[10px]">
                       Priority: Crimson
                     </div>
                   )}
@@ -237,14 +298,14 @@ export default function AgentWorkspace({ mode = 'command' }) {
                     </b>
                   </div>
                   
-                  <p className="text-on-surface-variant font-mono-data leading-relaxed mb-md whitespace-pre-wrap">
+                  <p className="text-on-surface-variant font-mono-data leading-relaxed mb-md whitespace-pre-wrap text-sm">
                     {m.body}
                   </p>
                   
-                  <div className="flex items-center font-label-caps text-outline font-mono-data mt-sm pt-sm border-t border-surface-variant">
+                  <div className="flex items-center font-label-caps text-outline font-mono-data mt-sm pt-sm border-t border-surface-variant text-[10px]">
                     <Activity className="w-4 h-4 mr-sm text-primary/50" />
                     <span>Logged: {new Date(m.created_at || Date.now()).toLocaleString()}</span>
-                    {m.id && <span className="ml-md opacity-50">ID: {m.id.substring(0,8)}</span>}
+                    {m.id && <span className="ml-md opacity-50">ID: {String(m.id).substring(0,8)}</span>}
                   </div>
                 </motion.div>
               ))

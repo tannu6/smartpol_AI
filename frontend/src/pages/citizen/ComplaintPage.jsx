@@ -74,29 +74,25 @@ useEffect(() => {
   }, [setValue, watch, t]);
 
   const toggleListening = () => {
-    if (isListening) return;
-    setIsListening(true);
+    if (isListening) {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+      setIsListening(false);
+      return;
+    }
     
-    const demoText = "I received a suspicious call from someone claiming to be from my bank. They knew my account number and asked for an OTP to stop a fraudulent transaction. I refused and hung up, but I want to report this number: +1-555-0198.";
-    
-    const currentDesc = getValues('description') || '';
-    setValue('description', currentDesc + (currentDesc ? ' ' : '') + '🎤 [Initializing Secure Mic...]');
-    
-    setTimeout(() => {
-        let typed = '';
-        let i = 0;
-        const interval = setInterval(() => {
-            typed += demoText.charAt(i);
-            setValue('description', currentDesc + (currentDesc ? ' ' : '') + typed);
-            i++;
-            if (i >= demoText.length) {
-                clearInterval(interval);
-                setIsListening(false);
-            }
-        }, 30); // Fast typing effect
-    }, 1200);
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.start();
+        setIsListening(true);
+      } catch (e) {
+        console.error("Mic start error", e);
+      }
+    } else {
+      alert(t('errors.micNotSupported', 'Speech recognition is not supported in this browser.'));
+    }
   };
-
 
   // ── AI live preview as the citizen types the description ───────────
   useEffect(() => {

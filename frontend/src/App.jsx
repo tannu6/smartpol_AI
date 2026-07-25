@@ -27,6 +27,7 @@ import EvidenceQueuePage from './pages/officer/EvidenceQueuePage'
 import MissionControlPage from './pages/officer/MissionControlPage'
 import ComplaintDetailsPage from './pages/officer/ComplaintDetailsPage'
 import AnonymousTipsPage from './pages/officer/AnonymousTipsPage'
+import OfficerProfilePage from './pages/officer/OfficerProfilePage'
 
 import AnalyticsPage from './pages/supervisor/AnalyticsPage'
 import WarRoomPage from './pages/supervisor/WarRoomPage'
@@ -98,6 +99,7 @@ export default function App() {
             <Route path="/officer/mission" element={<ProtectedRoute roles={[ROLES.OFFICER, ROLES.SUPERVISOR, ROLES.ADMIN]}><MissionControlPage /></ProtectedRoute>} />
             <Route path="/officer/complaints/:id" element={<ProtectedRoute roles={[ROLES.OFFICER, ROLES.SUPERVISOR, ROLES.ADMIN]}><ComplaintDetailsPage /></ProtectedRoute>} />
             <Route path="/officer/anonymous-tips" element={<ProtectedRoute roles={[ROLES.OFFICER, ROLES.SUPERVISOR, ROLES.ADMIN]}><AnonymousTipsPage /></ProtectedRoute>} />
+            <Route path="/officer/profile" element={<ProtectedRoute roles={[ROLES.OFFICER, ROLES.SUPERVISOR, ROLES.ADMIN]}><OfficerProfilePage /></ProtectedRoute>} />
 
             <Route path="/supervisor/analytics" element={<ProtectedRoute roles={[ROLES.SUPERVISOR, ROLES.ADMIN]}><AnalyticsPage /></ProtectedRoute>} />
             <Route path="/supervisor/war-room" element={<ProtectedRoute roles={[ROLES.SUPERVISOR, ROLES.ADMIN]}><WarRoomPage /></ProtectedRoute>} />

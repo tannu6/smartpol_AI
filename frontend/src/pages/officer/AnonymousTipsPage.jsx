@@ -137,6 +137,31 @@ export default function AnonymousTipsPage() {
                       {selectedTip.body}
                     </p>
                   </div>
+
+                  {/* AI Veracity Verification Index Card */}
+                  <div className="bg-surface-container border border-outline-variant p-md rounded-lg space-y-sm">
+                    <h4 className="text-xs text-secondary font-bold uppercase flex items-center gap-2">🤖 AI Veracity Check</h4>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-on-surface-variant">Validation Index:</span>
+                      <span className={`text-xs font-mono-data font-bold px-2 py-0.5 rounded border ${
+                        selectedTip.veracity_score >= 0.7 
+                          ? 'bg-green-500/10 text-green-400 border-green-500/30' 
+                          : selectedTip.veracity_score < 0.35 
+                            ? 'bg-red-500/10 text-red-400 border-red-500/30' 
+                            : 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30'
+                      }`}>
+                        {selectedTip.veracity_score !== undefined ? (selectedTip.veracity_score * 100).toFixed(0) : '50'}% ({selectedTip.veracity_status || 'UNVERIFIED'})
+                      </span>
+                    </div>
+                    <div className="space-y-1">
+                      {selectedTip.veracity_reasons?.map((reason, idx) => (
+                        <p key={idx} className="text-[11px] text-on-surface-variant flex items-start gap-1">
+                          <span className={selectedTip.veracity_score < 0.35 ? 'text-error' : 'text-primary'}>•</span> 
+                          <span>{reason}</span>
+                        </p>
+                      ))}
+                    </div>
+                  </div>
                   
                   <div className="grid grid-cols-2 gap-md">
                     <div className="bg-surface-container border border-outline-variant p-sm rounded">

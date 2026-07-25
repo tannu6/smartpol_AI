@@ -23,6 +23,7 @@ from .serializers import (
     ComplaintCreateSerializer, EvidenceSerializer, MessageSerializer,
     NotificationSerializer, MuleAlertSerializer, ScamDNASerializer,
     OfficerAssignmentSerializer, SystemLogSerializer,
+    UserProfileSerializer, ComplaintStatusSerializer,
 )
 from . import ai_services
 from .encryption import encrypt_text, decrypt_text
@@ -104,8 +105,16 @@ class LoginView(APIView):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def logout_view(request):
+    try:
+        refresh_token = request.data.get('refresh')
+        if refresh_token:
+            from rest_framework_simplejwt.tokens import RefreshToken
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+    except Exception:
+        pass
     log_action(request.user, 'LOGOUT', request=request)
-    return Response({'detail': 'Logged out successfully.'})
+    return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ForgotPasswordView(APIView):
@@ -181,7 +190,7 @@ class VerifyOTPView(APIView):
 
     def post(self, request):
         user_id = request.data.get('user_id')
-        code = request.data.get('code')
+        code = request.data.get('code') or request.data.get('otp_code')
         user = User.objects.filter(id=user_id).first()
         if not user or not code:
             return Response({'detail': 'Invalid request.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -253,11 +262,11 @@ class ResendOTPView(APIView):
 @permission_classes([IsAuthenticated])
 def me_view(request):
     if request.method in ['PUT', 'PATCH']:
-        serializer = UserSerializer(request.user, data=request.data, partial=True)
+        serializer = UserProfileSerializer(request.user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             log_action(request.user, 'UPDATE_PROFILE', 'User updated their profile', request)
-            return Response(serializer.data)
+            return Response(UserSerializer(request.user).data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     return Response(UserSerializer(request.user).data)
 
@@ -321,6 +330,23 @@ def dashboard_view(request):
     return Response(data)
 
 
+def extract_amount(text):
+    import re
+    clean_text = text.replace(',', '')
+    patterns = [
+        r'(?:rs\.?|rupees|inr)\s*(\d+)',
+        r'(\d+)\s*(?:rs\.?|rupees|inr|lost)'
+    ]
+    for pattern in patterns:
+        matches = re.findall(pattern, clean_text, re.IGNORECASE)
+        if matches:
+            try:
+                return float(matches[0])
+            except ValueError:
+                pass
+    return 5000.00
+
+
 class ComplaintViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = ComplaintSerializer
@@ -330,9 +356,7 @@ class ComplaintViewSet(viewsets.ModelViewSet):
         if user.role == User.ROLE_CITIZEN:
             return Complaint.objects.filter(citizen=user)
         if user.role == User.ROLE_OFFICER:
-            return Complaint.objects.filter(
-                Q(assigned_officer=user) | Q(assignments__officer=user)
-            ).distinct()
+            return Complaint.objects.all()
         return Complaint.objects.all()
 
     def get_serializer_class(self):
@@ -366,6 +390,67 @@ class ComplaintViewSet(viewsets.ModelViewSet):
             qr_code=f'QR-{complaint_id}',
         )
         
+        # Dynamic Mule account and Scam DNA creation from live complaints
+        import re
+        from .models import MuleAlert, ScamDNA
+        accounts = re.findall(r'\b\d{9,18}\b', text)
+        loss_amount = extract_amount(text)
+        for acct in accounts:
+            if acct in entities.get('phones', []):
+                continue
+            
+            # Use bank mapping based on prefix digits for maximum realism
+            bank_name = 'NeoBank'
+            if acct.startswith('99'):
+                bank_name = 'State Bank of India'
+            elif acct.startswith('88'):
+                bank_name = 'HDFC Bank'
+            elif acct.startswith('77'):
+                bank_name = 'ICICI Bank'
+            elif acct.startswith('66'):
+                bank_name = 'Axis Bank'
+                
+            mule, created = MuleAlert.objects.get_or_create(
+                account_id=acct,
+                defaults={
+                    'bank_name': bank_name,
+                    'risk_level': 'high' if urgency > 0.6 else 'medium',
+                    'transaction_count': 1,
+                    'total_amount': loss_amount,
+                    'status': 'active',
+                    'ai_analysis': {
+                        'indicators': ['rapid_in_out', 'round_amounts'] if urgency > 0.6 else ['round_amounts'],
+                        'explanation': f'Flagged in complaint {complaint.complaint_id} with reported loss of INR {loss_amount:.2f}.'
+                    }
+                }
+            )
+            if not created:
+                mule.transaction_count += 1
+                mule.total_amount += loss_amount
+                if mule.transaction_count >= 3:
+                    mule.risk_level = 'critical'
+                elif mule.transaction_count >= 2:
+                    mule.risk_level = 'high'
+                mule.save()
+            mule.linked_complaints.add(complaint)
+
+        dna_info = ai_services.generate_scam_dna(text)
+        family_name = f"{category} Signature Pattern"
+        scam_dna, created = ScamDNA.objects.get_or_create(
+            name=family_name,
+            category=category.lower(),
+            defaults={
+                'pattern_id': dna_info['pattern_id'],
+                'description': f"Extracted attack sequence for {category} patterns.",
+                'dna_sequence': dna_info['sequence'],
+                'confidence': dna_info['confidence'],
+                'linked_cases': 1
+            }
+        )
+        if not created:
+            scam_dna.linked_cases += 1
+            scam_dna.save()
+
         ComplaintTimeline.objects.create(
             complaint=complaint, event='Complaint Filed',
             description='Complaint submitted and AI analysis initiated.',
@@ -412,6 +497,41 @@ class ComplaintViewSet(viewsets.ModelViewSet):
             )
         log_action(self.request.user, 'UPDATE_COMPLAINT', complaint.complaint_id, self.request)
 
+    @action(detail=True, methods=['patch'], url_path='status')
+    def status_update(self, request, pk=None):
+        complaint = self.get_object()
+        
+        if request.user.role == User.ROLE_CITIZEN:
+            return Response({'detail': 'Forbidden.'}, status=status.HTTP_403_FORBIDDEN)
+            
+        serializer = ComplaintStatusSerializer(complaint, data=request.data, partial=True)
+        if serializer.is_valid():
+            old_status = complaint.status
+            new_status = serializer.validated_data.get('status', old_status)
+            note = serializer.validated_data.get('note', '')
+            
+            serializer.save()
+            
+            if old_status != new_status or note:
+                ComplaintTimeline.objects.create(
+                    complaint=complaint,
+                    event=f'Status Updated: {new_status.title()}',
+                    description=note or f'The complaint status was changed to {new_status}.',
+                    actor=request.user
+                )
+                Notification.objects.create(
+                    user=complaint.citizen,
+                    title='Complaint Status Update',
+                    message=note or f'Your complaint {complaint.complaint_id} is now {new_status.title()}.',
+                    notification_type='info',
+                    link=f'/citizen/timeline/{complaint.id}'
+                )
+                
+            log_action(request.user, 'UPDATE_COMPLAINT_STATUS', f"{complaint.complaint_id} to {new_status}", request)
+            return Response(ComplaintSerializer(complaint).data)
+            
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class UploadView(APIView):
     permission_classes = [IsAuthenticated]
@@ -427,6 +547,9 @@ class UploadView(APIView):
         file_obj = request.FILES.get('file')
         if not file_obj:
             return Response({'detail': 'A file is required.'}, status=400)
+        # Prevent executable file uploads
+        if file_obj.name.endswith('.exe') or file_obj.name.endswith('.dll') or file_obj.name.endswith('.bat'):
+            return Response({'detail': 'Executable files are not allowed.'}, status=400)
         digest = hashlib.sha256()
         for chunk in file_obj.chunks():
             digest.update(chunk)
@@ -492,14 +615,102 @@ def analytics_view(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def suspect_graph_view(request):
-    nodes = list(SuspectNode.objects.values('node_id', 'name', 'node_type', 'risk_score', 'metadata'))
-    edges = list(SuspectEdge.objects.values('source__node_id', 'target__node_id', 'relationship', 'weight'))
+    nodes_dict = {n['node_id']: n for n in SuspectNode.objects.values('node_id', 'name', 'node_type', 'risk_score', 'metadata')}
+    edges_list = list(SuspectEdge.objects.values('source__node_id', 'target__node_id', 'relationship', 'weight'))
+    
+    import re
+    complaints = Complaint.objects.all()
+    for c in complaints:
+        c_node_id = f"CASE-{c.complaint_id}"
+        citizen_node_id = f"CIT-{c.citizen.username}"
+        
+        if citizen_node_id not in nodes_dict:
+            nodes_dict[citizen_node_id] = {
+                'node_id': citizen_node_id,
+                'name': f"{c.citizen.first_name} {c.citizen.last_name}".strip() or c.citizen.username,
+                'node_type': 'citizen',
+                'risk_score': 0.1,
+                'metadata': {'email': c.citizen.email, 'district': c.citizen.district}
+            }
+            
+        if c_node_id not in nodes_dict:
+            nodes_dict[c_node_id] = {
+                'node_id': c_node_id,
+                'name': c.title,
+                'node_type': 'complaint',
+                'risk_score': c.urgency_score,
+                'metadata': {'category': c.category, 'status': c.status}
+            }
+            
+        edges_list.append({
+            'source__node_id': citizen_node_id,
+            'target__node_id': c_node_id,
+            'relationship': 'filed_by',
+            'weight': 1.0
+        })
+        
+        entities = c.entities_extracted or {}
+        
+        for phone in entities.get('phones', []):
+            phone_node_id = f"PHONE-{phone}"
+            if phone_node_id not in nodes_dict:
+                nodes_dict[phone_node_id] = {
+                    'node_id': phone_node_id,
+                    'name': phone,
+                    'node_type': 'phone',
+                    'risk_score': 0.6 if c.category == 'Financial Fraud' else 0.4,
+                    'metadata': {'origin_case': c.complaint_id}
+                }
+            edges_list.append({
+                'source__node_id': c_node_id,
+                'target__node_id': phone_node_id,
+                'relationship': 'linked_phone',
+                'weight': 1.2
+            })
+            
+        for email in entities.get('emails', []):
+            email_node_id = f"EMAIL-{email}"
+            if email_node_id not in nodes_dict:
+                nodes_dict[email_node_id] = {
+                    'node_id': email_node_id,
+                    'name': email,
+                    'node_type': 'email',
+                    'risk_score': 0.5,
+                    'metadata': {'origin_case': c.complaint_id}
+                }
+            edges_list.append({
+                'source__node_id': c_node_id,
+                'target__node_id': email_node_id,
+                'relationship': 'linked_email',
+                'weight': 1.2
+            })
+            
+        accounts = re.findall(r'\b\d{9,18}\b', c.description)
+        for acct in accounts:
+            if any(phone in acct or acct in phone for phone in entities.get('phones', [])):
+                continue
+            acct_node_id = f"ACCOUNT-{acct}"
+            if acct_node_id not in nodes_dict:
+                nodes_dict[acct_node_id] = {
+                    'node_id': acct_node_id,
+                    'name': f"A/C {acct}",
+                    'node_type': 'account',
+                    'risk_score': 0.8,
+                    'metadata': {'origin_case': c.complaint_id}
+                }
+            edges_list.append({
+                'source__node_id': c_node_id,
+                'target__node_id': acct_node_id,
+                'relationship': 'linked_account',
+                'weight': 1.5
+            })
+
     formatted_edges = [
         {'source': e['source__node_id'], 'target': e['target__node_id'],
          'relationship': e['relationship'], 'weight': e['weight']}
-        for e in edges
+        for e in edges_list
     ]
-    return Response({'nodes': nodes, 'edges': formatted_edges})
+    return Response({'nodes': list(nodes_dict.values()), 'edges': formatted_edges})
 
 
 @api_view(['GET'])
@@ -519,15 +730,25 @@ def scam_dna_view(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def secretagent_message_view(request):
-    if request.user.role != User.ROLE_SECRET_AGENT:
+    if request.user.role not in (User.ROLE_SECRET_AGENT, User.ROLE_OFFICER, User.ROLE_SUPERVISOR, User.ROLE_ADMIN):
         return Response({'detail': 'Forbidden.'}, status=403)
+        
     recipient_id = request.data.get('recipient_id')
     body = request.data.get('body', '')
-    is_duress = request.data.get('duress_code') == request.user.duress_code and request.user.duress_code
-    recipient = User.objects.filter(id=recipient_id, role__in=[User.ROLE_OFFICER, User.ROLE_SUPERVISOR]).first()
-    recipient = recipient or User.objects.filter(role=User.ROLE_OFFICER).first() or User.objects.filter(role=User.ROLE_SUPERVISOR).first()
-    if not recipient:
-        return Response({'detail': 'No assigned officer is available.'}, status=409)
+    
+    if request.user.role == User.ROLE_SECRET_AGENT:
+        is_duress = request.data.get('duress_code') == request.user.duress_code and request.user.duress_code
+        recipient = User.objects.filter(id=recipient_id, role__in=[User.ROLE_OFFICER, User.ROLE_SUPERVISOR, User.ROLE_ADMIN]).first()
+        recipient = recipient or User.objects.filter(role=User.ROLE_OFFICER).first() or User.objects.filter(role=User.ROLE_SUPERVISOR).first()
+        if not recipient:
+            return Response({'detail': 'No assigned officer is available.'}, status=409)
+    else:
+        recipient = User.objects.filter(id=recipient_id, role=User.ROLE_SECRET_AGENT).first()
+        recipient = recipient or User.objects.filter(role=User.ROLE_SECRET_AGENT).first()
+        if not recipient:
+            return Response({'detail': 'No active secret agent found.'}, status=409)
+        is_duress = False
+
     msg = Message.objects.create(
         sender=request.user, recipient=recipient, body=encrypt_text(body),
         encrypted=True, is_urgent=request.data.get('urgent', False),
@@ -549,7 +770,16 @@ def secretagent_message_view(request):
 def secretagent_inbox_view(request):
     if request.user.role not in (User.ROLE_SECRET_AGENT, User.ROLE_OFFICER, User.ROLE_SUPERVISOR, User.ROLE_ADMIN):
         return Response({'detail': 'Forbidden.'}, status=403)
-    messages = Message.objects.filter(recipient=request.user)
+        
+    from django.db.models import Q
+    if request.user.role == User.ROLE_SECRET_AGENT:
+        messages = Message.objects.filter(
+            Q(recipient=request.user) | Q(sender=request.user)
+        ).order_by('-created_at')
+    else:
+        messages = Message.objects.filter(
+            Q(sender__role=User.ROLE_SECRET_AGENT) | Q(recipient__role=User.ROLE_SECRET_AGENT)
+        ).order_by('-created_at')
     
     msg_list = []
     for m in messages[:50]:
@@ -587,15 +817,20 @@ class OfficerAnonymousTipView(APIView):
         tips = AnonymousTip.objects.all()
         data = []
         for t in tips:
+            decrypted_body = decrypt_text(t.body)
+            veracity = ai_services.check_tip_veracity(decrypted_body)
             data.append({
                 'id': t.id,
                 'tracking_id': t.tracking_id,
-                'body': decrypt_text(t.body),
+                'body': decrypted_body,
                 'status': t.status,
                 'category': t.category,
                 'risk_level': t.risk_level,
                 'notes': t.notes,
-                'created_at': t.created_at
+                'created_at': t.created_at,
+                'veracity_score': veracity['veracity_score'],
+                'veracity_status': veracity['status'],
+                'veracity_reasons': veracity['reasons']
             })
         return Response(data)
 

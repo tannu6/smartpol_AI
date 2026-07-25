@@ -137,6 +137,7 @@
     "next_action": "अगली सुझाई गई कार्रवाई"
   },
   "common": {
+    "appTitle": "SmartPol AI",
     "loading": "लोड हो रहा है...",
     "no_data": "कोई डेटा उपलब्ध नहीं",
     "search": "खोजें",

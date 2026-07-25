@@ -12,14 +12,17 @@ export default function SuspectNetworkGraph({ nodes = [], edges = [], width = 80
 
     const g = svg.append('g')
 
+    const nodeIds = new Set(nodes.map(n => n.node_id))
+    const validEdges = JSON.parse(JSON.stringify(edges)).filter(e => nodeIds.has(e.source) && nodeIds.has(e.target))
+
     const simulation = d3.forceSimulation(nodes.map(n => ({ ...n, id: n.node_id })))
-      .force('link', d3.forceLink(edges.map(e => ({ source: e.source, target: e.target, ...e }))).id(d => d.id).distance(100))
+      .force('link', d3.forceLink(validEdges).id(d => d.id).distance(100))
       .force('charge', d3.forceManyBody().strength(-300))
       .force('center', d3.forceCenter(width / 2, height / 2))
       .force('collision', d3.forceCollide(30))
 
     const link = g.append('g').selectAll('line')
-      .data(edges).join('line')
+      .data(validEdges).join('line')
       .attr('stroke', '#434655').attr('stroke-width', d => (d.weight || 1) * 2)
       .attr('stroke-opacity', 0.6)
 

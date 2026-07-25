@@ -162,6 +162,7 @@
     "next_action": "Suggested Next Action"
   },
   "common": {
+    "appTitle": "SmartPol AI",
     "loading": "Loading...",
     "no_data": "No data available",
     "search": "Search",

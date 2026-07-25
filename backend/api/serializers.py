@@ -22,7 +22,7 @@ class UserSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'district', 'avatar_url', 'phone']
+        fields = ['first_name', 'last_name', 'district', 'avatar_url', 'phone', 'badge_id']
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -32,7 +32,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['username', 'email', 'password', 'password_confirm', 'first_name',
-                  'last_name', 'role', 'phone', 'district']
+                  'last_name', 'role', 'phone', 'district', 'badge_id']
 
     def validate(self, data):
         if data['password'] != data['password_confirm']:
@@ -44,7 +44,9 @@ class RegisterSerializer(serializers.ModelSerializer):
         if User.objects.filter(email__iexact=data['email']).exists():
             raise serializers.ValidationError({'email': 'An account with this email already exists.'})
         # In production this would be restricted, but for MVP let them register roles
-        if 'role' not in data:
+        if data.get('role') in ('admin', 'secret_agent'):
+            data['role'] = User.ROLE_CITIZEN
+        elif 'role' not in data:
             data['role'] = User.ROLE_CITIZEN
         return data
 
@@ -67,11 +69,13 @@ class ComplaintTimelineSerializer(serializers.ModelSerializer):
 
 class EvidenceSerializer(serializers.ModelSerializer):
     uploaded_by_name = serializers.CharField(source='uploaded_by.get_full_name', read_only=True)
+    complaint_code = serializers.CharField(source='complaint.complaint_id', read_only=True)
+    complaint_id = serializers.IntegerField(source='complaint.id', read_only=True)
 
     class Meta:
         model = Evidence
         fields = ['id', 'file', 'file_name', 'file_type', 'hash_value',
-                  'uploaded_by_name', 'created_at']
+                  'uploaded_by_name', 'created_at', 'complaint_code', 'complaint_id']
 
 
 class ComplaintSerializer(serializers.ModelSerializer):

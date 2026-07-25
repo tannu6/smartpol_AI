@@ -137,6 +137,7 @@
     "next_action": "સૂચિત આગલું પગલું"
   },
   "common": {
+    "appTitle": "SmartPol AI",
     "loading": "લોડ થઈ રહ્યું છે...",
     "no_data": "કોઈ ડેટા ઉપલબ્ધ નથી",
     "search": "શોધો",

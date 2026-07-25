@@ -1,5 +1,6 @@
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
+import DispatchModal from "../ui/DispatchModal";
 
 export default function AppLayout({
   children,
@@ -11,6 +12,9 @@ export default function AppLayout({
     <div className="relative min-h-screen bg-background text-on-surface font-body-md overflow-x-hidden">
       {/* Background Grid */}
       <div className="fixed inset-0 cyber-grid opacity-20 pointer-events-none z-0" />
+
+      {/* Dispatch Modal Overlay */}
+      <DispatchModal />
 
       {/* Layout */}
       <div className="relative z-10 flex min-h-screen">

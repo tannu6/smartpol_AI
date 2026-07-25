@@ -20,6 +20,7 @@ export const complaintService = {
   list: () => api.get('/complaints/'),
   get: (id) => api.get(`/complaints/${id}/`),
   create: (data) => api.post('/complaints/', data),
+  update: (id, data) => api.patch(`/complaints/${id}/`, data),
 }
 
 export const uploadService = {
@@ -28,7 +29,7 @@ export const uploadService = {
     form.append('complaint_id', complaintId)
     form.append('file', file)
     form.append('file_type', fileType || 'document')
-    return api.post('/upload/', form, { headers: { 'Content-Type': 'multipart/form-data' } })
+    return api.post('/upload/', form)
   },
 }
 

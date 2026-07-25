@@ -6,6 +6,7 @@ const AppContext = createContext(null)
 export function AppProvider({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [notifications, setNotifications] = useState([])
+  const [dispatchModalOpen, setDispatchModalOpen] = useState(false)
 
   return (
     <AppContext.Provider value={{
@@ -14,6 +15,8 @@ export function AppProvider({ children }) {
       toggleSidebar: () => setSidebarOpen((v) => !v),
       notifications,
       setNotifications,
+      dispatchModalOpen,
+      setDispatchModalOpen,
     }}>
       {children}
     </AppContext.Provider>

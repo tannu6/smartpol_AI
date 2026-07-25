@@ -196,6 +196,26 @@ export default function RegisterPage() {
                 </span>
               </div>
             </div>
+            
+            {/* Dynamic District/Working Sector field */}
+            <Field 
+              label={watch('role') === 'citizen' ? "District / Location" : "Working Sector / District"} 
+              icon="map" 
+              placeholder={watch('role') === 'citizen' ? "e.g. Satellite Area" : "e.g. Sector 7G"}
+              register={register('district')} 
+              error={errors.district} 
+            />
+
+            {/* Dynamic Badge ID field (Officer / Supervisor only) */}
+            {(watch('role') === 'officer' || watch('role') === 'supervisor') && (
+              <Field 
+                label="Tactical Badge ID" 
+                icon="badge" 
+                placeholder="e.g. OFC-1234"
+                register={register('badge_id', { required: "Badge ID is required for tactical officers" })} 
+                error={errors.badge_id} 
+              />
+            )}
 
             <Field label={t('auth.register.password', 'Password')} icon="lock" type={showPass ? 'text' : 'password'} placeholder={t('auth.register.passwordPlaceholder', '••••••••')}
               showToggle onToggle={() => setShowPass(v => !v)} showPass={showPass}

@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 export default function Sidebar({ subtitle = "District 7 Command" }) {
   const { user, logout } = useAuth();
   const { t } = useTranslation();
-  const { sidebarOpen, setSidebarOpen } = useApp();
+  const { sidebarOpen, setSidebarOpen, setDispatchModalOpen } = useApp();
 
   const navItems = NAV_BY_ROLE[user?.role] || [];
 
@@ -35,7 +35,7 @@ export default function Sidebar({ subtitle = "District 7 Command" }) {
         <div className="px-md mb-xl">
           <div className="flex items-center gap-sm">
             <div className="w-10 h-10 bg-primary/20 flex items-center justify-center rounded-lg border border-primary/30">
-              <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>
+              <span className="material-symbols-outlined text-primary shadow-colored" style={{ fontVariationSettings: "'FILL' 1" }}>
                 security
               </span>
             </div>
@@ -65,7 +65,9 @@ export default function Sidebar({ subtitle = "District 7 Command" }) {
 
         <div className="px-md pt-lg border-t border-primary/10 mt-auto space-y-md">
           {(user?.role === "officer" || user?.role === "supervisor") && (
-            <button className="w-full py-md bg-primary-container text-on-primary-container font-label-caps text-label-caps rounded-lg shadow-[0_0_15px_rgba(37,99,235,0.4)] hover:brightness-110 active:scale-95 transition-all">
+            <button 
+              onClick={() => setDispatchModalOpen(true)}
+              className="w-full py-md bg-primary-container text-on-primary-container font-label-caps text-label-caps rounded-lg shadow-[0_0_15px_rgba(37,99,235,0.4)] hover:brightness-110 active:scale-95 transition-all cursor-pointer">
               {t('nav.dispatch')}
             </button>
           )}

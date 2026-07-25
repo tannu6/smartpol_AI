@@ -255,3 +255,57 @@ def build_ai_insight(urgency: float, fraud: dict, readiness: float) -> dict:
         'is_real_ml': False,
         'generated_at': __import__('django.utils.timezone', fromlist=['now']).now().isoformat(),
     }
+
+
+def check_tip_veracity(text: str) -> dict:
+    """Veracity scoring for anonymous tips to prevent wasting officer time."""
+    text_lower = text.lower()
+    score = 0.5
+    reasons = []
+    
+    # Check text length
+    if len(text) < 15:
+        score -= 0.25
+        reasons.append("Report description is extremely short to be descriptive.")
+    elif len(text) > 120:
+        score += 0.15
+        reasons.append("Provides a rich narrative description.")
+        
+    # Check for extracted entities (phones, emails, accounts)
+    phones = re.findall(r'\+?\d[\d\s-]{8,}\d', text)
+    emails = re.findall(r'[\w.-]+@[\w.-]+\.\w+', text)
+    
+    if phones or emails:
+        score += 0.25
+        reasons.append("Contains verifiable contact identifiers (phone/email).")
+    else:
+        score -= 0.15
+        reasons.append("Missing concrete contact identifiers.")
+        
+    # Check for accounts
+    accounts = re.findall(r'\b\d{9,18}\b', text)
+    # filter out if accounts are actually phones
+    valid_accts = [a for a in accounts if not any(p in a or a in p for p in phones)]
+    if valid_accts:
+        score += 0.2
+        reasons.append("Includes concrete transaction bank account identifiers.")
+        
+    # Check for keywords indicating fake/junk tips
+    spam_indicators = ['test', 'hello world', 'fake', 'prank', 'haha', 'lmao', 'junk', 'nothing here', 'bla bla', 'asdf', 'test message']
+    if any(indicator in text_lower for indicator in spam_indicators):
+        score -= 0.4
+        reasons.append("Matches known boilerplate spam or testing keywords.")
+        
+    score = max(0.01, min(score, 0.99))
+    
+    status = "TRUSTWORTHY"
+    if score < 0.35:
+        status = "POTENTIAL PRANK/SPAM"
+    elif score < 0.6:
+        status = "UNVERIFIED"
+        
+    return {
+        'veracity_score': round(score, 2),
+        'status': status,
+        'reasons': reasons if reasons else ["Neutral pattern, standard manual review required."]
+    }

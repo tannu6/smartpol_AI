@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useApp } from '../../context/AppContext'
 import NotificationBell from '../ui/NotificationBell'
@@ -6,6 +7,7 @@ import LanguageSwitcher from '../ui/LanguageSwitcher'
 
 export default function Navbar({ title = 'SmartPol AI', showSearch = true }) {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const { toggleSidebar } = useApp()
   const { t } = useTranslation()
 
@@ -28,12 +30,27 @@ export default function Navbar({ title = 'SmartPol AI', showSearch = true }) {
         <LanguageSwitcher />
         <div className="flex gap-md">
           <NotificationBell />
-          <button className="material-symbols-outlined text-primary hover:brightness-125 transition-all active:scale-95">security</button>
-          {user?.role === 'citizen' ? (
-            <a href="/citizen/profile" className="material-symbols-outlined text-primary hover:brightness-125 transition-all active:scale-95 text-decoration-none">settings</a>
-          ) : (
-            <button className="material-symbols-outlined text-primary hover:brightness-125 transition-all active:scale-95">settings</button>
-          )}
+          <button 
+            onClick={() => {
+              if (user?.role === 'citizen') navigate('/citizen/profile');
+              else if (user?.role === 'secret_agent') navigate('/agent/command');
+              else navigate('/officer/profile');
+            }} 
+            className="material-symbols-outlined text-primary hover:brightness-125 transition-all active:scale-95 shadow-colored cursor-pointer"
+          >
+            security
+          </button>
+          <button
+            onClick={() => {
+              if (user?.role === 'citizen') navigate('/citizen/profile');
+              else if (user?.role === 'admin') navigate('/admin/config');
+              else if (user?.role === 'secret_agent') navigate('/agent/command');
+              else navigate('/officer/profile');
+            }}
+            className="material-symbols-outlined text-primary hover:brightness-125 transition-all active:scale-95 shadow-colored cursor-pointer"
+          >
+            settings
+          </button>
         </div>
         <div className="h-8 w-px bg-primary/20 mx-sm" />
         <div className="flex items-center gap-md">

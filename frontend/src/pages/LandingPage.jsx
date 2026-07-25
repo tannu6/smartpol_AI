@@ -118,9 +118,9 @@ export default function LandingPage() {
       <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, height: 72, background: 'rgba(4, 14, 33, 0.7)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(180, 197, 255, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', zIndex: 100 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 40, height: 40, borderRadius: '50%', background: 'rgba(37,99,235,0.15)', border: '1.5px solid rgba(37,99,235,0.4)' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 24, color: '#b4c5ff', fontVariationSettings: "'FILL' 1" }}>shield</span>
+            <span className="material-symbols-outlined shadow-colored" style={{ fontSize: 24, color: '#b4c5ff', fontVariationSettings: "'FILL' 1" }}>shield</span>
           </div>
-          <span style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.02em', background: 'linear-gradient(90deg, #fff, #b4c5ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>SMARTPOL AI</span>
+          <span style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.02em', background: 'linear-gradient(90deg, #fff, #b4c5ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }} className="shadow-colored">SMARTPOL AI</span>
         </div>
 
         <div style={{ display: 'none', gap: 28 }} className="lg:flex">
@@ -366,9 +366,9 @@ export default function LandingPage() {
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
             <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 32, height: 32, borderRadius: '50%', background: 'rgba(37,99,235,0.15)', border: '1px solid rgba(37,99,235,0.4)' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: 18, color: '#b4c5ff', fontVariationSettings: "'FILL' 1" }}>shield</span>
+              <span className="material-symbols-outlined shadow-colored" style={{ fontSize: 18, color: '#b4c5ff', fontVariationSettings: "'FILL' 1" }}>shield</span>
             </div>
-            <span style={{ fontSize: 20, fontWeight: 900, color: '#fff', letterSpacing: '0.05em' }}>SMARTPOL AI</span>
+            <span style={{ fontSize: 20, fontWeight: 900, color: '#fff', letterSpacing: '0.05em' }} className="shadow-colored">SMARTPOL AI</span>
           </div>
           <p style={{ color: '#8d90a0', fontSize: 14, maxWidth: 400, marginBottom: 40, lineHeight: 1.6 }}>
             {t('landing.footer.desc', 'Advanced AI-powered cyber fraud detection and smart policing ecosystem.')}
