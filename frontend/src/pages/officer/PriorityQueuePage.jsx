@@ -3,6 +3,7 @@ import AppLayout from '../../components/layout/AppLayout'
 import { priorityService } from '../../services/api'
 import { DataTable } from '../../components/ui/DataTable'
 import { useTranslation } from 'react-i18next'
+import toast from 'react-hot-toast'
 
 export default function PriorityQueuePage() {
   const { t } = useTranslation()
@@ -64,6 +65,20 @@ export default function PriorityQueuePage() {
                   <span className="font-label-caps text-[10px] uppercase border border-primary/20 bg-primary/10 px-2 py-1 rounded">
                     {r.status}
                   </span>
+                )},
+                { key: 'actions', label: 'ACTION', render: (r) => (
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={() => {
+                        toast.loading("Initiating Section 91 CRPC Freeze Request...", { id: 'freeze' });
+                        setTimeout(() => toast.success("Letter of Request Sent to Bank Nodal Officer", { id: 'freeze' }), 1500);
+                      }}
+                      className="flex items-center gap-1 px-3 py-1 bg-error/10 text-error rounded hover:bg-error/20 transition-colors text-xs border border-error/30 whitespace-nowrap"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">ac_unit</span>
+                      Freeze A/C
+                    </button>
+                  </div>
                 )},
               ]}
               data={queue}

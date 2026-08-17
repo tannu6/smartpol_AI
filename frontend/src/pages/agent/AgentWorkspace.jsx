@@ -202,11 +202,9 @@ export default function AgentWorkspace({ mode = 'command' }) {
                 </motion.div>
               ))
             ) : mode === 'missions' ? (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-md w-full">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-md w-full">
                 {[
-                  { id: 1, code: 'Operation Chakra', desc: 'Infiltrate high-volume UPI fake payment terminals and scam hubs near S.G. Highway, Ahmedabad.', progress: 65, status: 'Active', difficulty: 'Class A' },
-                  { id: 2, code: 'Operation Meghdoot', desc: 'Trace spoofed Domain DNS redirects pointing to counterfeit government portal addresses.', progress: 90, status: 'Final Phase', difficulty: 'Class B' },
-                  { id: 3, code: 'Operation Vajra', desc: 'Analyze ATM coordinate logs and physical cash drops connected to identified mule bank accounts.', progress: 20, status: 'Assigned', difficulty: 'Class S' }
+                  { id: 1, code: 'Operation Chakra', desc: 'Infiltrate high-volume UPI fake payment terminals and scam hubs near S.G. Highway, Ahmedabad.', progress: 65, status: 'Active', difficulty: 'Class A' }
                 ].map(m => (
                   <div key={m.id} className="glass-panel p-lg rounded-xl border border-primary/20 space-y-md hover:border-primary/50 transition-all duration-300 relative group overflow-hidden">
                     <div className="absolute top-0 left-0 w-1.5 h-full bg-primary" />

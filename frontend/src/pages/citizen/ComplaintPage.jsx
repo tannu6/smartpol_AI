@@ -9,6 +9,9 @@ import { complaintService, aiService } from '../../services/api'
 import { KpiCard } from '../../components/ui/Card'
 import { AIInsightPanel } from '../../components/ui/AIInsightPanel'
 
+import toast from 'react-hot-toast'
+import LocationPickerMap from '../../components/maps/LocationPickerMap'
+
 export default function ComplaintPage() {
   const { t } = useTranslation()
   const [aiResult, setAiResult] = useState(null)
@@ -42,36 +45,45 @@ useEffect(() => {
   // ── SPEECH RECOGNITION INIT ────────────────────────────────────────
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SpeechRecognition) {
-      recognitionRef.current = new SpeechRecognition();
-      recognitionRef.current.continuous = true;
-      recognitionRef.current.interimResults = true;
-      
-      recognitionRef.current.onresult = (event) => {
-        let finalTranscript = '';
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-          if (event.results[i].isFinal) {
-            finalTranscript += event.results[i][0].transcript + ' ';
-          }
+    if (!SpeechRecognition) return;
+    
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    
+    recognition.onresult = (event) => {
+      let finalTranscript = '';
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          finalTranscript += event.results[i][0].transcript + ' ';
         }
-        if (finalTranscript) {
-          setValue('description', (getValues('description') || '') + finalTranscript);
-        }
-      };
+      }
+      if (finalTranscript) {
+        const currentDesc = getValues('description') || '';
+        setValue('description', currentDesc + finalTranscript, { shouldValidate: true, shouldDirty: true });
+      }
+    };
 
-      recognitionRef.current.onerror = (event) => {
-        console.error("Speech recognition error", event.error);
-        if (event.error === 'not-allowed') {
-          alert(t('errors.micDenied', 'Microphone permission denied. Please allow microphone access in your browser settings.'));
-        }
-        setIsListening(false);
-      };
+    recognition.onerror = (event) => {
+      console.error("Speech recognition error", event.error);
+      if (event.error === 'not-allowed') {
+        alert("Microphone permission denied. Please allow microphone access in your browser.");
+      }
+      setIsListening(false);
+    };
 
-      recognitionRef.current.onend = () => {
-        setIsListening(false);
-      };
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognitionRef.current = recognition;
+    
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
     }
-  }, [setValue, watch, t]);
+  }, [setValue, getValues]);
 
   const toggleListening = () => {
     if (isListening) {
@@ -108,16 +120,36 @@ useEffect(() => {
   }, [description, watch])
 
   const onSubmit = async (data) => {
+    if (!data.title || data.title.trim().length < 5) {
+      toast.error('Please enter a title of at least 5 characters.')
+      return
+    }
+    if (!data.description || data.description.trim().length < 20) {
+      toast.error('Please provide at least 20 characters of description.')
+      return
+    }
+
     setLoading(true)
     try {
       const { data: complaint } = await complaintService.create(data)
       setSubmitted(complaint)
       localStorage.removeItem('complaint_draft')
+      toast.success('Complaint filed & assigned to Ahmedabad Cyber Cell!')
     } catch (err) {
       console.error(err)
+      const msg = err.response?.data?.title?.[0] || err.response?.data?.description?.[0] || err.response?.data?.detail || 'Failed to submit complaint. Check required fields.'
+      toast.error(msg)
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleMapLocationChange = (geo) => {
+    setValue('location', geo.address)
+    setValue('latitude', geo.latitude)
+    setValue('longitude', geo.longitude)
+    setValue('locality', geo.locality)
+    setValue('location_source', geo.location_source)
   }
 
   return (
@@ -135,6 +167,15 @@ useEffect(() => {
               <div>
                 <h3 className="font-headline-md text-primary">{t('complaint.success')}</h3>
                 <p className="font-mono-data text-secondary">ID: {submitted.complaint_id}</p>
+                {submitted.station_name && (
+                  <div className="mt-2 p-3 rounded-lg bg-blue-950/60 border border-blue-500/30 text-xs text-blue-200">
+                    <p className="font-bold text-blue-400">🚓 Routed & Assigned Police Station:</p>
+                    <p className="font-semibold text-sm">{submitted.station_name}</p>
+                    {submitted.assignment_explanation && (
+                      <pre className="mt-1 font-mono text-[11px] text-slate-300 whitespace-pre-wrap">{submitted.assignment_explanation}</pre>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-md">
@@ -172,18 +213,37 @@ useEffect(() => {
               register={register('category')}
               options={[
                 { value: 'General', label: t('complaint.categories.general') },
+                { value: 'Digital Arrest Scam', label: '🚨 Digital Arrest Scam (CBI / ED Impersonation)' },
+                { value: 'Sextortion', label: '⚠️ Sextortion & Photo Leak Threat' },
+                { value: 'APK Malware', label: '📱 Fake Utility / Electricity Bill APK Hijack' },
+                { value: 'Deepfake Scam', label: '🤖 AI Deepfake Video / Voice Impersonation' },
+                { value: 'SIM Swap', label: '💳 SIM Swap & NetBanking Takeover' },
+                { value: 'UPI Fraud', label: '💸 UPI & OTP Refund Fraud' },
                 { value: 'Financial Fraud', label: t('complaint.categories.financial_fraud') },
-                { value: 'Assault', label: t('complaint.categories.assault') },
+                { value: 'Phishing Scam', label: '🎣 Phishing & Malicious Link Scam' },
+                { value: 'Investment Scam', label: '📈 Telegram / Part-Time Job Scam' },
+                { value: 'Crypto Crime', label: '🪙 Crypto Wallet Mule Laundering' },
                 { value: 'Cybercrime', label: t('complaint.categories.cybercrime') },
-                { value: 'Theft', label: t('complaint.categories.theft') },
+                { value: 'Assault', label: t('complaint.categories.assault') },
                 { value: 'Emergency', label: t('complaint.categories.emergency') },
               ]}
             />
+
+            {/* Ahmedabad Geolocation Map Picker */}
+            <div className="p-3 rounded-xl bg-slate-900/60 border border-primary/20 space-y-2">
+              <LocationPickerMap onLocationChange={handleMapLocationChange} />
+              <CyberInput
+                label={t('complaint.field_location')}
+                icon="location_on"
+                register={register('location')}
+                placeholder={t('complaint.location_placeholder')}
+              />
+            </div>
             <CyberInput
-              label={t('complaint.field_location')}
-              icon="location_on"
-              register={register('location')}
-              placeholder={t('complaint.location_placeholder')}
+              label="NCRP Acknowledgement Number (Optional)"
+              icon="receipt_long"
+              register={register('ncrp_id')}
+              placeholder="e.g. 2023120412345"
             />
             <CyberTextarea
               label={t('complaint.field_description')}

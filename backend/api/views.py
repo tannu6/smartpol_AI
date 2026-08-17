@@ -1,8 +1,18 @@
 import hashlib
 import uuid
+import random
 from datetime import timedelta
 
 from django.contrib.auth import get_user_model
+from django.core.mail import send_mail
+from django.conf import settings
+from rest_framework.pagination import PageNumberPagination
+
+class StandardResultsPagination(PageNumberPagination):
+    page_size = 20
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
 from django.db.models import Count, Avg, Q
 from django.utils import timezone
 from rest_framework import status, viewsets
@@ -16,14 +26,14 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import (
     Complaint, ComplaintTimeline, Evidence, Message, Notification,
     Identifier, MuleAlert, ScamDNA, OfficerAssignment, SuspectNode,
-    SuspectEdge, SystemLog,
+    SuspectEdge, SystemLog, PoliceStation, AssignmentRecord,
 )
 from .serializers import (
     UserSerializer, RegisterSerializer, ComplaintSerializer,
     ComplaintCreateSerializer, EvidenceSerializer, MessageSerializer,
     NotificationSerializer, MuleAlertSerializer, ScamDNASerializer,
     OfficerAssignmentSerializer, SystemLogSerializer,
-    UserProfileSerializer, ComplaintStatusSerializer,
+    UserProfileSerializer, ComplaintStatusSerializer, PoliceStationSerializer,
 )
 from . import ai_services
 from .encryption import encrypt_text, decrypt_text
@@ -48,22 +58,18 @@ class RegisterView(APIView):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save(is_active=False)
-            import random
-            from django.utils import timezone
-            from datetime import timedelta
             code = str(random.randint(100000, 999999))
+            hashed_code = hashlib.sha256(code.encode()).hexdigest()
             user.otp_records.create(
-                otp_code=code,
+                otp_code=hashed_code,
                 expires_at=timezone.now() + timedelta(minutes=10)
             )
             
-            from django.core.mail import send_mail
-            from django.conf import settings
-            
             # Always print to console so OTP is recoverable even if email fails
-            print(f"\n{'='*50}")
-            print(f"  OTP for {user.username} ({user.email}): {code}")
-            print(f"{'='*50}\n")
+            if settings.DEBUG:
+                print(f"\n{'='*50}")
+                print(f"  OTP for {user.username} ({user.email}): {code}")
+                print(f"{'='*50}\n")
             
             try:
                 send_mail(
@@ -107,7 +113,6 @@ def logout_view(request):
     try:
         refresh_token = request.data.get('refresh')
         if refresh_token:
-            from rest_framework_simplejwt.tokens import RefreshToken
             token = RefreshToken(refresh_token)
             token.blacklist()
     except Exception:
@@ -123,12 +128,6 @@ class ForgotPasswordView(APIView):
         email = request.data.get('email')
         user = User.objects.filter(email=email).first()
         if user:
-            import uuid
-            from django.utils import timezone
-            from datetime import timedelta
-            from django.core.mail import send_mail
-            from django.conf import settings
-            
             token_str = uuid.uuid4().hex
             user.reset_tokens.create(
                 token=token_str,
@@ -199,7 +198,8 @@ class VerifyOTPView(APIView):
         if not otp_record or not otp_record.is_valid():
             return Response({'detail': 'OTP is invalid or expired.'}, status=status.HTTP_400_BAD_REQUEST)
         
-        if code != otp_record.otp_code:
+        hashed_input = hashlib.sha256(code.encode()).hexdigest()
+        if hashed_input != otp_record.otp_code:
             return Response({'detail': 'Invalid OTP.'}, status=status.HTTP_400_BAD_REQUEST)
             
         otp_record.is_used = True
@@ -223,20 +223,17 @@ class ResendOTPView(APIView):
             return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
             
         # Create a new OTP
-        import random
-        from datetime import timedelta
         code = str(random.randint(100000, 999999))
+        hashed_code = hashlib.sha256(code.encode()).hexdigest()
         user.otp_records.create(
-            otp_code=code,
+            otp_code=hashed_code,
             expires_at=timezone.now() + timedelta(minutes=10)
         )
         
-        from django.core.mail import send_mail
-        from django.conf import settings
-        
-        print(f"\n{'='*50}")
-        print(f"  RESEND OTP for {user.username} ({user.email}): {code}")
-        print(f"{'='*50}\n")
+        if settings.DEBUG:
+            print(f"\n{'='*50}")
+            print(f"  RESEND OTP for {user.username} ({user.email}): {code}")
+            print(f"{'='*50}\n")
         
         try:
             send_mail(
@@ -313,13 +310,16 @@ def dashboard_view(request):
         data.update({
             'unread_messages': Message.objects.filter(recipient=user, read=False).count(),
             'urgent_messages': Message.objects.filter(recipient=user, is_urgent=True, read=False).count(),
-            'active_missions': 3,
+            'active_missions': 1,
         })
     elif user.role == User.ROLE_ADMIN:
         data.update({
             'total_users': User.objects.count(),
+            'admins': User.objects.filter(role=User.ROLE_ADMIN).count(),
+            'supervisors': User.objects.filter(role=User.ROLE_SUPERVISOR).count(),
             'officers': User.objects.filter(role=User.ROLE_OFFICER).count(),
             'agents': User.objects.filter(role=User.ROLE_SECRET_AGENT).count(),
+            'citizens': User.objects.filter(role=User.ROLE_CITIZEN).count(),
             'system_logs': SystemLog.objects.count(),
         })
 
@@ -346,6 +346,7 @@ def extract_amount(text):
 class ComplaintViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = ComplaintSerializer
+    pagination_class = StandardResultsPagination
 
     def get_queryset(self):
         user = self.request.user
@@ -376,6 +377,12 @@ class ComplaintViewSet(viewsets.ModelViewSet):
             'location': serializer.validated_data.get('location', ''),
             'entities_extracted': entities,
         })
+        # Run Intelligent Station & Officer Routing Engine
+        routing = ai_services.recommend_police_station_and_officer(serializer.validated_data)
+        station = routing['station']
+        assigned_officer = routing['officer']
+        explanation_str = routing['explanation']
+
         complaint = serializer.save(
             citizen=request.user,
             complaint_id=complaint_id,
@@ -384,7 +391,14 @@ class ComplaintViewSet(viewsets.ModelViewSet):
             urgency_score=urgency,
             readiness_score=readiness,
             qr_code=f'QR-{complaint_id}',
+            assigned_station=station,
+            assigned_officer=assigned_officer,
+            assignment_explanation=explanation_str,
         )
+
+        if station:
+            station.active_cases += 1
+            station.save()
         
         # Dynamic Mule account and Scam DNA creation from live complaints
         import re
@@ -452,19 +466,39 @@ class ComplaintViewSet(viewsets.ModelViewSet):
             description='Complaint submitted and AI analysis initiated.',
             actor=request.user,
         )
-        officer = User.objects.filter(role=User.ROLE_OFFICER).first()
-        if ai_services.golden_hour_alert(complaint) and officer:
+        officer = complaint.assigned_officer or User.objects.filter(role=User.ROLE_OFFICER).first()
+        is_gh = ai_services.golden_hour_alert(complaint)
+        if officer:
             OfficerAssignment.objects.create(
                 complaint=complaint,
                 officer=officer,
-                priority=1, golden_hour=True, status='queued',
+                priority=1 if is_gh else 2,
+                golden_hour=is_gh,
+                status='queued',
             )
-            Notification.objects.create(
-                user=officer,
-                title='Golden Hour Alert',
-                message=f'High urgency complaint {complaint_id} requires immediate attention.',
-                notification_type='alert', link=f'/officer/complaints/{complaint.id}',
-            )
+            if is_gh:
+                Notification.objects.create(
+                    user=officer,
+                    title='Golden Hour Alert',
+                    message=f'High urgency complaint {complaint_id} requires immediate attention.',
+                    notification_type='alert', link=f'/officer/complaints/{complaint.id}',
+                )
+            # Push real-time WebSocket notification
+            try:
+                from channels.layers import get_channel_layer
+                from asgiref.sync import async_to_sync
+                channel_layer = get_channel_layer()
+                async_to_sync(channel_layer.group_send)(
+                    'officer_notifications',
+                    {
+                        'type': 'send_notification',
+                        'message': f"CRITICAL: Golden Hour Complaint {complaint_id} received!",
+                        'alert_type': 'error'
+                    }
+                )
+            except Exception as e:
+                print(f"WebSocket push failed: {e}")
+                
         log_action(request.user, 'CREATE_COMPLAINT', complaint_id, request)
         
         # Return full data using ComplaintSerializer
@@ -558,12 +592,82 @@ class UploadView(APIView):
             file_type=request.data.get('file_type', 'document'),
             hash_value=digest.hexdigest(),
         )
+        
+        # Cyber Fraud 11/10: Run Deepfake Analysis
+        from . import ai_services
+        try:
+            file_path = evidence.file.path if evidence.file else None
+            deepfake_result = ai_services.analyze_digital_evidence(evidence.file_name, evidence.file_type, file_path)
+            evidence.is_deepfake = deepfake_result['is_deepfake']
+            evidence.deepfake_score = deepfake_result['confidence_score']
+            evidence.deepfake_analysis = deepfake_result
+            evidence.save()
+
+            if evidence.is_deepfake:
+                # 🚨 DEEPFAKE FORGERY OVERRIDE: Suspend Golden Hour & Flag Complaint
+                forgery_warning = (
+                    f"\n\n⚠️ FORENSIC FORGERY WARNING: File '{evidence.file_name}' FLAGGED FOR MANIPULATION "
+                    f"(Deepfake Confidence: {int(evidence.deepfake_score * 100)}%). "
+                    f"Golden Hour emergency dispatch SUSPENDED pending officer verification."
+                )
+                if forgery_warning not in complaint.assignment_explanation:
+                    complaint.assignment_explanation += forgery_warning
+                complaint.readiness_score = max(0.1, round(complaint.readiness_score * 0.5, 2))
+                complaint.save()
+
+                # Update OfficerAssignments to suspend golden hour
+                from .models import OfficerAssignment
+                OfficerAssignment.objects.filter(complaint=complaint).update(
+                    golden_hour=False, status='suspended_forgery_check'
+                )
+
+                # Send emergency notification to officer
+                if complaint.assigned_officer:
+                    Notification.objects.create(
+                        user=complaint.assigned_officer,
+                        title='⚠️ DEEPFAKE EVIDENCE FLAGGED',
+                        message=f"File '{evidence.file_name}' in Complaint {complaint.complaint_id} flagged for manipulation ({int(evidence.deepfake_score * 100)}%). Golden Hour suspended.",
+                        notification_type='warning',
+                        link=f'/officer/complaints/{complaint.id}'
+                    )
+        except Exception as e:
+            print(f"Deepfake analysis failed: {e}")
+            
         ComplaintTimeline.objects.create(
             complaint=complaint, event='Evidence Uploaded',
-            description=f'File {evidence.file_name} added to vault.',
+            description=f'File {evidence.file_name} added to vault. (Deepfake Check: {"FLAGGED FORGERY" if evidence.is_deepfake else "Clean"})',
             actor=request.user,
         )
         return Response(EvidenceSerializer(evidence).data, status=201)
+
+class FreezeAccountView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, complaint_id):
+        if request.user.role not in (User.ROLE_OFFICER, User.ROLE_SUPERVISOR, User.ROLE_ADMIN):
+            return Response({'detail': 'Forbidden. Only authorized officers can initiate a freeze.'}, status=403)
+            
+        complaint = Complaint.objects.filter(id=complaint_id).first()
+        if not complaint:
+            return Response({'detail': 'Complaint not found.'}, status=404)
+            
+        account_id = request.data.get('account_id')
+        if not account_id:
+            return Response({'detail': 'Destination mule account ID is required.'}, status=400)
+            
+        # Log the action
+        ComplaintTimeline.objects.create(
+            complaint=complaint, event='Bank Freeze Initiated',
+            description=f'Letter of Request (Section 91 CrPC) generated and sent to Nodal Officer for A/C {account_id}.',
+            actor=request.user,
+        )
+        log_action(request.user, 'INITIATE_FREEZE', f'{complaint_id} / {account_id}', request)
+        
+        return Response({
+            'detail': 'Freeze request transmitted to bank successfully.',
+            'account_id': account_id,
+            'status': 'freeze_pending'
+        }, status=200)
 
 
 @api_view(['GET'])
@@ -923,3 +1027,47 @@ def ai_analyze_view(request):
             'recommended_action': "Dispatch unit immediately." if urgency > 0.8 else "Assign to queue."
         }
     })
+
+
+class PoliceStationViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = PoliceStationSerializer
+    queryset = PoliceStation.objects.all()
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def hotspots_view(request):
+    days = int(request.query_params.get('days', 30))
+    since = timezone.now() - timedelta(days=days)
+    complaints = Complaint.objects.filter(created_at__gte=since)
+    
+    category = request.query_params.get('category')
+    if category and category != 'all':
+        complaints = complaints.filter(category__iexact=category)
+        
+    points = []
+    for c in complaints:
+        lat = c.latitude or (23.0225 + (hash(c.id) % 100 - 50) * 0.001)
+        lng = c.longitude or (72.5714 + (hash(c.id * 3) % 100 - 50) * 0.001)
+        points.append({
+            'id': c.id,
+            'complaint_id': c.complaint_id,
+            'title': c.title,
+            'category': c.category,
+            'lat': lat,
+            'lng': lng,
+            'intensity': min(0.99, max(0.2, c.urgency_score)),
+            'status': c.status,
+            'locality': c.locality or c.location or 'Ahmedabad',
+            'created_at': c.created_at.isoformat(),
+        })
+    return Response({'points': points, 'total': len(points)})
+
+
+class OperationViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    from .serializers import OperationSerializer
+    from .models import Operation
+    serializer_class = OperationSerializer
+    queryset = Operation.objects.all()

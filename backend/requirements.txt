@@ -5,4 +5,5 @@ django-cors-headers>=4.3
 Pillow>=10.0
 python-dotenv>=1.0
 cryptography
-python-dotenv
+channels
+daphne

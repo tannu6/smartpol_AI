@@ -34,11 +34,18 @@ class Command(BaseCommand):
 
         if not Complaint.objects.exists():
             complaints_data = [
-                ('CP-DEMO001', 'UPI Fraud - Fake Refund', 'Received OTP request for UPI refund scam. Lost 45000 rupees.', 'Financial Fraud', 'Metro District 4', 0.92),
-                ('CP-DEMO002', 'Assault Report', 'Physical assault near South Pier 9. Victim needs immediate help.', 'Assault', 'South Pier 9', 0.95),
-                ('CP-DEMO003', 'Cyber Breach Attempt', 'Phishing email targeting finance department credentials.', 'Cybercrime', 'Finance Cluster', 0.78),
-                ('CP-DEMO004', 'Suspicious Activity', 'Multiple drones near terminal 4 loading docks.', 'Surveillance', 'Terminal 4', 0.55),
-                ('CP-DEMO005', 'Investment Scam', 'Fake crypto investment platform draining accounts.', 'Financial Fraud', 'Cyber Park Dr.', 0.88),
+                ('CP-DEMO001', 'UPI Fraud - Fake Refund', 'Received OTP request for UPI refund scam. Lost 45,000 rupees.', 'Financial Fraud', 'Metro District 4, Ahmedabad', 0.92),
+                ('CP-DEMO002', 'Assault Report', 'Physical assault near South Pier 9. Victim needs immediate help.', 'Assault', 'South Pier 9, Ahmedabad', 0.95),
+                ('CP-DEMO003', 'Cyber Breach Attempt', 'Phishing email targeting finance department credentials.', 'Cybercrime', 'Finance Cluster, Ahmedabad', 0.78),
+                ('CP-DEMO004', 'Suspicious Activity', 'Multiple drones near terminal 4 loading docks.', 'Surveillance', 'Terminal 4, Ahmedabad', 0.55),
+                ('CP-DEMO005', 'Investment Scam', 'Fake crypto investment platform draining accounts.', 'Financial Fraud', 'Cyber Park Dr., Ahmedabad', 0.88),
+                ('CP-CYBER006', 'Sextortion & Photo Leak Threat', 'Received extortion messages on WhatsApp demanding 2,50,000 rupees under threat of publishing morphed photos.', 'Sextortion', 'Navrangpura, Ahmedabad', 0.98),
+                ('CP-CYBER007', 'Fake Electricity Bill APK Hijack', 'Victim clicked SMS link for electricity update. Malicious APK installed, device hijacked, 1,80,000 rupees drained.', 'APK Malware', 'Satellite, Ahmedabad', 0.95),
+                ('CP-CYBER008', 'Part-Time Job Investment Scam', 'Promised 5000/day for liking videos on Telegram. Victim coerced into depositing 3,50,000 rupees.', 'Investment Scam', 'SG Highway, Ahmedabad', 0.90),
+                ('CP-CYBER009', 'Deepfake CEO Video Call Scam', 'AI generated deepfake video call impersonating company CEO requesting urgent transfer of 12,00,000 rupees.', 'Deepfake Scam', 'C.G. Road, Ahmedabad', 0.92),
+                ('CP-CYBER010', 'SIM Swap & NetBanking Hijack', 'Victim SIM card deactivated. Attacker issued duplicate SIM and drained 5,00,000 rupees via NetBanking.', 'SIM Swap', 'Maninagar, Ahmedabad', 0.89),
+                ('CP-CYBER011', 'Crypto Mule Laundering Network', 'Suspect laundering cyber crime proceeds through P2P crypto exchanges and cold wallets.', 'Crypto Crime', 'Science City, Ahmedabad', 0.87),
+                ('CP-EMERG012', 'Emergency Abduction & Weapon Attack', 'Victim abducted in blue vehicle near South Pier, physically assaulted with weapon. S.W.A.T. vectoring required.', 'Assault', 'South Pier 9, Ahmedabad', 0.98),
             ]
             for cid, title, desc, cat, loc, urgency in complaints_data:
                 c = Complaint.objects.create(

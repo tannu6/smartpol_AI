@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import { AppProvider } from './context/AppContext'
 import ProtectedRoute from './components/layout/ProtectedRoute'
 import { ROLES } from './config/navigation'
+import { Toaster } from 'react-hot-toast'
 
 import LoginPage from './pages/auth/LoginPage'
 import RegisterPage from './pages/auth/RegisterPage'
@@ -52,6 +53,7 @@ import AdminAgentsPage from './pages/admin/AdminAgentsPage'
 import AdminRolesPage from './pages/admin/AdminRolesPage'
 import AdminLogsPage from './pages/admin/AdminLogsPage'
 import EvidenceVaultPage from './pages/admin/EvidenceVaultPage'
+import AdminStationsPage from './pages/admin/AdminStationsPage'
 import AdminConfigPage from './pages/admin/AdminConfigPage'
 
 function RootRedirect() {
@@ -74,6 +76,24 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <AppProvider>
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              style: {
+                background: '#161f34',
+                color: '#d9e2fe',
+                border: '1px solid rgba(180,197,255,0.12)',
+                fontSize: '13px',
+                fontFamily: 'Inter, sans-serif',
+              },
+              success: {
+                iconTheme: { primary: '#4cd7f6', secondary: '#040e21' },
+              },
+              error: {
+                iconTheme: { primary: '#ffb4ab', secondary: '#040e21' },
+              },
+            }}
+          />
           <Routes>
             <Route path="/" element={<RootRedirect />} />
             <Route path="/login" element={<LoginPage />} />
@@ -99,7 +119,7 @@ export default function App() {
             <Route path="/officer/mission" element={<ProtectedRoute roles={[ROLES.OFFICER, ROLES.SUPERVISOR, ROLES.ADMIN]}><MissionControlPage /></ProtectedRoute>} />
             <Route path="/officer/complaints/:id" element={<ProtectedRoute roles={[ROLES.OFFICER, ROLES.SUPERVISOR, ROLES.ADMIN]}><ComplaintDetailsPage /></ProtectedRoute>} />
             <Route path="/officer/anonymous-tips" element={<ProtectedRoute roles={[ROLES.OFFICER, ROLES.SUPERVISOR, ROLES.ADMIN]}><AnonymousTipsPage /></ProtectedRoute>} />
-            <Route path="/officer/profile" element={<ProtectedRoute roles={[ROLES.OFFICER, ROLES.SUPERVISOR, ROLES.ADMIN]}><OfficerProfilePage /></ProtectedRoute>} />
+            <Route path="/officer/profile" element={<ProtectedRoute roles={[ROLES.OFFICER, ROLES.SUPERVISOR, ROLES.ADMIN, ROLES.SECRET_AGENT]}><OfficerProfilePage /></ProtectedRoute>} />
 
             <Route path="/supervisor/analytics" element={<ProtectedRoute roles={[ROLES.SUPERVISOR, ROLES.ADMIN]}><AnalyticsPage /></ProtectedRoute>} />
             <Route path="/supervisor/war-room" element={<ProtectedRoute roles={[ROLES.SUPERVISOR, ROLES.ADMIN]}><WarRoomPage /></ProtectedRoute>} />
@@ -124,6 +144,7 @@ export default function App() {
             <Route path="/admin/roles" element={<ProtectedRoute roles={[ROLES.ADMIN]}><AdminRolesPage /></ProtectedRoute>} />
             <Route path="/admin/logs" element={<ProtectedRoute roles={[ROLES.ADMIN]}><AdminLogsPage /></ProtectedRoute>} />
             <Route path="/admin/evidence" element={<ProtectedRoute roles={[ROLES.ADMIN]}><EvidenceVaultPage /></ProtectedRoute>} />
+            <Route path="/admin/stations" element={<ProtectedRoute roles={[ROLES.ADMIN]}><AdminStationsPage /></ProtectedRoute>} />
             <Route path="/admin/config" element={<ProtectedRoute roles={[ROLES.ADMIN]}><AdminConfigPage /></ProtectedRoute>} />
 
             <Route path="*" element={<Navigate to="/" replace />} />

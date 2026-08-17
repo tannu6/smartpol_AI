@@ -3,6 +3,7 @@ import AppLayout from '../../components/layout/AppLayout'
 import { complaintService, uploadService } from '../../services/api'
 import { CyberSelect, CyberButton } from '../../components/ui/Forms'
 import { useTranslation } from 'react-i18next'
+import toast from 'react-hot-toast'
 
 export default function EvidenceUploadPage() {
   const { t } = useTranslation()
@@ -32,11 +33,17 @@ export default function EvidenceUploadPage() {
   }, [t])
 
   const handleUpload = async () => {
-    if (!file || !complaintId) return
+    if (!file || !complaintId) {
+      toast.error('Please select a complaint and a file.');
+      return;
+    }
     setUploading(true)
     try {
       const { data } = await uploadService.upload(complaintId, file)
       setSuccess(data)
+      toast.success('Evidence successfully uploaded and hashed!');
+    } catch (err) {
+      toast.error(err.response?.data?.detail || 'Failed to upload evidence. Please try again.');
     } finally {
       setUploading(false)
     }

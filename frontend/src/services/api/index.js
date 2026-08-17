@@ -29,7 +29,11 @@ export const uploadService = {
     form.append('complaint_id', complaintId)
     form.append('file', file)
     form.append('file_type', fileType || 'document')
-    return api.post('/upload/', form)
+    return api.post('/upload/', form, {
+      headers: {
+        'Content-Type': undefined
+      }
+    })
   },
 }
 
@@ -80,4 +84,18 @@ export const anonymousTipService = {
   list: () => api.get('/officer/anonymous-tips/'),
   update: (id, data) => api.put(`/officer/anonymous-tips/${id}/`, data),
   submit: (body) => api.post('/anonymous-tips/', { body }),
+}
+
+export const policeStationService = {
+  list: () => api.get('/police-stations/'),
+  create: (data) => api.post('/police-stations/', data),
+}
+
+export const hotspotService = {
+  get: (params) => api.get('/hotspots/', { params }),
+}
+
+export const operationService = {
+  list: () => api.get('/operations/'),
+  create: (data) => api.post('/operations/', data),
 }

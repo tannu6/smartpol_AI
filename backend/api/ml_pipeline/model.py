@@ -103,6 +103,7 @@ class FraudRiskModel:
     def save(self, filepath):
         data = {
             'vocab': self.extractor.vocab,
+            'idf': self.extractor.idf,
             'class_counts': self.class_counts,
             'word_counts': self.word_counts,
             'total_words': self.total_words,
@@ -118,6 +119,7 @@ class FraudRiskModel:
             with open(filepath, 'r') as f:
                 data = json.load(f)
                 self.extractor.vocab = data['vocab']
+                self.extractor.idf = data.get('idf', {})
                 self.class_counts = data['class_counts']
                 self.word_counts = data['word_counts']
                 self.total_words = data['total_words']

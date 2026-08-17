@@ -5,10 +5,25 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 from .models import (
     Complaint, ComplaintTimeline, Evidence, Message, Notification,
     Identifier, MuleAlert, ScamDNA, OfficerAssignment, SuspectNode,
-    SuspectEdge, SystemLog,
+    SuspectEdge, SystemLog, PoliceStation, AssignmentRecord,
 )
 
 User = get_user_model()
+
+
+class PoliceStationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PoliceStation
+        fields = '__all__'
+
+
+class AssignmentRecordSerializer(serializers.ModelSerializer):
+    station_name = serializers.CharField(source='station.name', read_only=True, default='')
+    officer_name = serializers.CharField(source='officer.get_full_name', read_only=True, default='')
+
+    class Meta:
+        model = AssignmentRecord
+        fields = '__all__'
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -75,12 +90,14 @@ class EvidenceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Evidence
         fields = ['id', 'file', 'file_name', 'file_type', 'hash_value',
-                  'uploaded_by_name', 'created_at', 'complaint_code', 'complaint_id']
+                  'uploaded_by_name', 'created_at', 'complaint_code', 'complaint_id',
+                  'is_deepfake', 'deepfake_score', 'deepfake_analysis']
 
 
 class ComplaintSerializer(serializers.ModelSerializer):
     citizen_name = serializers.CharField(source='citizen.get_full_name', read_only=True)
     officer_name = serializers.CharField(source='assigned_officer.get_full_name', read_only=True, default='')
+    station_name = serializers.CharField(source='assigned_station.name', read_only=True, default='')
     timeline = ComplaintTimelineSerializer(many=True, read_only=True)
     evidence = EvidenceSerializer(many=True, read_only=True)
 
@@ -88,13 +105,15 @@ class ComplaintSerializer(serializers.ModelSerializer):
         model = Complaint
         fields = '__all__'
         read_only_fields = ['complaint_id', 'urgency_score', 'readiness_score',
-                            'fraud_classification', 'entities_extracted', 'qr_code']
+                            'fraud_classification', 'entities_extracted', 'qr_code',
+                            'assigned_station', 'assignment_explanation']
 
 
 class ComplaintCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Complaint
-        fields = ['title', 'description', 'category', 'location']
+        fields = ['title', 'description', 'category', 'location',
+                  'latitude', 'longitude', 'address', 'locality', 'district', 'location_source']
 
     def validate_title(self, value):
         value = value.strip()
@@ -176,3 +195,13 @@ class SystemLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = SystemLog
         fields = '__all__'
+
+
+class OperationSerializer(serializers.ModelSerializer):
+    station_name = serializers.CharField(source='assigned_station.name', read_only=True)
+
+    class Meta:
+        from .models import Operation
+        model = Operation
+        fields = '__all__'
+

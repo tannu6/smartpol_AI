@@ -1,193 +1,117 @@
 # 🛡️ SmartPol AI
 
-### AI-Powered Smart Policing & Cyber Fraud Detection Platform
+### AI-Powered Smart Policing & Cyber Crime Command Platform
 
-SmartPol AI is a modern intelligent policing platform designed to help citizens report cyber fraud, assist law-enforcement officers with investigation and evidence management, and provide supervisors with AI-powered analytics, fraud intelligence, heatmaps, predictions, and operational insights.
+SmartPol AI is an enterprise-grade intelligent policing and cybercrime triage platform. It is engineered to assist citizens with rapid reporting of emerging cyber fraud, empower police officers with digital evidence forensics and CAD dispatch telemetry, and equip command supervisors with AI explainability, spatial heat canvases, scam DNA clustering, and suspect network graphs.
 
-The platform combines **AI, Machine Learning, cyber-fraud analysis, secure complaint management, evidence handling, geospatial intelligence, and role-based access control** into a unified smart-policing ecosystem.
-
----
-
-## 🚨 The Problem
-
-Cyber fraud is increasing rapidly, while victims often face:
-
-- Delayed complaint processing
-- Difficulty tracking complaint progress
-- Lack of real-time fraud intelligence
-- Fragmented investigation workflows
-- Difficulty identifying fraud patterns
-- Delayed analysis of digital evidence
-- Poor coordination between citizens and law-enforcement agencies
-
-Traditional systems often store complaints but do not provide intelligent analysis or predictive capabilities.
+The platform aligns with real-world Indian Cyber Crime Coordination Centre (**I4C**) and **CERT-In** threat reporting protocols (such as **1930 Helpline** integration patterns and **CCTNS** legal case resolution workflows).
 
 ---
 
-## 💡 Our Solution
+## ⚡ Quick Start
 
-SmartPol AI provides an integrated platform that enables:
+### Backend (Django 5.x REST API)
+```bash
+# 1. Clone the repository
+git clone <repo-url> && cd smartpol_AI
 
-- Citizens to report cyber fraud easily
-- AI-assisted complaint classification
-- Fraud risk and priority scoring
-- Real-time complaint tracking
-- Secure evidence upload and management
-- Officer investigation workflows
-- Cyber-fraud pattern analysis
-- Fraud heatmap visualization
-- Predictive crime analytics
-- Suspicious account and suspect analysis
-- AI-powered investigation assistance
-- Administrative system management
+# 2. Set up Python environment
+cd backend
+python -m venv venv
+venv\Scripts\activate          # Windows
+source venv/bin/activate       # Linux/Mac
 
----
+# 3. Install dependencies
+pip install -r requirements.txt
 
-# 🎯 Core Features
+# 4. Run migrations and seed Ahmedabad Command Grid data
+python manage.py migrate
+python manage.py seed_data
 
-## 👤 Citizen Portal
-
-Citizens can:
-
-- Create an account
-- Login securely
-- Submit cyber-fraud complaints
-- Upload digital evidence
-- Track complaint status
-- View complaint timeline
-- Receive complaint updates
-- Access multilingual support
-- View fraud-related information
-
-### Complaint Categories
-
-The platform can support cyber-fraud categories such as:
-
-- UPI Fraud
-- Online Banking Fraud
-- Phishing
-- Fake Customer Care Fraud
-- Investment Scam
-- Job Scam
-- Social Media Fraud
-- Identity Theft
-- OTP Fraud
-- Credit/Debit Card Fraud
-- Cryptocurrency Scam
-- Online Shopping Fraud
-- Loan Scam
-- Sextortion and Blackmail
-- Other Cyber Crimes
-
----
-
-# 👮 Officer Portal
-
-Police officers can:
-
-- View assigned complaints
-- Manage complaint priority
-- Investigate cases
-- Review uploaded evidence
-- Track investigation progress
-- View alerts
-- Manage missions
-- Analyze suspicious activities
-- Access complaint details
-- Update case status
-
----
-
-# 📊 Supervisor Intelligence Dashboard
-
-Supervisors can access:
-
-- Crime analytics
-- Cyber-fraud statistics
-- Fraud heatmaps
-- Predictive analytics
-- Patrol intelligence
-- Scam DNA analysis
-- Mule account detection
-- Suspect intelligence
-- Data fusion dashboards
-- Operational war-room monitoring
-
----
-
-# 🕵️ AI Agent Intelligence System
-
-SmartPol AI includes an intelligent investigation assistant designed to support law-enforcement operations.
-
-The AI assistant can help with:
-
-- Complaint summarization
-- Fraud pattern identification
-- Suspect relationship analysis
-- Investigation recommendations
-- Case prioritization
-- Risk assessment
-- Timeline analysis
-- Cyber-fraud intelligence
-
-> AI recommendations are designed to assist authorized investigators and should not replace official human decision-making.
-
----
-
-# 🧠 Machine Learning & AI
-
-The platform is designed to support machine-learning-powered cyber-fraud detection.
-
-### Potential ML Capabilities
-
-- Fraud classification
-- Risk scoring
-- Complaint prioritization
-- Anomaly detection
-- Suspicious transaction detection
-- Fraud pattern recognition
-- Scam category prediction
-- Account risk analysis
-
-### Example ML Pipeline
-
-```text
-Complaint / Transaction Data
-          ↓
-Data Preprocessing
-          ↓
-Feature Extraction
-          ↓
-Machine Learning Model
-          ↓
-Fraud Classification
-          ↓
-Risk Score
-          ↓
-Priority Recommendation
-          ↓
-Investigation Dashboard#
+# 5. Start development server
+python manage.py runserver
 ```
-🌐 Live Demo
 
-The SmartPol AI platform is deployed on a live server.
+### Frontend (React 18 + Vite + Tailwind CSS)
+```bash
+# In a new terminal
+cd frontend
+npm install
+npm run dev
+# App available at http://localhost:5173
+```
 
-🔗 **Live Application:**
-
-[🚀 Open SmartPol AI Live](http://3.110.225.32)
-
-> The application is hosted on an Ubuntu server using Nginx, Gunicorn, Django, and React/Vite production build.
 ---
 
-## 👨‍💻 Developer
+## 🚨 Real-World Threat Vectors Covered (I4C / CERT-In Aligned)
+
+SmartPol AI detects and processes modern cybercrime vectors highlighted by **I4C** and **CERT-In**:
+
+1. 🚨 **Digital Arrest Scams**: CBI / ED / Custom Officer impersonation via video call extortion.
+2. ⚠️ **Sextortion & Cyber Blackmail**: Photo morphing & intimacy threat extortion.
+3. 📱 **APK Utility & Electricity Bill Hijack**: SMS link malicious APK installation & device screen mirroring.
+4. 🤖 **AI Deepfake Video & Voice Impersonation**: Synthetic voice cloning & CEO video call scam.
+5. 💳 **SIM Swap & NetBanking Takeover**: Duplicate SIM issuance & OTP interception.
+6. 📈 **Telegram Task & Part-Time Job Scams**: Task-based investment fraud.
+7. 🪙 **Crypto Wallet Mule Laundering**: Multi-tiered smurfing across mule bank accounts.
+
+---
+
+## 🏗️ Platform Architecture & Engineering
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                        SmartPol AI Command Grid                        │
+│                                                                        │
+│  ┌──────────────────────┐               ┌───────────────────────────┐  │
+│  │   React 18 + Vite    │ ──REST APIs── │   Django 5.x DRF Backend  │  │
+│  │  Tailwind + D3.js    │ ◄─WebSockets─ │   Python 3.12 Core        │  │
+│  └──────────┬───────────┘               └─────────────┬─────────────┘  │
+│             │                                         │                │
+│    ┌────────▼─────────┐                      ┌────────▼────────────┐   │
+│    │ Spatial Heat Canvas │                      │ Digital Evidence ELA │   │
+│    │ D3 Suspect Graph  │                      │ Forensic Engine     │   │
+│    └──────────────────┘                      └─────────────────────┘   │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+### Key Technical Pillars:
+- **Backend**: Python 3.12 · Django 5.x · Django REST Framework · SimpleJWT
+- **Frontend**: React 18 · Vite · Tailwind CSS · D3.js Force Simulation · Leaflet.js
+- **Forensics & AI**: Pillow Error Level Analysis (ELA) · SHA-256 Cryptographic Hashing · Rule-Based & Naive Bayes Intelligence Engine
+- **Accessibility**: Multi-language i18n (**Gujarati**, **Hindi**, **English**) · Web Speech API Text-to-Speech (TTS) readout
+
+---
+
+## 🎯 Core Modules & Feature Matrix
+
+### 👤 Citizen Portal
+- **Rapid Reporting**: Guided complaint filing with NCRP acknowledgement tracking.
+- **Geolocation Pinning**: Interactive Ahmedabad sector map picker with auto-address resolving.
+- **Speech-to-Text**: Live microphone voice input for multi-lingual description typing.
+- **Evidence Vault**: Secure file upload generating SHA-256 chain-of-custody checksums.
+
+### 👮 Officer Command Center
+- **Golden Hour Emergency Alerts**: Active 0–2 hour financial fraud priority queue.
+- **AI Explainability Panel**: Dynamic Urgency Scoring (0–98%), Readiness metrics, and synchronized next-action suggestions.
+- **Computer-Aided Dispatch (CAD) Telemetry**: Live patrol callsign status (`Unit Blue-4`, `Unit Red-1 SWAT`, `Unit Gold-7`), speed, ping, and vectoring controls.
+- **Formal Case Closure Workflow**: Legal resolution options (*Chargesheet Filed in Court*, *Accused Arrested*, *Untraced Final Report*) with court reference recording.
+
+### 📊 Supervisor War Room & Intelligence Fusion
+- **Spatial Thermal Density Canvas**: Custom HTML5 Canvas radar grid visualizing crime density hotspot isolines.
+- **D3 Suspect Syndicate Graph**: Interactive network mapping connections between Suspect Kingpins, Mule Bank Accounts, Phishing Domains, and Phone SIMs.
+- **Scam DNA Laboratory**: Pattern clustering grouping individual complaints into unified attack families.
+- **Mule Account Tracking**: Velocity analysis detecting rapid layering and smurfing transactions.
+
+---
+
+## 👤 Developer & Maintainer
 
 ### Tannu Sharma
-
-Computer Science & Engineering Student  
-Interested in Artificial Intelligence, Cybersecurity, Full-Stack Development, and Smart Policing Technologies.
+- **Role**: Full-Stack Engineer & AI Cybersecurity Researcher
+- **Specialization**: Smart Policing Technologies, Cyber Fraud Intelligence & Digital Forensics
+- **Repository**: [smartpol_AI](https://github.com/tannu6/smartpol_AI)
 
 ---
 
-⭐ If you find this project interesting, consider giving the repository a star!
-
-**Built with ❤️ and technology by Tannu Sharma**
+⭐ **Built for Law Enforcement Excellence & Cyber Crime Prevention** ⭐

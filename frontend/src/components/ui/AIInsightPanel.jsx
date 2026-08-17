@@ -18,7 +18,7 @@ export function AIInsightPanel({ insight }) {
         <span className={`text-xs font-bold uppercase px-2 py-1 rounded ${cls}`}>{insight.threat_level || 'MODERATE'}</span>
       </div>
       <div className="grid grid-cols-2 gap-md mb-md text-xs font-mono-data">
-        <div><span className="text-on-surface-variant">Priority Score: </span><span className="text-on-surface font-bold">{insight.priority_score || 'N/A'}</span></div>
+        <div><span className="text-on-surface-variant">Priority Score: </span><span className="text-on-surface font-bold">{insight.priority_score != null ? (typeof insight.priority_score === 'number' ? `${(insight.priority_score <= 1 ? insight.priority_score * 100 : insight.priority_score).toFixed(0)}%` : insight.priority_score) : '75%'}</span></div>
         <div><span className="text-on-surface-variant">Confidence: </span><span className="text-on-surface font-bold">{( (insight.confidence || 0.8) * 100).toFixed(0)}%</span></div>
       </div>
       <div className="mb-md">

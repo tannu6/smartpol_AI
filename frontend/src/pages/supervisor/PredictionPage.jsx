@@ -49,10 +49,10 @@ export default function PredictionPage() {
     )
 
     const PREDICTIONS = [
-      { zone: 'Cyber Park Dr.', risk: 92, type: 'Cyber Fraud', window: 'Next 6h' },
-      { zone: 'Metro Station B', risk: 78, type: 'Theft', window: 'Next 12h' },
-      { zone: 'District 2 Vault', risk: 65, type: 'Scam Cluster', window: 'Next 24h' },
-      { zone: 'Outer Rim Apts.', risk: 45, type: 'Harassment', window: 'Next 48h' },
+      { zone: 'S.G. Highway / Science City Corridor, Ahmedabad', risk: 92, type: 'UPI Phishing & Fake Payment Terminal', window: 'Next 6h' },
+      { zone: 'Navrangpura / CG Road, Ahmedabad', risk: 85, type: 'Customer Care Spoofing & APK Scam', window: 'Next 12h' },
+      { zone: 'Satellite / Jodhpur Cross Roads, Ahmedabad', risk: 78, type: 'Mule Account Cash Withdrawal Risk', window: 'Next 24h' },
+      { zone: 'Maninagar / Kankaria Lake Corridor, Ahmedabad', risk: 65, type: 'Coordinated Scam Ring Activity', window: 'Next 48h' },
     ]
 
     const trends = data.daily_trends || []

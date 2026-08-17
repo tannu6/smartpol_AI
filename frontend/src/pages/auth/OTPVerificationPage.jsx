@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
+import toast from 'react-hot-toast'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { authService } from '../../services/api'
@@ -148,7 +149,7 @@ export default function OTPVerificationPage() {
     try {
       const { data } = await authService.resendOtp(userId)
       if (data && data.demo_otp) {
-        alert('Demo Mode: New OTP is ' + data.demo_otp)
+        toast.success(`New OTP sent. Check your email.`, { duration: 4000 })
         setOtp(data.demo_otp.split(''))
       } else {
         setOtp(Array(OTP_LENGTH).fill(''))

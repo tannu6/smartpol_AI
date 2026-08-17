@@ -24,6 +24,7 @@
     "manageUsers": "उपयोगकर्ता प्रबंधित करें",
     "manageOfficers": "अधिकारी प्रबंधित करें",
     "manageAgents": "एजेंट प्रबंधित करें",
+    "policeStations": "पुलिस स्टेशन",
     "roles": "भूमिकाएँ और अनुमतियाँ",
     "systemLogs": "सिस्टम लॉग",
     "evidenceVault": "साक्ष्य तिजोरी",
@@ -34,7 +35,8 @@
     "archives": "अभिलेख",
     "settings": "सेटिंग्स",
     "logout": "लॉग आउट",
-    "dispatch": "यूनिट भेजें"
+    "dispatch": "यूनिट भेजें",
+    "profile": "प्रोफ़ाइल"
   },
   "auth": {
     "otp": {
@@ -180,7 +182,7 @@
   },
   "officerDashboard": {
     "appTitle": "स्मार्टपोल AI",
-    "appSubtitle": "सेक्टर 7G — हाई अलर्ट",
+    "appSubtitle": "अहमदाबाद साइबर क्षेत्राधिकार — सक्रिय गश्त",
     "generateReports": "रिपोर्ट जनरेट करें",
     "createAlert": "अलर्ट बनाएं",
     "assignPatrol": "गश्ती सौंपें",
@@ -212,8 +214,8 @@
       "incidentSegments": "घटना खंड"
     },
     "table": {
-      "title": "सक्रिय क्षेत्र की घटनाएं",
-      "badge": "लाइव_फीड",
+      "title": "સક્રિય ઘટનાઓ",
+      "badge": "લાઇવ_ફીડ",
       "columns": {
         "id": "आईडी",
         "type": "प्रकार",
@@ -221,7 +223,21 @@
         "status": "स्थिति",
         "severity": "गंभीरता"
       }
-    }
+    },
+    "aiCaseSummary": "AI केस सारांश",
+    "crimeType": "अपराध का प्रकार",
+    "severity": "गंभीरता",
+    "urgencyScore": "ताकीद स्कोर",
+    "goldenHour": "गोल्डन अवर",
+    "locationStation": "स्थान और स्टेशन",
+    "assignmentExplanation": "असाइनमेंट विवरण:",
+    "operationalGrid": "ऑपरेशोनल ग्रिड (अहमदाबाद क्षेत्राधिकार)",
+    "todaysCrimes": "आज के अपराध",
+    "reportModalTitle": "अधिकारी इंटेलिजेंस रिपोर्ट जनरेटर",
+    "downloadReport": "PDF रिपोर्ट डाउनलोड करें",
+    "printReport": "रिपोर्ट प्रिंट करें",
+    "listenNotifications": "सूचनाएं सुनें",
+    "stopListening": "आवाज बंद करें"
   },
   "priorityQueue": {
     "appTitle": "स्मार्टपोल AI",
@@ -325,7 +341,7 @@
     },
     "liveUnitMap": {
       "title": "लाइव यूनिट मैप",
-      "overlay": "सामरिक मानचित्र ओवरले — सेक्टर 7G"
+      "overlay": "सामरिक मानचित्र ग्रिड — अहमदाबाद क्षेत्राधिकार"
     },
     "unitStatus": {
       "title": "यूनिट स्थिति",

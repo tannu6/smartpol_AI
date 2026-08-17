@@ -24,6 +24,7 @@
     "manageUsers": "Manage Users",
     "manageOfficers": "Manage Officers",
     "manageAgents": "Manage Agents",
+    "policeStations": "Police Stations",
     "roles": "Roles & Permissions",
     "systemLogs": "System Logs",
     "evidenceVault": "Evidence Vault",
@@ -34,7 +35,8 @@
     "archives": "Archives",
     "settings": "Settings",
     "logout": "Logout",
-    "dispatch": "Dispatch Unit"
+    "dispatch": "Dispatch Unit",
+    "profile": "Profile"
   },
   "auth": {
     "otp": {
@@ -205,7 +207,7 @@
   },
   "officerDashboard": {
     "appTitle": "SmartPol AI",
-    "appSubtitle": "Sector 7G — High Alert",
+    "appSubtitle": "Ahmedabad Cyber Jurisdiction — Active Patrol",
     "generateReports": "Generate Reports",
     "createAlert": "Create Alert",
     "assignPatrol": "Assign Patrol",
@@ -246,7 +248,21 @@
         "status": "Status",
         "severity": "Severity"
       }
-    }
+    },
+    "aiCaseSummary": "AI CASE SUMMARY",
+    "crimeType": "CRIME TYPE",
+    "severity": "SEVERITY",
+    "urgencyScore": "URGENCY SCORE",
+    "goldenHour": "GOLDEN HOUR",
+    "locationStation": "LOCATION & STATION",
+    "assignmentExplanation": "Assignment Explanation:",
+    "operationalGrid": "Operational Grid (Ahmedabad Jurisdiction)",
+    "todaysCrimes": "Today's Crimes",
+    "reportModalTitle": "Officer Intelligence Report Generator",
+    "downloadReport": "Download PDF Report",
+    "printReport": "Print Report",
+    "listenNotifications": "Listen Notifications",
+    "stopListening": "Stop Listening"
   },
   "priorityQueue": {
     "appTitle": "SmartPol AI",
@@ -350,7 +366,7 @@
     },
     "liveUnitMap": {
       "title": "Live Unit Map",
-      "overlay": "Tactical map overlay — Sector 7G"
+      "overlay": "Tactical Map Grid — Ahmedabad Jurisdiction"
     },
     "unitStatus": {
       "title": "Unit Status",

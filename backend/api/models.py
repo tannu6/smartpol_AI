@@ -17,36 +17,88 @@ class User(AbstractUser):
         (ROLE_ADMIN, 'System Admin'),
     ]
 
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default=ROLE_CITIZEN)
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default=ROLE_CITIZEN, db_index=True)
     badge_id = models.CharField(max_length=50, blank=True)
-    district = models.CharField(max_length=100, default='Sector 7G')
+    district = models.CharField(max_length=100, default='', blank=True, db_index=True)
     avatar_url = models.URLField(blank=True)
-    duress_code = models.CharField(max_length=50, blank=True)
+    duress_code = models.CharField(max_length=128, blank=True)  # Hashed or plain for duress detection
     phone = models.CharField(max_length=20, blank=True)
     is_verified = models.BooleanField(default=True)
+
+    def set_duress_code(self, raw_code: str):
+        from django.contrib.auth.hashers import make_password
+        self.duress_code = make_password(raw_code) if raw_code else ''
+
+    def check_duress_code(self, raw_code: str) -> bool:
+        from django.contrib.auth.hashers import check_password
+        if not self.duress_code or not raw_code:
+            return False
+        # Support hashed format or legacy plain string check for backwards compatibility
+        if self.duress_code.startswith(('pbkdf2_', 'argon2', 'bcrypt')):
+            return check_password(raw_code, self.duress_code)
+        return raw_code == self.duress_code
+
+
+class PoliceStation(models.Model):
+    name = models.CharField(max_length=255)
+    district = models.CharField(max_length=100, default='Ahmedabad', db_index=True)
+    area = models.CharField(max_length=100)
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+    jurisdiction = models.CharField(max_length=150)
+    is_cyber_specialized = models.BooleanField(default=False)
+    contact_number = models.CharField(max_length=50, blank=True)
+    officer_capacity = models.IntegerField(default=10)
+    active_cases = models.IntegerField(default=0)
+    status = models.CharField(max_length=20, default='active')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return f"{self.name} ({self.area})"
 
 
 class Complaint(models.Model):
     STATUS_PENDING = 'pending'
     STATUS_INVESTIGATING = 'investigating'
     STATUS_RESOLVED = 'resolved'
+    STATUS_CLOSED = 'closed'
     STATUS_ESCALATED = 'escalated'
 
     STATUS_CHOICES = [
         (STATUS_PENDING, 'Pending'),
         (STATUS_INVESTIGATING, 'Investigating'),
         (STATUS_RESOLVED, 'Resolved'),
+        (STATUS_CLOSED, 'Closed'),
         (STATUS_ESCALATED, 'Escalated'),
     ]
 
-    complaint_id = models.CharField(max_length=20, unique=True)
+    complaint_id = models.CharField(max_length=20, unique=True, db_index=True)
     citizen = models.ForeignKey(User, on_delete=models.CASCADE, related_name='complaints')
     title = models.CharField(max_length=255)
     description = models.TextField()
-    category = models.CharField(max_length=100, default='General')
+    category = models.CharField(max_length=100, default='General', db_index=True)
     location = models.CharField(max_length=255, blank=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
-    urgency_score = models.FloatField(default=0.0)
+    
+    # Geolocation & Police Station Routing additions
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
+    address = models.CharField(max_length=255, blank=True)
+    locality = models.CharField(max_length=100, blank=True)
+    district = models.CharField(max_length=100, default='Ahmedabad', db_index=True)
+    jurisdiction = models.CharField(max_length=100, blank=True)
+    detected_location = models.CharField(max_length=255, blank=True)
+    location_source = models.CharField(max_length=50, default='manual')  # manual, map, browser
+    
+    assigned_station = models.ForeignKey(
+        PoliceStation, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_complaints'
+    )
+    assignment_explanation = models.TextField(blank=True)
+    
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING, db_index=True)
+    urgency_score = models.FloatField(default=0.0, db_index=True)
     readiness_score = models.FloatField(default=0.0)
     fraud_classification = models.CharField(max_length=100, blank=True)
     entities_extracted = models.JSONField(default=dict, blank=True)
@@ -55,11 +107,31 @@ class Complaint(models.Model):
     assigned_officer = models.ForeignKey(
         User, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_complaints'
     )
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['-urgency_score', '-created_at']
+        indexes = [
+            models.Index(fields=['status', '-urgency_score']),
+            models.Index(fields=['category', '-created_at']),
+        ]
+
+
+class AssignmentRecord(models.Model):
+    complaint = models.ForeignKey(Complaint, on_delete=models.CASCADE, related_name='assignment_records')
+    station = models.ForeignKey(PoliceStation, on_delete=models.SET_NULL, null=True, blank=True)
+    officer = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    jurisdiction_score = models.FloatField(default=0.0)
+    specialization_score = models.FloatField(default=0.0)
+    workload_score = models.FloatField(default=0.0)
+    proximity_km = models.FloatField(default=0.0)
+    final_score = models.FloatField(default=0.0)
+    explanation = models.TextField(blank=True)
+    assigned_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-assigned_at']
 
 
 class ComplaintTimeline(models.Model):
@@ -81,6 +153,12 @@ class Evidence(models.Model):
     file_type = models.CharField(max_length=50, default='document')
     hash_value = models.CharField(max_length=128, blank=True)
     chain_of_custody = models.JSONField(default=list, blank=True)
+    
+    # Deepfake & Forensics Analysis
+    is_deepfake = models.BooleanField(default=False, null=True)
+    deepfake_score = models.FloatField(default=0.0)
+    deepfake_analysis = models.JSONField(default=dict, blank=True)
+    
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -148,7 +226,7 @@ class MuleAlert(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['-risk_level', '-created_at']
+        ordering = ['-created_at']
 
 
 class ScamDNA(models.Model):
@@ -232,3 +310,20 @@ class PasswordResetToken(models.Model):
     def is_valid(self):
         from django.utils import timezone
         return not self.is_used and self.expires_at > timezone.now()
+
+
+class Operation(models.Model):
+    code_name = models.CharField(max_length=100)
+    description = models.TextField()
+    difficulty = models.CharField(max_length=50, default='Class A')
+    status = models.CharField(max_length=50, default='Active')
+    progress = models.IntegerField(default=65)
+    assigned_station = models.ForeignKey(PoliceStation, on_delete=models.SET_NULL, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.code_name} ({self.status})"
+

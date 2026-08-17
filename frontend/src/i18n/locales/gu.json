@@ -24,6 +24,7 @@
     "manageUsers": "વપરાશકર્તાઓ સંચાલિત કરો",
     "manageOfficers": "અધિકારીઓ સંચાલિત કરો",
     "manageAgents": "એજન્ટો સંચાલિત કરો",
+    "policeStations": "પોલીસ સ્ટેશન",
     "roles": "ભૂમિકાઓ અને પરવાનગીઓ",
     "systemLogs": "સિસ્ટમ લોગ્સ",
     "evidenceVault": "પુરાવા વૉલ્ટ",
@@ -34,7 +35,8 @@
     "archives": "આર્કાઇવ્ઝ",
     "settings": "સેટિંગ્સ",
     "logout": "લોગ આઉટ",
-    "dispatch": "યુનિટ મોકલો"
+    "dispatch": "યુનિટ મોકલો",
+    "profile": "પ્રોફાઇલ"
   },
   "auth": {
     "otp": {
@@ -180,7 +182,7 @@
   },
   "officerDashboard": {
     "appTitle": "સ્માર્ટપોલ AI",
-    "appSubtitle": "સેક્ટર 7G — હાઈ એલર્ટ",
+    "appSubtitle": "અમદાવાદ સાયબર અધિકારક્ષેત્ર — સક્રિય પેટ્રોલિંગ",
     "generateReports": "અહેવાલો બનાવો",
     "createAlert": "એલર્ટ બનાવો",
     "assignPatrol": "પેટ્રોલિંગ સોંપો",
@@ -221,7 +223,21 @@
         "status": "સ્થિતિ",
         "severity": "ગંભીરતા"
       }
-    }
+    },
+    "aiCaseSummary": "AI કેસ સારાંશ",
+    "crimeType": "ગુનાનો પ્રકાર",
+    "severity": "ગંભીરતા",
+    "urgencyScore": "તાકીદનો સ્કોર",
+    "goldenHour": "ગોલ્ડન અવર",
+    "locationStation": "સ્થળ અને સ્ટેશન",
+    "assignmentExplanation": "સોંપણી સ્પષ્ટીકરણ:",
+    "operationalGrid": "ઓપરેશનલ ગ્રીડ (અમદાવાદ અધિકારક્ષેત્ર)",
+    "todaysCrimes": "આજના ગુનાઓ",
+    "reportModalTitle": "અધિકારી ઇન્ટેલિજન્સ રિપોર્ટ જનરેટર",
+    "downloadReport": "PDF અહેવાલ ડાઉનલોડ કરો",
+    "printReport": "રિપોર્ટ પ્રિન્ટ કરો",
+    "listenNotifications": "નોટિફિકેશન સાંભળો",
+    "stopListening": "અવાજ અટકાવો"
   },
   "priorityQueue": {
     "appTitle": "સ્માર્ટપોલ AI",
@@ -325,7 +341,7 @@
     },
     "liveUnitMap": {
       "title": "લાઇવ યુનિટ મેપ",
-      "overlay": "વ્યૂહાત્મક નકશો ઓવરલે — સેક્ટર 7G"
+      "overlay": "વ્યૂહાત્મક નકશો ગ્રીડ — અમદાવાદ અધિકારક્ષેત્ર"
     },
     "unitStatus": {
       "title": "યુનિટ સ્થિતિ",

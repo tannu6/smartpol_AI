@@ -18,6 +18,7 @@ DEBUG = os.getenv('DEBUG', 'False').lower() in ('1', 'true', 'yes')
 ALLOWED_HOSTS = [host.strip() for host in os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') if host.strip()]
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -28,6 +29,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'api',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -59,7 +61,13 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'smartpol.wsgi.application'
+ASGI_APPLICATION = 'smartpol.asgi.application'
 
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer'
+    }
+}
 DATABASES = {
     'default': dj_database_url.config(
         default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
@@ -67,6 +75,13 @@ DATABASES = {
         conn_health_checks=True,
     )
 }
+
+# Apply SQLite optimization PRAGMAs (WAL mode & busy timeout) if using SQLite
+if DATABASES['default']['ENGINE'].endswith('sqlite3'):
+    DATABASES['default'].setdefault('OPTIONS', {})
+    DATABASES['default']['OPTIONS']['timeout'] = 20
+    DATABASES['default']['OPTIONS']['init_command'] = "PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL;"
+
 
 AUTH_USER_MODEL = 'api.User'
 

@@ -53,6 +53,7 @@ export const NAV_BY_ROLE = {
     { label: 'Manage Users', icon: 'group', path: '/admin/users', tKey: 'nav.manageUsers' },
     { label: 'Manage Officers', icon: 'badge', path: '/admin/officers', tKey: 'nav.manageOfficers' },
     { label: 'Manage Agents', icon: 'security', path: '/admin/agents', tKey: 'nav.manageAgents' },
+    { label: 'Police Stations', icon: 'local_police', path: '/admin/stations', tKey: 'nav.policeStations' },
     { label: 'Roles & Permissions', icon: 'key', path: '/admin/roles', tKey: 'nav.roles' },
     { label: 'System Logs', icon: 'receipt_long', path: '/admin/logs', tKey: 'nav.systemLogs' },
     { label: 'Evidence Vault', icon: 'database', path: '/admin/evidence', tKey: 'nav.evidenceVault' },

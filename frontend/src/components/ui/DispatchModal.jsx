@@ -45,31 +45,36 @@ export default function DispatchModal() {
     }
 
     try {
-      const selectedObj = complaints.find(c => c.id === parseInt(selectedCase))
-      await complaintService.update(selectedCase, { status })
+      const selectedObj = complaints.find(c => String(c.id) === String(selectedCase))
+      const dispatchNote = `[TACTICAL DISPATCH] Unit ${unit} allocated under ${priority.toUpperCase()} priority. Status set to ${status.toUpperCase()}.`
+      await complaintService.update(selectedCase, { 
+        status,
+        note: dispatchNote
+      })
       
       // Update notifications
       setNotifications(prev => [
         {
           id: Date.now(),
-          title: 'Tactical Unit Dispatched',
-          message: `Unit ${unit} dispatched to respond to Case ${selectedObj?.complaint_id || selectedCase}`,
+          title: `Tactical Unit ${unit} Dispatched`,
+          message: `Unit ${unit} deployed to respond to ${selectedObj?.complaint_id || `Case #${selectedCase}`} (${selectedObj?.title || 'Active Incident'})`,
           type: 'alert'
         },
         ...prev
       ])
 
+      toast.success(`Unit ${unit} dispatched successfully!`)
       setDispatched(true)
     } catch (err) {
       console.error(err)
-      setLogs(prev => [...prev, `[ERROR] Dispatch transmission rejected by central core.`])
+      setLogs(prev => [...prev, `[ERROR] Dispatch transmission rejected: ${err.response?.data?.detail || 'Core network timeout'}`])
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-4 animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/75 backdrop-blur-md p-4 animate-in fade-in duration-200">
       <div className="bg-surface-container-high border border-outline-variant rounded-xl w-full max-w-2xl flex flex-col shadow-2xl relative overflow-hidden group">
         <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary via-secondary to-error animate-pulse" />
         
