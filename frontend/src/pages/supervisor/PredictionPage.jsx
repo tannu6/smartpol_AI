@@ -96,12 +96,15 @@ export default function PredictionPage() {
                 </div>
                 <div className="flex justify-between text-[11px] text-on-surface-variant font-mono pt-1">
                   <span>{p.type} — {p.window}</span>
-                  <span className="text-secondary">Conf: {p.confidence || '90%'}</span>
+                  <span className="text-secondary">Method: {p.methodology || 'Spatial-Temporal Moving Average'}</span>
                 </div>
               </div>
             )) : (
                <p className="text-on-surface-variant/50 text-center py-md">{t('common.noData')}</p>
             )}
+            <div className="p-sm bg-slate-900/60 rounded border border-white/5 text-[10px] font-mono text-slate-400">
+              💡 <strong>Methodology Note:</strong> Analytical risk indicator based on historical spatial-temporal patterns; not a guaranteed prediction.
+            </div>
           </div>
         </div>
       </>
