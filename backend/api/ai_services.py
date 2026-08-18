@@ -24,6 +24,47 @@ def get_ml_model():
         ml_model.load(MODEL_PATH)
     return ml_model
 
+def generate_gemini_narrative_analysis(text: str) -> dict:
+    """
+    Optional Gemini LLM narrative reasoning layer.
+    Only executes if GEMINI_API_KEY is defined in environment.
+    Falls back gracefully to Naive Bayes / rule-based pipeline if absent.
+    """
+    api_key = os.getenv('GEMINI_API_KEY')
+    if not api_key:
+        return None
+
+    import json
+    import urllib.request
+
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
+    prompt = (
+        "You are an AI Cyber Crime Intelligence Investigator. "
+        "Analyze the following complaint text and return a JSON object with keys: "
+        "'summary', 'extracted_mo', 'recommended_action', 'confidence'. "
+        f"Complaint text: {text[:1000]}"
+    )
+    payload = {
+        "contents": [{"parts": [{"text": prompt}]}]
+    }
+
+    try:
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(payload).encode('utf-8'),
+            headers={'Content-Type': 'application/json'}
+        )
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            data = json.loads(resp.read().decode('utf-8'))
+            candidate = data['candidates'][0]['content']['parts'][0]['text']
+            # parse json from text output
+            clean_str = re.sub(r'```json|```', '', candidate).strip()
+            return json.loads(clean_str)
+    except Exception as err:
+        print(f"[AI PIPELINE] Gemini API call skipped/fallback triggered: {err}")
+        return None
+
+
 
 def calculate_haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """Compute geographic distance in km between two lat/lon coordinates using Haversine formula."""

@@ -53,6 +53,7 @@ def get_tokens(user):
 
 class RegisterView(APIView):
     permission_classes = [AllowAny]
+    throttle_scope = 'auth'
 
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
@@ -95,6 +96,7 @@ class RegisterView(APIView):
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
+    throttle_scope = 'auth'
 
     def post(self, request):
         username = request.data.get('username') or request.data.get('email')
@@ -597,9 +599,26 @@ class UploadView(APIView):
         file_obj = request.FILES.get('file')
         if not file_obj:
             return Response({'detail': 'A file is required.'}, status=400)
-        # Prevent executable file uploads
-        if file_obj.name.endswith('.exe') or file_obj.name.endswith('.dll') or file_obj.name.endswith('.bat'):
-            return Response({'detail': 'Executable files are not allowed.'}, status=400)
+        
+        # Binary magic-byte validation & extension mismatch check
+        filename = file_obj.name.lower()
+        header = file_obj.read(64)
+        file_obj.seek(0)
+        
+        if filename.endswith('.exe') or filename.endswith('.dll') or filename.endswith('.bat') or filename.endswith('.sh'):
+            return Response({'detail': 'Executable files are strictly forbidden.'}, status=400)
+
+        if filename.endswith('.png') and not header.startswith(b'\x89PNG\r\n\x1a\n'):
+            return Response({'detail': 'File content spoofing detected: Binary signature does not match PNG format.'}, status=400)
+        if (filename.endswith('.jpg') or filename.endswith('.jpeg')) and not header.startswith(b'\xff\xd8\xff'):
+            return Response({'detail': 'File content spoofing detected: Binary signature does not match JPEG format.'}, status=400)
+        if filename.endswith('.pdf') and not header.startswith(b'%PDF'):
+            return Response({'detail': 'File content spoofing detected: Binary signature does not match PDF format.'}, status=400)
+        if filename.endswith('.gif') and not (header.startswith(b'GIF87a') or header.startswith(b'GIF89a')):
+            return Response({'detail': 'File content spoofing detected: Binary signature does not match GIF format.'}, status=400)
+        if filename.endswith('.zip') and not (header.startswith(b'PK\x03\x04') or header.startswith(b'PK\x05\x06')):
+            return Response({'detail': 'File content spoofing detected: Binary signature does not match ZIP archive format.'}, status=400)
+
         digest = hashlib.sha256()
         for chunk in file_obj.chunks():
             digest.update(chunk)
@@ -735,6 +754,9 @@ def analytics_view(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def suspect_graph_view(request):
+    hops = int(request.query_params.get('hops', 2))
+    root_id = request.query_params.get('root_id', None)
+
     nodes_dict = {n['node_id']: n for n in SuspectNode.objects.values('node_id', 'name', 'node_type', 'risk_score', 'metadata')}
     edges_list = list(SuspectEdge.objects.values('source__node_id', 'target__node_id', 'relationship', 'weight'))
     
@@ -749,6 +771,7 @@ def suspect_graph_view(request):
                 'node_id': citizen_node_id,
                 'name': f"{c.citizen.first_name} {c.citizen.last_name}".strip() or c.citizen.username,
                 'node_type': 'citizen',
+                'provenance': 'VERIFIED',
                 'risk_score': 0.1,
                 'metadata': {'email': c.citizen.email, 'district': c.citizen.district}
             }
@@ -758,6 +781,7 @@ def suspect_graph_view(request):
                 'node_id': c_node_id,
                 'name': c.title,
                 'node_type': 'complaint',
+                'provenance': 'VERIFIED',
                 'risk_score': c.urgency_score,
                 'metadata': {'category': c.category, 'status': c.status}
             }
@@ -766,6 +790,7 @@ def suspect_graph_view(request):
             'source__node_id': citizen_node_id,
             'target__node_id': c_node_id,
             'relationship': 'filed_by',
+            'provenance': 'VERIFIED',
             'weight': 1.0
         })
         
@@ -778,6 +803,7 @@ def suspect_graph_view(request):
                     'node_id': phone_node_id,
                     'name': phone,
                     'node_type': 'phone',
+                    'provenance': 'REPORTED',
                     'risk_score': 0.6 if c.category == 'Financial Fraud' else 0.4,
                     'metadata': {'origin_case': c.complaint_id}
                 }
@@ -785,6 +811,7 @@ def suspect_graph_view(request):
                 'source__node_id': c_node_id,
                 'target__node_id': phone_node_id,
                 'relationship': 'linked_phone',
+                'provenance': 'REPORTED',
                 'weight': 1.2
             })
             
@@ -795,6 +822,7 @@ def suspect_graph_view(request):
                     'node_id': email_node_id,
                     'name': email,
                     'node_type': 'email',
+                    'provenance': 'REPORTED',
                     'risk_score': 0.5,
                     'metadata': {'origin_case': c.complaint_id}
                 }
@@ -802,6 +830,7 @@ def suspect_graph_view(request):
                 'source__node_id': c_node_id,
                 'target__node_id': email_node_id,
                 'relationship': 'linked_email',
+                'provenance': 'REPORTED',
                 'weight': 1.2
             })
             
@@ -815,6 +844,7 @@ def suspect_graph_view(request):
                     'node_id': acct_node_id,
                     'name': f"A/C {acct}",
                     'node_type': 'account',
+                    'provenance': 'REPORTED',
                     'risk_score': 0.8,
                     'metadata': {'origin_case': c.complaint_id}
                 }
@@ -822,15 +852,127 @@ def suspect_graph_view(request):
                 'source__node_id': c_node_id,
                 'target__node_id': acct_node_id,
                 'relationship': 'linked_account',
+                'provenance': 'REPORTED',
                 'weight': 1.5
             })
 
+    # Include provenance tagged EntityRelation database records
+    from .models import EntityRelation
+    for rel in EntityRelation.objects.all():
+        src_id = f"ENTITY-{rel.source_entity}"
+        tgt_id = f"ENTITY-{rel.target_entity}"
+        if src_id not in nodes_dict:
+            nodes_dict[src_id] = {'node_id': src_id, 'name': rel.source_entity, 'node_type': 'entity', 'provenance': rel.verification_status.upper(), 'risk_score': rel.confidence}
+        if tgt_id not in nodes_dict:
+            nodes_dict[tgt_id] = {'node_id': tgt_id, 'name': rel.target_entity, 'node_type': 'entity', 'provenance': rel.verification_status.upper(), 'risk_score': rel.confidence}
+        edges_list.append({
+            'source__node_id': src_id,
+            'target__node_id': tgt_id,
+            'relationship': rel.relationship_type,
+            'provenance': rel.verification_status.upper(),
+            'weight': rel.confidence
+        })
+
+    # BFS Traversal Filtering based on requested hops
     formatted_edges = [
         {'source': e['source__node_id'], 'target': e['target__node_id'],
-         'relationship': e['relationship'], 'weight': e['weight']}
+         'relationship': e['relationship'], 'provenance': e.get('provenance', 'REPORTED'), 'weight': e['weight']}
         for e in edges_list
     ]
-    return Response({'nodes': list(nodes_dict.values()), 'edges': formatted_edges})
+
+    if root_id and root_id in nodes_dict:
+        # Build adjacency graph for BFS
+        adj = {}
+        for edge in formatted_edges:
+            s, t = edge['source'], edge['target']
+            adj.setdefault(s, set()).add(t)
+            adj.setdefault(t, set()).add(s)
+
+        visited = {root_id: 0}
+        queue = [root_id]
+        while queue:
+            curr = queue.pop(0)
+            depth = visited[curr]
+            if depth >= hops:
+                continue
+            for nxt in adj.get(curr, []):
+                if nxt not in visited:
+                    visited[nxt] = depth + 1
+                    queue.append(nxt)
+
+        filtered_nodes = [n for node_id, n in nodes_dict.items() if node_id in visited]
+        filtered_edges = [e for e in formatted_edges if e['source'] in visited and e['target'] in visited]
+    else:
+        filtered_nodes = list(nodes_dict.values())
+        filtered_edges = formatted_edges
+
+    return Response({
+        'nodes': filtered_nodes,
+        'edges': filtered_edges,
+        'hops': hops,
+        'total_nodes': len(filtered_nodes),
+        'total_edges': len(filtered_edges),
+        'label': f"Multi-Hop Graph (BFS Depth {hops})"
+    })
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def shortest_path_view(request):
+    source_id = request.query_params.get('source')
+    target_id = request.query_params.get('target')
+
+    if not source_id or not target_id:
+        return Response({'detail': 'Both source and target parameters are required.'}, status=400)
+
+    # Get full graph response
+    full_graph = suspect_graph_view(request._request).data
+    nodes_map = {n['node_id']: n for n in full_graph['nodes']}
+    edges = full_graph['edges']
+
+    adj = {}
+    for e in edges:
+        s, t = e['source'], e['target']
+        adj.setdefault(s, []).append((t, e))
+        adj.setdefault(t, []).append((s, e))
+
+    # BFS shortest path search
+    from collections import deque
+    queue = deque([[source_id]])
+    visited = {source_id}
+
+    path_nodes = []
+    path_edges = []
+
+    while queue:
+        path = queue.popleft()
+        node = path[-1]
+
+        if node == target_id:
+            path_nodes = [nodes_map.get(n) for n in path if n in nodes_map]
+            for i in range(len(path) - 1):
+                n1, n2 = path[i], path[i+1]
+                # find matching edge
+                for e in edges:
+                    if (e['source'] == n1 and e['target'] == n2) or (e['source'] == n2 and e['target'] == n1):
+                        path_edges.append(e)
+                        break
+            break
+
+        for nxt, _ in adj.get(node, []):
+            if nxt not in visited:
+                visited.add(nxt)
+                queue.append(list(path) + [nxt])
+
+    if not path_nodes:
+        return Response({'detail': f'No path found between {source_id} and {target_id}.', 'path_found': False})
+
+    return Response({
+        'path_found': True,
+        'distance': len(path_nodes) - 1,
+        'nodes': path_nodes,
+        'edges': path_edges
+    })
 
 
 @api_view(['GET'])

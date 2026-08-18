@@ -30,6 +30,7 @@ urlpatterns = [
     path('predictions/', views.predictions_view, name='predictions'),
     path('hotspots/', views.hotspots_view, name='hotspots'),
     path('suspect-graph/', views.suspect_graph_view, name='suspect-graph'),
+    path('suspect-graph/shortest-path/', views.shortest_path_view, name='shortest-path'),
     path('mule-alerts/', views.mule_alerts_view, name='mule-alerts'),
     path('scam-dna/', views.scam_dna_view, name='scam-dna'),
     path('secretagent/message/', views.secretagent_message_view, name='secretagent-message'),

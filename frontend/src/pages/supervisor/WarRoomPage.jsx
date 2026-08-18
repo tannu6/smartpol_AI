@@ -132,14 +132,28 @@ export default function WarRoomPage() {
         })()}
 
         {/* Intelligence Top Metrics */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-md">
-          <KpiCard label="ACTIVE CASES" value={incidents.length || 0} icon="folder_open" accent="primary" />
-          <KpiCard label="GOLDEN HOUR ALERTS" value={goldenHourCount} icon="notifications_active" accent="error" />
-          <KpiCard label="AHMEDABAD STATIONS" value={stations.length || 10} icon="local_police" accent="secondary" />
-          <KpiCard label="SCAM DNA CLUSTERS" value={scamPatterns.length || 4} icon="hub" accent="secondary" />
-          <KpiCard label="MULE ACCOUNT ALERTS" value={muleAlerts.length || 6} icon="account_balance_wallet" accent="error" />
-          <KpiCard label="RESPONSE TIME" value="14 mins" icon="timer" accent="primary" />
-        </div>
+        {(() => {
+          // Calculate dynamic average response time from incident timestamps
+          const timeDiffs = incidents
+            .filter(i => i.updated_at && i.created_at && i.status !== 'new' && i.status !== 'pending')
+            .map(i => (new Date(i.updated_at).getTime() - new Date(i.created_at).getTime()) / (1000 * 60))
+            .filter(diff => diff > 0)
+          
+          const avgRespTime = timeDiffs.length > 0 
+            ? `${Math.round(timeDiffs.reduce((a, b) => a + b, 0) / timeDiffs.length)} mins`
+            : "N/A"
+
+          return (
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-md">
+              <KpiCard label="ACTIVE CASES" value={incidents.length || 0} icon="folder_open" accent="primary" />
+              <KpiCard label="GOLDEN HOUR ALERTS" value={goldenHourCount} icon="notifications_active" accent="error" />
+              <KpiCard label="AHMEDABAD STATIONS" value={stations.length || 0} icon="local_police" accent="secondary" />
+              <KpiCard label="SCAM DNA CLUSTERS" value={scamPatterns.length || 0} icon="hub" accent="secondary" />
+              <KpiCard label="MULE ACCOUNT ALERTS" value={muleAlerts.length || 0} icon="account_balance_wallet" accent="error" />
+              <KpiCard label="RESPONSE TIME" value={avgRespTime} icon="timer" accent="primary" />
+            </div>
+          )
+        })()}
 
         {/* Live Interactive Ahmedabad Intelligence Grid */}
         <div className="space-y-sm">
