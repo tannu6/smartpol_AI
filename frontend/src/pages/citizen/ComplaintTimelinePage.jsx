@@ -28,8 +28,10 @@ export default function ComplaintTimelinePage() {
       complaintService.list()
         .then(({ data }) => {
           const list = Array.isArray(data) ? data : data.results || []
-          if (list[0]) {
-            return complaintService.get(list[0].id).then(({ data: c }) => setComplaint(c))
+          // Sort descending so list[0] is always the latest filed complaint
+          const sorted = [...list].sort((a, b) => (b.id || 0) - (a.id || 0))
+          if (sorted[0]) {
+            return complaintService.get(sorted[0].id).then(({ data: c }) => setComplaint(c))
           }
         })
         .catch(err => {
@@ -45,7 +47,22 @@ export default function ComplaintTimelinePage() {
       <div className="p-lg space-y-lg max-w-3xl mx-auto">
         <div>
           <h2 className="font-display-lg-mobile text-primary">{t('timeline.title')}</h2>
-          {complaint && <p className="font-mono-data text-secondary">{complaint.complaint_id} — {complaint.title}</p>}
+          {complaint && (
+            <div className="mt-2 space-y-2">
+              <p className="font-mono-data text-secondary text-base font-bold">{complaint.complaint_id} — {complaint.title}</p>
+              <div className="flex flex-wrap gap-2 text-xs text-on-surface-variant font-mono">
+                <span className="px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">Category: {complaint.category}</span>
+                {complaint.location && <span className="px-2 py-0.5 rounded bg-surface-container-high text-on-surface">📍 {complaint.location}</span>}
+                {complaint.station_name && <span className="px-2 py-0.5 rounded bg-blue-950/60 text-blue-300 border border-blue-500/30">🚓 {complaint.station_name}</span>}
+              </div>
+              {complaint.description && (
+                <div className="p-3 rounded-lg bg-surface-container-low/80 border border-outline-variant/15 text-xs text-on-surface mt-2">
+                  <p className="font-bold text-secondary mb-1">📋 Submitted Incident Details:</p>
+                  <p className="text-on-surface-variant leading-relaxed font-sans">{complaint.description}</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
         
         {loading ? (
