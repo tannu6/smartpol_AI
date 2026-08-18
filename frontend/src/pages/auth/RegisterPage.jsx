@@ -208,7 +208,7 @@ export default function RegisterPage() {
                       <option value="">-- Select Ahmedabad Station or Cyber Cell --</option>
                       {stations.map(st => (
                         <option key={st.id} value={st.id} className="bg-surface-container text-on-surface">
-                          {st.is_cyber_specialized ? '🌐 [CYBER CELL] ' : '🚓 '} {st.name} ({st.area})
+                          {st.is_cyber_specialized ? '[CYBER CELL] ' : ''}{st.name} ({st.area})
                         </option>
                       ))}
                     </select>

@@ -1294,6 +1294,7 @@ def ai_analyze_view(request):
 class PoliceStationViewSet(viewsets.ModelViewSet):
     serializer_class = PoliceStationSerializer
     queryset = PoliceStation.objects.all()
+    pagination_class = None
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
