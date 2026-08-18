@@ -21,6 +21,7 @@ export const complaintService = {
   get: (id) => api.get(`/complaints/${id}/`),
   create: (data) => api.post('/complaints/', data),
   update: (id, data) => api.patch(`/complaints/${id}/`, data),
+  assignOfficer: (id, officer_id) => api.post(`/complaints/${id}/assign-officer/`, { officer_id }),
 }
 
 export const uploadService = {

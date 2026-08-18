@@ -356,7 +356,25 @@ class ComplaintViewSet(viewsets.ModelViewSet):
         if user.role == User.ROLE_CITIZEN:
             return Complaint.objects.filter(citizen=user)
         if user.role == User.ROLE_OFFICER:
-            return Complaint.objects.all()
+            from django.db.models import Q
+            is_cyber = (user.department and 'cyber' in user.department.lower()) or (user.parent_station and user.parent_station.is_cyber_specialized)
+            
+            if is_cyber:
+                # Cyber Crime Officer: sees cases assigned to their Cyber Station, cyber specialized units, or assigned directly to them
+                q = Q(assigned_officer=user) | Q(category__icontains='cyber') | Q(category__icontains='upi') | Q(category__icontains='phish') | Q(category__icontains='otp') | Q(category__icontains='scam') | Q(category__icontains='fraud') | Q(category__icontains='digital arrest') | Q(category__icontains='apk') | Q(category__icontains='sextortion')
+                if user.parent_station:
+                    q |= Q(assigned_station=user.parent_station) | Q(assigned_station__is_cyber_specialized=True)
+                return Complaint.objects.filter(q).distinct()
+            elif user.parent_station:
+                # Local Police Station Officer: strictly sees cases assigned to their parent station or assigned directly to them
+                return Complaint.objects.filter(
+                    Q(assigned_officer=user) | Q(assigned_station=user.parent_station)
+                ).distinct()
+            elif user.district:
+                return Complaint.objects.filter(
+                    Q(assigned_officer=user) | Q(locality__icontains=user.district) | Q(district__icontains=user.district)
+                ).distinct()
+            return Complaint.objects.filter(assigned_officer=user)
         return Complaint.objects.all()
 
     def get_serializer_class(self):
@@ -380,10 +398,9 @@ class ComplaintViewSet(viewsets.ModelViewSet):
             'location': serializer.validated_data.get('location', ''),
             'entities_extracted': entities,
         })
-        # Run Intelligent Station & Officer Routing Engine
+        # Run Geographic Police Station Routing Engine
         routing = ai_services.recommend_police_station_and_officer(serializer.validated_data)
         station = routing['station']
-        assigned_officer = routing['officer']
         explanation_str = routing['explanation']
 
         complaint = serializer.save(
@@ -395,7 +412,7 @@ class ComplaintViewSet(viewsets.ModelViewSet):
             readiness_score=readiness,
             qr_code=f'QR-{complaint_id}',
             assigned_station=station,
-            assigned_officer=assigned_officer,
+            assigned_officer=None,  # Manual Supervisor Selection required
             assignment_explanation=explanation_str,
         )
 
@@ -585,6 +602,52 @@ class ComplaintViewSet(viewsets.ModelViewSet):
             
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    @action(detail=True, methods=['post', 'patch'], url_path='assign-officer')
+    def assign_officer(self, request, pk=None):
+        complaint = self.get_object()
+        if request.user.role not in (User.ROLE_SUPERVISOR, User.ROLE_ADMIN):
+            return Response({'detail': 'Only supervisors can manually assign officers.'}, status=status.HTTP_403_FORBIDDEN)
+        
+        officer_id = request.data.get('officer_id')
+        if not officer_id:
+            return Response({'detail': 'officer_id parameter is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            officer = User.objects.get(id=officer_id, role=User.ROLE_OFFICER)
+        except User.DoesNotExist:
+            return Response({'detail': 'Invalid officer ID or user is not an active officer.'}, status=status.HTTP_404_NOT_FOUND)
+        
+        complaint.assigned_officer = officer
+        complaint.status = Complaint.STATUS_ASSIGNED
+        complaint.save()
+
+        is_gh = complaint.urgency_score >= 0.7
+        OfficerAssignment.objects.create(
+            complaint=complaint,
+            officer=officer,
+            priority=1 if is_gh else 2,
+            golden_hour=is_gh,
+            status='queued'
+        )
+
+        ComplaintTimeline.objects.create(
+            complaint=complaint,
+            event='Officer Assigned',
+            description=f'Assigned to Officer {officer.get_full_name() or officer.username} (Department: {officer.department}) by Supervisor {request.user.get_full_name() or request.user.username}.',
+            actor=request.user
+        )
+
+        Notification.objects.create(
+            user=officer,
+            title='New Incident Assignment',
+            message=f'You have been assigned to case {complaint.complaint_id}: {complaint.title}.',
+            notification_type='alert' if is_gh else 'info',
+            link=f'/officer/complaints/{complaint.id}'
+        )
+
+        log_action(request.user, 'ASSIGN_OFFICER', f"{complaint.complaint_id} assigned to {officer.username}", request)
+        return Response(ComplaintSerializer(complaint).data)
+
 
 class UploadView(APIView):
     permission_classes = [IsAuthenticated]
@@ -729,7 +792,7 @@ def analytics_view(request):
     today = timezone.now().date()
     week_ago = today - timedelta(days=7)
     daily = []
-    for i in range(7):
+    for i in range(8):  # Include today (8 days span: week_ago to today)
         d = week_ago + timedelta(days=i)
         daily.append({
             'date': d.isoformat(),
@@ -741,12 +804,13 @@ def analytics_view(request):
         cases=Count('assigned_complaints')
     ).values('id', 'first_name', 'last_name', 'badge_id', 'cases')[:10]
     return Response({
+        'total_cases': Complaint.objects.count(),
         'daily_trends': daily,
         'categories': list(categories),
         'officer_performance': list(officers),
         'avg_urgency': Complaint.objects.aggregate(Avg('urgency_score'))['urgency_score__avg'] or 0,
         'heatmap_points': [
-            {'lat': 28.6139 + i * 0.01, 'lng': 77.2090 + i * 0.01, 'intensity': 0.3 + i * 0.1}
+            {'lat': 23.0225 + i * 0.005, 'lng': 72.5714 + i * 0.005, 'intensity': 0.3 + i * 0.1}
             for i in range(10)
         ],
     })
@@ -1228,9 +1292,13 @@ def ai_analyze_view(request):
 
 
 class PoliceStationViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
     serializer_class = PoliceStationSerializer
     queryset = PoliceStation.objects.all()
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return [AllowAny()]
+        return [IsAuthenticated()]
 
 
 @api_view(['GET'])

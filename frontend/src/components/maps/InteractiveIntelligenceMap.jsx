@@ -120,20 +120,23 @@ export default function InteractiveIntelligenceMap({
             icon={createPoliceIcon(st.is_cyber_specialized)}
           >
             <Popup className="custom-leaflet-popup">
-              <div className="p-2 max-w-xs space-y-1.5 text-slate-900">
-                <div className="flex items-center gap-1.5 font-bold text-sm border-b pb-1">
-                  <Building2 className="w-4 h-4 text-blue-600" />
+              <div className="p-1 space-y-2 text-slate-100 min-w-[220px]">
+                <div className="flex items-center gap-2 font-bold text-sm border-b border-white/10 pb-1 text-primary">
+                  <Building2 className="w-4 h-4 text-blue-400 shrink-0" />
                   <span>{st.name}</span>
                 </div>
-                <p className="text-xs text-slate-600"><strong>Jurisdiction:</strong> {st.jurisdiction}</p>
-                <div className="flex items-center justify-between text-xs pt-1">
-                  <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-semibold border border-blue-200">
+                <div className="text-xs text-slate-300 space-y-1">
+                  <p><strong className="text-slate-400">Jurisdiction:</strong> {st.jurisdiction}</p>
+                  <p><strong className="text-slate-400">District:</strong> {st.district}</p>
+                </div>
+                <div className="flex items-center justify-between text-xs pt-1 border-t border-white/10">
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${st.is_cyber_specialized ? 'bg-blue-500/20 text-blue-300 border border-blue-500/40' : 'bg-slate-800 text-slate-300'}`}>
                     {st.is_cyber_specialized ? 'Cyber Crime Cell' : 'General PS'}
                   </span>
-                  <span className="text-slate-500 font-mono">Active: {st.active_cases || 0}</span>
+                  <span className="text-slate-400 font-mono text-[11px]">Active: <strong className="text-emerald-400">{st.active_cases || 0}</strong></span>
                 </div>
                 {st.contact_number && (
-                  <p className="text-[11px] text-slate-500 font-mono pt-1">📞 {st.contact_number}</p>
+                  <p className="text-[11px] text-slate-400 font-mono pt-1">📞 {st.contact_number}</p>
                 )}
               </div>
             </Popup>

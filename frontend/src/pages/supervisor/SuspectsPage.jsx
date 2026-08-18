@@ -145,62 +145,70 @@ export default function SuspectsPage() {
 
       {/* Shortest Path Search Modal */}
       {isPathModalOpen && (
-        <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-          <div className="bg-slate-900 border border-secondary/30 rounded-xl w-full max-w-lg p-lg space-y-md font-mono text-xs text-white">
-            <div className="flex justify-between items-center border-b border-white/10 pb-2">
-              <h3 className="font-bold text-secondary text-sm">BFS Shortest Path Intelligence Search</h3>
-              <button onClick={() => setIsPathModalOpen(false)} className="text-slate-400 hover:text-white">✕</button>
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
+          <div className="bg-[#0f172a] border border-secondary/40 rounded-xl w-full max-w-xl p-6 space-y-4 font-mono text-xs text-white shadow-2xl relative">
+            <div className="flex justify-between items-center border-b border-white/10 pb-3">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-secondary">route</span>
+                <h3 className="font-bold text-secondary text-sm tracking-wide">BFS SHORTEST PATH INTELLIGENCE SEARCH</h3>
+              </div>
+              <button onClick={() => setIsPathModalOpen(false)} className="text-slate-400 hover:text-white p-1 transition-colors">
+                <span className="material-symbols-outlined text-base">close</span>
+              </button>
             </div>
-            <form onSubmit={handleFindShortestPath} className="space-y-md">
-              <div>
-                <label className="block text-slate-400 mb-1 font-bold text-[10px]">SOURCE NODE ID</label>
+
+            <form onSubmit={handleFindShortestPath} className="space-y-4">
+              <div className="space-y-1">
+                <label className="block text-slate-300 font-bold text-[11px] uppercase">SOURCE NODE ID</label>
                 <select
                   value={sourceNode}
                   onChange={e => setSourceNode(e.target.value)}
-                  className="w-full bg-slate-950 border border-white/10 rounded p-2 text-white"
+                  className="w-full bg-slate-950 border border-white/20 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-secondary"
                 >
                   <option value="">-- Select Source Node --</option>
                   {(graph?.nodes || []).map(n => (
-                    <option key={n.node_id} value={n.node_id}>{n.node_id} ({n.name})</option>
+                    <option key={n.node_id} value={n.node_id}>{n.node_id} — {n.name}</option>
                   ))}
                 </select>
               </div>
 
-              <div>
-                <label className="block text-slate-400 mb-1 font-bold text-[10px]">TARGET NODE ID</label>
+              <div className="space-y-1">
+                <label className="block text-slate-300 font-bold text-[11px] uppercase">TARGET NODE ID</label>
                 <select
                   value={targetNode}
                   onChange={e => setTargetNode(e.target.value)}
-                  className="w-full bg-slate-950 border border-white/10 rounded p-2 text-white"
+                  className="w-full bg-slate-950 border border-white/20 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-secondary"
                 >
                   <option value="">-- Select Target Node --</option>
                   {(graph?.nodes || []).map(n => (
-                    <option key={n.node_id} value={n.node_id}>{n.node_id} ({n.name})</option>
+                    <option key={n.node_id} value={n.node_id}>{n.node_id} — {n.name}</option>
                   ))}
                 </select>
               </div>
 
-              <div className="flex justify-end gap-2">
-                <button type="button" onClick={() => setIsPathModalOpen(false)} className="px-3 py-1.5 border border-white/10 rounded text-slate-300">Cancel</button>
-                <button type="submit" disabled={searchingPath || !sourceNode || !targetNode} className="px-3 py-1.5 bg-secondary text-black font-bold uppercase rounded cursor-pointer disabled:opacity-50">
-                  {searchingPath ? 'Searching...' : 'Calculate Path'}
+              <div className="flex justify-end gap-3 pt-2">
+                <button type="button" onClick={() => setIsPathModalOpen(false)} className="px-4 py-2 border border-white/20 rounded-lg text-slate-300 hover:bg-white/5 transition-colors cursor-pointer">
+                  Cancel
+                </button>
+                <button type="submit" disabled={searchingPath || !sourceNode || !targetNode} className="px-4 py-2 bg-secondary text-black font-bold uppercase rounded-lg hover:brightness-110 cursor-pointer disabled:opacity-50 transition-all shadow-md">
+                  {searchingPath ? 'Calculating...' : 'Calculate Path'}
                 </button>
               </div>
             </form>
 
             {pathResult && pathResult.path_found && (
-              <div className="p-md bg-slate-950 rounded border border-emerald-500/30 space-y-2 mt-md">
-                <div className="flex justify-between text-emerald-400 font-bold">
+              <div className="p-4 bg-slate-950 rounded-lg border border-emerald-500/40 space-y-2 mt-4">
+                <div className="flex justify-between text-emerald-400 font-bold text-xs border-b border-emerald-500/20 pb-2">
                   <span>Path Traversal Complete</span>
                   <span>Distance: {pathResult.distance} hop(s)</span>
                 </div>
-                <div className="space-y-1 text-slate-300 text-[11px]">
+                <div className="space-y-1.5 text-slate-200 text-xs pt-1">
                   {pathResult.nodes.map((n, i) => (
-                    <div key={n.node_id} className="flex items-center gap-2">
-                      <span className="w-4 text-slate-500">{i + 1}.</span>
-                      <span className="font-bold text-white">{n.node_id}</span>
-                      <span className="text-slate-400">({n.name})</span>
-                      <span className="text-[9px] px-1.5 bg-slate-800 text-secondary rounded">{n.node_type}</span>
+                    <div key={n.node_id} className="flex items-center gap-2 p-1.5 rounded bg-slate-900 border border-white/5">
+                      <span className="w-5 text-slate-400 font-bold">{i + 1}.</span>
+                      <span className="font-bold text-white font-mono">{n.node_id}</span>
+                      <span className="text-slate-300">({n.name})</span>
+                      <span className="text-[10px] px-2 py-0.5 bg-secondary/20 text-secondary border border-secondary/30 rounded font-bold ml-auto">{n.node_type}</span>
                     </div>
                   ))}
                 </div>

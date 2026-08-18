@@ -100,77 +100,83 @@ def calculate_haversine_distance(lat1: float, lon1: float, lat2: float, lon2: fl
 
 def recommend_police_station_and_officer(complaint_data: dict) -> dict:
     """
-    Intelligent Complaint Routing Engine.
-    Evaluates:
-    - Domain: Cyber Crime vs General Police Complaint
-    - Category & Urgency
-    - Geolocation & Proximity to Police Stations in Ahmedabad
-    - Officer Availability, Specialization & Workload Balance
-    Returns recommended PoliceStation, Officer, and transparent explanation bullets.
+    Geographic Jurisdiction & Specialized Department Routing Engine.
+    
+    Rule:
+    1. Geographic Jurisdiction is determined solely by incident location and serving Police Station.
+    2. Cyber Crime is a SPECIALIZED DEPARTMENT / UNIT, NOT a geographic jurisdiction.
+    3. Officer assignment is performed MANUALLY by the Supervisor (NO AI auto-assignment).
     """
-    from .models import PoliceStation, User, OfficerAssignment
+    from .models import PoliceStation, User
     
     category = complaint_data.get('category', 'General')
     cat_lower = category.lower()
     c_lat = complaint_data.get('latitude')
     c_lng = complaint_data.get('longitude')
+    locality = complaint_data.get('locality') or complaint_data.get('location', '')
+    
     if c_lat is None: c_lat = 23.0225  # Default Ahmedabad center
     if c_lng is None: c_lng = 72.5714
 
     cyber_keywords = ['upi', 'otp', 'phish', 'scam', 'cyber', 'fraud', 'hack', 'card', 'crypto', 'sextortion', 'customer care', 'loan', 'investment']
     is_cybercrime = any(kw in cat_lower for kw in cyber_keywords)
 
-    stations = list(PoliceStation.objects.filter(status='active'))
-    if not stations:
+    # Filter active stations
+    all_stations = list(PoliceStation.objects.filter(status='active'))
+    if not all_stations:
         return {
             'station': None,
             'officer': None,
             'explanation': 'No active police station registered.',
             'distance_km': 0.0,
-            'score': 0.0,
+            'is_cybercrime': is_cybercrime,
         }
 
+    # If cybercrime, prioritize cyber specialized stations; otherwise prioritize physical police stations
+    if is_cybercrime:
+        candidate_stations = [st for st in all_stations if st.is_cyber_specialized]
+        if not candidate_stations:
+            candidate_stations = all_stations
+    else:
+        candidate_stations = [st for st in all_stations if not st.is_cyber_specialized]
+        if not candidate_stations:
+            candidate_stations = all_stations
+
     best_station = None
-    best_station_score = -1.0
-    best_distance = 999.0
+    best_distance = 99999.0
 
-    for st in stations:
+    for st in candidate_stations:
         dist = calculate_haversine_distance(c_lat, c_lng, st.latitude, st.longitude)
-        
-        proximity_score = max(0, 40 - (dist * 3))
-        cyber_bonus = 40 if (is_cybercrime and st.is_cyber_specialized) else 10 if (not is_cybercrime and not st.is_cyber_specialized) else 0
-        capacity_score = min(20, st.officer_capacity * 2)
-
-        st_score = proximity_score + cyber_bonus + capacity_score
-
-        if st_score > best_station_score:
-            best_station_score = st_score
-            best_station = st
+        if locality and (locality.lower() in st.jurisdiction.lower() or locality.lower() in st.name.lower() or locality.lower() in st.area.lower()):
+            dist = max(0.1, dist - 2.5)  # Priority boost for matching geographic locality
+            
+        if dist < best_distance:
             best_distance = dist
-
-    officers = User.objects.filter(role=User.ROLE_OFFICER)
-    best_officer = officers.first()
+            best_station = st
 
     explanation_lines = [
-        f"✓ Station: {best_station.name} ({best_station.area}, Ahmedabad)",
-        f"✓ Jurisdiction: {best_station.jurisdiction}",
-        f"✓ Domain Classification: {'Cyber Crime Unit' if is_cybercrime else 'General Law Enforcement'}",
-        f"✓ Geographic Proximity: {best_distance:.1f} km from reported location",
+        f"✓ Assigned Station / Unit: {best_station.name} ({best_station.area}, Ahmedabad)",
+        f"✓ Jurisdiction Area: {best_station.jurisdiction}",
+        f"✓ Investigation Type: {'Cyber Crime Investigation' if is_cybercrime else 'Ordinary Police Investigation'}",
+        f"✓ Geographic Proximity: {best_distance:.1f} km from incident location",
     ]
 
-    if is_cybercrime and best_station.is_cyber_specialized:
-        explanation_lines.append("✓ Specialized Cyber Crime Investigation Unit prioritized")
-    if best_officer:
-        explanation_lines.append(f"✓ Recommended Assignment: Officer {best_officer.get_full_name() or best_officer.username} (Available)")
+    if is_cybercrime:
+        explanation_lines.append("✓ Specialized Department: Ahmedabad Cyber Crime Unit / Cell")
+    else:
+        explanation_lines.append("✓ Local Police Station: Law & Order Field Division")
+
+    explanation_lines.append("✓ Status: Routed & Pending Officer Assignment by Supervisor")
 
     return {
         'station': best_station,
-        'officer': best_officer,
-        'distance_km': best_distance,
-        'score': round(best_station_score, 1),
+        'officer': None,
+        'distance_km': round(best_distance, 1),
         'explanation': "\n".join(explanation_lines),
         'explanation_list': explanation_lines,
         'is_cybercrime': is_cybercrime,
+        'investigation_type': 'Cyber Crime Investigation' if is_cybercrime else 'Ordinary Police Investigation',
+        'specialized_unit': 'Cyber Crime Unit' if is_cybercrime else 'Local Police Unit',
     }
 
 
@@ -197,16 +203,72 @@ def extract_entities(text: str) -> dict:
 
 
 def check_url_reputation(urls: list) -> list:
-    """Simulates URL reputation check (e.g., via VirusTotal / Google Safe Browsing API)."""
+    """
+    URL Reputation Engine.
+    Queries live VirusTotal v3 API if VIRUSTOTAL_API_KEY environment variable is set.
+    Falls back seamlessly to local heuristic analysis if offline, key is missing, or request fails.
+    """
+    import os
+    import json
+    import base64
+    import urllib.request
+    import urllib.error
+    import ssl
+
+    vt_api_key = os.environ.get('VIRUSTOTAL_API_KEY') or os.environ.get('VT_API_KEY')
     results = []
     suspicious_keywords = ['login', 'update', 'verify', 'secure', 'account', 'banking', 'free', 'reward', 'claim']
     
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+
     for url in urls:
         url_lower = url.lower()
+        
+        # 1. Attempt Live VirusTotal v3 API Call
+        if vt_api_key:
+            try:
+                # VirusTotal URL ID is base64 url-safe unpadded string of the URL
+                url_id = base64.urlsafe_b64encode(url.encode('utf-8')).decode('utf-8').rstrip("=")
+                vt_endpoint = f"https://www.virustotal.com/api/v3/urls/{url_id}"
+                req = urllib.request.Request(
+                    vt_endpoint,
+                    headers={
+                        "x-apikey": vt_api_key,
+                        "Accept": "application/json"
+                    }
+                )
+                with urllib.request.urlopen(req, timeout=8, context=ctx) as resp:
+                    vt_data = json.loads(resp.read().decode('utf-8'))
+                    attributes = vt_data.get('data', {}).get('attributes', {})
+                    stats = attributes.get('last_analysis_stats', {})
+                    
+                    malicious = stats.get('malicious', 0)
+                    suspicious = stats.get('suspicious', 0)
+                    total = sum(stats.values()) or 1
+                    
+                    risk_score = round(min(0.99, (malicious * 1.5 + suspicious) / total), 2)
+                    flags = [
+                        f"VirusTotal Live API: {malicious}/{total} security engines flagged as malicious",
+                        f"Reputation Score: {attributes.get('reputation', 0)}"
+                    ]
+                    
+                    results.append({
+                        'url': url,
+                        'risk_score': max(0.1, risk_score),
+                        'status': 'MALICIOUS' if malicious > 0 else 'SUSPICIOUS' if suspicious > 0 else 'SAFE',
+                        'flags': flags,
+                        'provenance': 'LIVE VIRUSTOTAL API (v3)'
+                    })
+                    continue
+            except Exception as vt_err:
+                print(f"[VIRUSTOTAL API] Notice for {url}: {vt_err}")
+
+        # 2. Heuristic Rule-Based Fallback
         score = 0.1
         flags = []
         
-        # Heuristic checks
         if url_lower.count('-') > 2:
             score += 0.3
             flags.append('Multiple Hyphens (Phishing pattern)')
@@ -223,7 +285,8 @@ def check_url_reputation(urls: list) -> list:
             'url': url,
             'risk_score': round(score, 2),
             'status': 'MALICIOUS' if score > 0.6 else 'SUSPICIOUS' if score > 0.3 else 'SAFE',
-            'flags': flags
+            'flags': flags,
+            'provenance': 'LOCAL HEURISTIC ENGINE'
         })
         
     return results

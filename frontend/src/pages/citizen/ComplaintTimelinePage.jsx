@@ -3,14 +3,16 @@ import { useParams } from 'react-router-dom'
 import AppLayout from '../../components/layout/AppLayout'
 import { complaintService } from '../../services/api'
 import { useTranslation } from 'react-i18next'
+import { translateStatus, translateEventTitle, translateEventDesc } from '../../utils/statusTranslation'
 
 export default function ComplaintTimelinePage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { id } = useParams()
   const [complaint, setComplaint] = useState(null)
 
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const currentLang = i18n.language || 'en'
 
   useEffect(() => {
     setLoading(true)
@@ -58,8 +60,8 @@ export default function ComplaintTimelinePage() {
         ) : complaint ? (
         <div className="glass-panel rounded-xl p-lg">
           <div className="flex items-center gap-md mb-lg">
-            <span className={`px-3 py-1 rounded-full text-xs font-bold ${complaint?.status === 'resolved' ? 'bg-secondary/20 text-secondary' : 'bg-error/20 text-error'}`}>
-              {complaint?.status?.toUpperCase()}
+            <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${complaint?.status === 'resolved' || complaint?.status === 'closed' ? 'bg-secondary/20 text-secondary' : 'bg-error/20 text-error'}`}>
+              {translateStatus(complaint?.status, currentLang)}
             </span>
             <span className="font-mono-data text-on-surface-variant">{t('timeline.urgency_label')} {complaint ? (complaint.urgency_score * 100).toFixed(0) : 0}%</span>
             <span className="font-mono-data text-on-surface-variant">{t('timeline.qr_label')} {complaint?.qr_code}</span>
@@ -71,10 +73,10 @@ export default function ComplaintTimelinePage() {
                 <div className={`mt-1 w-4 h-4 rounded-full z-10 ${i === 0 ? 'bg-secondary shadow-[0_0_8px_rgba(76,215,246,0.8)]' : 'bg-primary'}`} />
                 <div className="flex-1 pb-md">
                   <div className="flex justify-between items-center mb-1">
-                    <span className="font-bold text-on-surface">{event.event}</span>
+                    <span className="font-bold text-on-surface">{translateEventTitle(event.event, currentLang)}</span>
                     <span className="text-[10px] font-mono-data text-on-surface-variant">{new Date(event.created_at).toLocaleString()}</span>
                   </div>
-                  <p className="text-body-sm text-on-surface-variant">{event.description}</p>
+                  <p className="text-body-sm text-on-surface-variant">{translateEventDesc(event.description, currentLang)}</p>
                   {event.actor_name && <p className="text-[10px] text-primary mt-1">— {event.actor_name}</p>}
                 </div>
               </div>

@@ -83,6 +83,35 @@ export default function OfficerDashboardPage() {
   return (
     <AppLayout title={t('officerDashboard.appTitle')} subtitle={t('officerDashboard.appSubtitle')}>
       <div className="flex-1 p-lg overflow-y-auto space-y-lg pb-xl">
+        
+        {/* Station Jurisdiction Badge */}
+        <div className="flex flex-wrap items-center justify-between gap-md p-4 rounded-xl bg-surface-container border border-primary/20 shadow-md">
+          <div className="flex items-center gap-3">
+            <div className="p-3 rounded-lg bg-primary/10 border border-primary/20 text-primary flex items-center justify-center">
+              <span className="material-symbols-outlined text-2xl">
+                {user?.is_cyber_specialized || user?.department?.toLowerCase().includes('cyber') ? 'cell_tower' : 'local_police'}
+              </span>
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-base font-bold text-on-surface">
+                  {user?.parent_station_name || 'Ahmedabad Police Station / Cyber Unit'}
+                </h2>
+                <span className={`text-[10px] uppercase tracking-wider font-bold px-2.5 py-0.5 rounded border ${
+                  user?.is_cyber_specialized || user?.department?.toLowerCase().includes('cyber')
+                    ? 'bg-cyan-950/60 border-cyan-500/40 text-cyan-300'
+                    : 'bg-emerald-950/60 border-emerald-500/40 text-emerald-300'
+                }`}>
+                  {user?.is_cyber_specialized || user?.department?.toLowerCase().includes('cyber') ? '🌐 CYBER CRIME CELL' : '🚓 POLICE STATION JURISDICTION'}
+                </span>
+              </div>
+              <p className="text-xs text-on-surface-variant mt-0.5 font-mono-data">
+                District: {user?.district || 'Ahmedabad'} | Unit: {user?.unit || user?.department || 'General Police'} | Active Cases: <span className="text-primary font-bold">{incidents.length}</span>
+              </p>
+            </div>
+          </div>
+        </div>
+
         <div className="flex flex-wrap items-center gap-md">
           <button 
             onClick={() => setIsReportModalOpen(true)}

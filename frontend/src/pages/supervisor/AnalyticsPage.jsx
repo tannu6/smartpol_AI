@@ -62,7 +62,7 @@ export default function AnalyticsPage() {
     return (
       <>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-md">
-          <KpiCard label={t('analytics.totalCases')} value={data.daily_trends?.reduce((a, b) => a + b.crimes, 0) || 0} icon="analytics" accent="primary" />
+          <KpiCard label={t('analytics.totalCases')} value={data.total_cases ?? (data.daily_trends?.reduce((a, b) => a + b.crimes, 0) || 0)} icon="analytics" accent="primary" />
           <KpiCard label={t('analytics.avgUrgency')} value={`${((data.avg_urgency || 0) * 100).toFixed(0)}%`} icon="speed" accent="error" />
           <KpiCard label={t('analytics.officersActive')} value={data.officer_performance?.length || 0} icon="badge" accent="secondary" />
           <KpiCard label={t('analytics.scamClusters')} value={data.categories?.length || 0} icon="biotech" accent="primary" />

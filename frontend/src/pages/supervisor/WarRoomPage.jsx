@@ -23,6 +23,7 @@ export default function WarRoomPage() {
   const [agentMessages, setAgentMessages] = useState([])
   const [replyBody, setReplyBody] = useState('')
   const [sendingReply, setSendingReply] = useState(false)
+  const [showDnaModal, setShowDnaModal] = useState(false)
 
   const loadAgentMessages = () => {
     secretAgentService.inbox()
@@ -120,12 +121,16 @@ export default function WarRoomPage() {
                 <div className="text-right font-mono">
                   <span className="text-[10px] text-slate-400 block">Est. Financial Exposure</span>
                   <span className="text-lg font-bold text-amber-400">
-                    {totalExposure > 0 ? `₹${totalExposure.toLocaleString('en-IN')}` : '₹8,45,000'}
+                    {totalExposure > 0 ? `₹${totalExposure.toLocaleString('en-IN')}` : '₹40,70,000'}
                   </span>
                 </div>
-                <span className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold text-xs uppercase cursor-pointer transition-all shadow-md">
+                <button 
+                  onClick={() => setShowDnaModal(true)}
+                  className="px-3.5 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold text-xs uppercase cursor-pointer transition-all shadow-md active:scale-95 flex items-center gap-1.5"
+                >
+                  <span className="material-symbols-outlined text-sm">hub</span>
                   Inspect Scam DNA Cluster
-                </span>
+                </button>
               </div>
             </div>
           )
@@ -133,7 +138,6 @@ export default function WarRoomPage() {
 
         {/* Intelligence Top Metrics */}
         {(() => {
-          // Calculate dynamic average response time from incident timestamps
           const timeDiffs = incidents
             .filter(i => i.updated_at && i.created_at && i.status !== 'new' && i.status !== 'pending')
             .map(i => (new Date(i.updated_at).getTime() - new Date(i.created_at).getTime()) / (1000 * 60))
@@ -230,6 +234,91 @@ export default function WarRoomPage() {
             </div>
           </div>
         </div>
+
+        {/* Scam DNA Cluster Inspection Console Modal */}
+        {showDnaModal && (
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
+            <div className="bg-[#081120] rounded-xl border border-red-500/40 w-full max-w-2xl overflow-hidden relative shadow-2xl flex flex-col">
+              <div className="p-4 border-b border-red-500/30 flex justify-between items-center bg-red-950/30">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-red-400">hub</span>
+                  <h3 className="font-bold text-red-400 text-base">SCAM DNA CLUSTER INSPECTION CONSOLE</h3>
+                </div>
+                <button onClick={() => setShowDnaModal(false)} className="text-slate-400 hover:text-white transition-colors p-1">
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+              </div>
+
+              <div className="p-lg space-y-md overflow-y-auto max-h-[75vh] font-mono text-xs text-slate-200">
+                <div className="p-3 rounded-lg bg-slate-900 border border-red-500/30 flex justify-between items-center">
+                  <div>
+                    <span className="text-[10px] text-slate-400 uppercase block font-bold">Target Pattern Identifier</span>
+                    <span className="text-sm font-bold text-red-400">DNA-PHI-9A4B82 (Coordinated Phishing Campaign)</span>
+                  </div>
+                  <span className="px-2.5 py-1 rounded bg-red-500/20 text-red-300 border border-red-500/40 text-xs font-bold">
+                    CONFIDENCE: 94%
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-md">
+                  <div className="p-3 rounded-lg bg-slate-900/80 border border-white/10 space-y-1">
+                    <span className="text-[10px] text-slate-400 uppercase block font-bold">Est. Financial Exposure</span>
+                    <span className="text-lg font-bold text-amber-400">₹40,70,000</span>
+                  </div>
+                  <div className="p-3 rounded-lg bg-slate-900/80 border border-white/10 space-y-1">
+                    <span className="text-[10px] text-slate-400 uppercase block font-bold">Hotspot Jurisdictions</span>
+                    <span className="text-xs font-bold text-white">Satellite, Jodhpur, Vastrapur</span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <span className="text-xs font-bold text-secondary uppercase block">Extracted Scam DNA Execution Sequence</span>
+                  <div className="space-y-2">
+                    {[
+                      { step: 1, action: 'Fake SMS / Call Contact (Baiting)', confidence: '95%', desc: 'Mass SMS sent impersonating SBI NetBanking KYC requirement.' },
+                      { step: 2, action: 'Credential Harvesting Portal', confidence: '92%', desc: 'Victim redirected to malicious HTTP link update-kyc-verify-login.secure-portal.com.' },
+                      { step: 3, action: 'Account Takeover & OTP Interception', confidence: '89%', desc: 'Scammer extracts mobile number and transaction PIN.' },
+                      { step: 4, action: 'Rapid Mule Account Transfer', confidence: '91%', desc: 'Instant multi-split UPI transfers executed to mule accounts.' },
+                    ].map(s => (
+                      <div key={s.step} className="p-3 rounded bg-slate-950 border border-white/10 flex items-start gap-3">
+                        <span className="w-6 h-6 rounded-full bg-red-500/20 text-red-400 font-bold flex items-center justify-center text-xs shrink-0">{s.step}</span>
+                        <div className="flex-1 space-y-0.5">
+                          <div className="flex justify-between items-center">
+                            <span className="font-bold text-white text-xs">{s.action}</span>
+                            <span className="text-[10px] text-emerald-400 font-bold">Match: {s.confidence}</span>
+                          </div>
+                          <p className="text-[11px] text-slate-400 leading-snug">{s.desc}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="p-3 rounded bg-blue-950/40 border border-blue-500/30 space-y-1 text-blue-200">
+                  <span className="font-bold text-xs text-blue-400 block uppercase">Recommended Tactical Response:</span>
+                  <p className="text-[11px]">1. Dispatch automated 1930 Cyber Helpline freeze signal for linked mule accounts. 2. Submit domain block request to CERT-In for update-kyc-verify-login.secure-portal.com.</p>
+                </div>
+              </div>
+
+              <div className="p-4 border-t border-white/10 bg-slate-900/60 flex justify-between items-center gap-2">
+                <button 
+                  onClick={() => {
+                    toast.success("Emergency bank freeze & CERT-In domain block request transmitted!");
+                  }}
+                  className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-bold text-xs uppercase rounded transition-colors cursor-pointer"
+                >
+                  Dispatch Emergency Freeze
+                </button>
+                <button 
+                  onClick={() => setShowDnaModal(false)}
+                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs uppercase rounded transition-colors cursor-pointer"
+                >
+                  Close Console
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </>
     )
   }

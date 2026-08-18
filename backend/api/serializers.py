@@ -27,17 +27,25 @@ class AssignmentRecordSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    active_case_count = serializers.SerializerMethodField()
+    parent_station_name = serializers.CharField(source='parent_station.name', read_only=True, default='')
+    is_cyber_specialized = serializers.BooleanField(source='parent_station.is_cyber_specialized', read_only=True, default=False)
+
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'first_name', 'last_name', 'role',
-                  'badge_id', 'district', 'avatar_url', 'phone', 'is_verified']
+                  'badge_id', 'district', 'department', 'unit', 'parent_station', 'parent_station_name',
+                  'is_cyber_specialized', 'active_case_count', 'avatar_url', 'phone', 'is_verified']
         read_only_fields = ['id', 'is_verified']
+
+    def get_active_case_count(self, obj):
+        return obj.assigned_complaints.exclude(status__in=['resolved', 'closed']).count()
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'district', 'avatar_url', 'phone', 'badge_id']
+        fields = ['first_name', 'last_name', 'district', 'avatar_url', 'phone', 'badge_id', 'parent_station', 'department', 'unit']
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -47,7 +55,8 @@ class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['username', 'email', 'password', 'password_confirm', 'first_name',
-                  'last_name', 'role', 'phone', 'district', 'badge_id']
+                  'last_name', 'role', 'phone', 'district', 'badge_id', 'parent_station',
+                  'department', 'unit']
 
     def validate(self, data):
         if data['password'] != data['password_confirm']:

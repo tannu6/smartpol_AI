@@ -20,6 +20,9 @@ class User(AbstractUser):
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default=ROLE_CITIZEN, db_index=True)
     badge_id = models.CharField(max_length=50, blank=True)
     district = models.CharField(max_length=100, default='', blank=True, db_index=True)
+    department = models.CharField(max_length=100, default='General Police', blank=True)
+    unit = models.CharField(max_length=100, default='General Unit', blank=True)
+    parent_station = models.ForeignKey('PoliceStation', on_delete=models.SET_NULL, null=True, blank=True, related_name='officers')
     avatar_url = models.URLField(blank=True)
     duress_code = models.CharField(max_length=128, blank=True)  # Hashed or plain for duress detection
     phone = models.CharField(max_length=20, blank=True)

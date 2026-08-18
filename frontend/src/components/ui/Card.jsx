@@ -20,13 +20,13 @@ export function KpiCard({ label, value, icon, accent = 'secondary', trend, subte
   const accentColors = { secondary: 'bg-secondary', error: 'bg-error', primary: 'bg-primary', tertiary: 'bg-tertiary' }
   const iconColors = { secondary: 'text-secondary', error: 'text-error', primary: 'text-primary', tertiary: 'text-tertiary' }
   return (
-    <div className="bg-surface-container-low/60 backdrop-blur-xl border border-primary/15 p-md relative overflow-hidden group">
+    <div className="bg-surface-container-low/60 backdrop-blur-xl border border-primary/15 p-md relative overflow-hidden group flex flex-col justify-between">
       <div className={cn('absolute top-0 left-0 w-1 h-full', accentColors[accent] || accentColors.secondary)} />
       <div className="flex justify-between items-start mb-sm">
         <span className="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-tighter">{label}</span>
         <span className={cn('material-symbols-outlined', iconColors[accent] || iconColors.secondary)}>{icon}</span>
       </div>
-      <div className="text-3xl font-bold text-on-surface mb-xs">{value}</div>
+      <div className="text-xl md:text-2xl font-bold text-on-surface mb-xs break-words leading-tight capitalize">{value}</div>
       {trend && (
         <div className="flex items-center text-[10px] text-error font-bold">
           <span className="material-symbols-outlined text-xs">trending_up</span> {trend}

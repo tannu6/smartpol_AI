@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useAuth } from '../../context/AuthContext'
 import { useTranslation } from 'react-i18next'
 import LanguageSelector from '../../components/ui/LanguageSelector'
 import { ROLE_LABELS, ROLES } from '../../config/navigation'
+import { policeStationService } from '../../services/api'
 
 function Field({ label, icon, type = 'text', register: reg, error, placeholder, showToggle, onToggle, showPass }) {
   return (
@@ -49,15 +50,45 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false)
   const [showPass, setShowPass] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
+  const [stations, setStations] = useState([])
 
-  const { register, handleSubmit, watch, formState: { errors } } = useForm({
-    defaultValues: { role: ROLES.CITIZEN },
+  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm({
+    defaultValues: { role: ROLES.CITIZEN, district: 'Ahmedabad' },
   })
+
+  const selectedRole = watch('role')
+
+  useEffect(() => {
+    async function loadStations() {
+      try {
+        const { data } = await policeStationService.list()
+        const list = Array.isArray(data) ? data : data?.results || []
+        setStations(list)
+      } catch (err) {
+        console.error('Failed to load stations', err)
+      }
+    }
+    loadStations()
+  }, [])
 
   const onSubmit = async (data) => {
     setLoading(true)
     setApiError('')
     try {
+      // If officer selected a parent station, find station object and populate department if empty
+      if (data.parent_station && stations.length > 0) {
+        const st = stations.find(s => String(s.id) === String(data.parent_station))
+        if (st) {
+          if (st.is_cyber_specialized) {
+            data.department = 'Cyber Crime Cell'
+            data.unit = 'Ahmedabad Cyber Crime Division'
+          } else if (!data.department) {
+            data.department = 'General Police'
+            data.unit = st.area || 'Local Police Station'
+          }
+        }
+      }
+
       const result = await registerUser(data)
       if (result?.requires_otp && result?.user_id) {
         let url = `/verify-otp?user_id=${result.user_id}`
@@ -88,7 +119,7 @@ export default function RegisterPage() {
       <div className="fixed inset-0 z-0 cyber-grid opacity-30 pointer-events-none" />
       <div className="fixed top-[30%] left-[50%] -translate-x-[50%] -translate-y-[50%] z-0 w-[700px] h-[700px] rounded-full bg-gradient-to-r from-primary/5 to-transparent blur-3xl pointer-events-none" />
 
-      <div className="relative z-10 w-full max-w-[480px] animate-slide-up">
+      <div className="relative z-10 w-full max-w-[500px] animate-slide-up">
 
         <div className="text-center mb-6">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 border border-primary/20 mb-3">
@@ -160,24 +191,73 @@ export default function RegisterPage() {
                 </span>
               </div>
             </div>
-            
-            {/* Dynamic District/Working Sector field */}
-            <Field 
-              label={watch('role') === 'citizen' ? "District / Location" : "Working Sector / District"} 
-              icon="map" 
-              placeholder={watch('role') === 'citizen' ? "e.g. Satellite Area" : "e.g. Sector 7G"}
-              register={register('district')} 
-              error={errors.district} 
-            />
 
-            {/* Dynamic Badge ID field (Officer / Supervisor only) */}
-            {(watch('role') === 'officer' || watch('role') === 'supervisor') && (
+            {/* Officer Registration: Station & Cyber Cell Selection */}
+            {(selectedRole === 'officer' || selectedRole === 'supervisor') && (
+              <>
+                <div>
+                  <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">
+                    Assigned Ahmedabad Police Station / Cyber Cell
+                  </label>
+                  <div className="relative">
+                    <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-xl text-primary pointer-events-none">local_police</span>
+                    <select
+                      className="w-full py-3 pl-11 pr-10 bg-surface-container-lowest border border-primary/30 rounded-lg text-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/25 transition-all appearance-none cursor-pointer"
+                      {...register('parent_station', { required: "Assigned Police Station is required for officers" })}
+                    >
+                      <option value="">-- Select Ahmedabad Station or Cyber Cell --</option>
+                      {stations.map(st => (
+                        <option key={st.id} value={st.id} className="bg-surface-container text-on-surface">
+                          {st.is_cyber_specialized ? '🌐 [CYBER CELL] ' : '🚓 '} {st.name} ({st.area})
+                        </option>
+                      ))}
+                    </select>
+                    <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-xl text-on-surface-variant/60 pointer-events-none">
+                      expand_more
+                    </span>
+                  </div>
+                  {errors.parent_station && <p className="mt-1 text-xs text-error">{errors.parent_station.message}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">
+                    Department / Unit Specialization
+                  </label>
+                  <div className="relative">
+                    <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-xl text-on-surface-variant/60 pointer-events-none">security</span>
+                    <select
+                      className="w-full py-3 pl-11 pr-10 bg-surface-container-lowest border border-outline-variant/10 rounded-lg text-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/25 transition-all appearance-none cursor-pointer"
+                      {...register('department')}
+                    >
+                      <option value="General Police">General Police / Law & Order</option>
+                      <option value="Cyber Crime Cell">Cyber Crime Cell / High Tech Crime Unit</option>
+                      <option value="Crime Branch">Crime Branch / Special Task Force</option>
+                      <option value="Traffic Division">Traffic Division</option>
+                    </select>
+                    <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-xl text-on-surface-variant/60 pointer-events-none">
+                      expand_more
+                    </span>
+                  </div>
+                </div>
+
+                <Field 
+                  label="Tactical Badge ID" 
+                  icon="badge" 
+                  placeholder="e.g. AHM-OFC-4092"
+                  register={register('badge_id', { required: "Badge ID is required for tactical officers" })} 
+                  error={errors.badge_id} 
+                />
+              </>
+            )}
+
+            {/* Citizen Registration: Location / District */}
+            {selectedRole === 'citizen' && (
               <Field 
-                label="Tactical Badge ID" 
-                icon="badge" 
-                placeholder="e.g. OFC-1234"
-                register={register('badge_id', { required: "Badge ID is required for tactical officers" })} 
-                error={errors.badge_id} 
+                label="City / District & Residential Area" 
+                icon="map" 
+                placeholder="e.g. Satellite, Navrangpura, Bopal, Ahmedabad"
+                register={register('district', { required: t('forms.required') })} 
+                error={errors.district} 
               />
             )}
 

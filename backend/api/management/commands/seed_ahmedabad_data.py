@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 from api.models import PoliceStation
 
 class Command(BaseCommand):
-    help = 'Seeds Ahmedabad Police Stations dataset for demonstration purposes.'
+    help = 'Seeds complete Ahmedabad Police Stations dataset across all urban zones.'
 
     def handle(self, *args, **options):
         stations_data = [
@@ -14,8 +14,32 @@ class Command(BaseCommand):
                 'longitude': 72.5667,
                 'jurisdiction': 'Ahmedabad Urban Cyber Jurisdiction (Entire City)',
                 'is_cyber_specialized': True,
-                'contact_number': '+91-79-2656-CYBER',
-                'officer_capacity': 25,
+                'contact_number': '1930',
+                'officer_capacity': 30,
+                'status': 'active',
+            },
+            {
+                'name': 'S.G. Highway Crime Branch Cell',
+                'district': 'Ahmedabad',
+                'area': 'SG Highway / Thaltej',
+                'latitude': 23.0500,
+                'longitude': 72.5050,
+                'jurisdiction': 'SG Highway Corridor, Thaltej Cross Roads, Science City Circle',
+                'is_cyber_specialized': True,
+                'contact_number': '1930',
+                'officer_capacity': 35,
+                'status': 'active',
+            },
+            {
+                'name': 'CID Crime Gujarat Cyber Cell (Gandhinagar/Ahm)',
+                'district': 'Ahmedabad',
+                'area': 'Koba Circle / Airport Road',
+                'latitude': 23.1120,
+                'longitude': 72.6100,
+                'jurisdiction': 'State Level Financial & High Tech Cybercrime Unit',
+                'is_cyber_specialized': True,
+                'contact_number': '1930',
+                'officer_capacity': 40,
                 'status': 'active',
             },
             {
@@ -55,27 +79,15 @@ class Command(BaseCommand):
                 'status': 'active',
             },
             {
-                'name': 'Shahibaug Police Station',
+                'name': 'Anandnagar Police Station',
                 'district': 'Ahmedabad',
-                'area': 'Shahibaug / Cantonment',
-                'latitude': 23.0560,
-                'longitude': 72.5890,
-                'jurisdiction': 'Shahibaug, Camp Road, Civil Hospital Complex, Subhash Bridge',
+                'area': 'Prahladnagar / Anandnagar',
+                'latitude': 23.0120,
+                'longitude': 72.5110,
+                'jurisdiction': 'Corporate Road, Prahladnagar Garden, Venus Atlantis, Vejalpur West',
                 'is_cyber_specialized': False,
-                'contact_number': '+91-79-2286-0400',
+                'contact_number': '+91-79-2693-0100',
                 'officer_capacity': 22,
-                'status': 'active',
-            },
-            {
-                'name': 'Maninagar Police Station',
-                'district': 'Ahmedabad',
-                'area': 'Maninagar / Kankaria',
-                'latitude': 22.9985,
-                'longitude': 72.6025,
-                'jurisdiction': 'Maninagar, Kankaria Lake, Jawahar Chowk, Balvatika',
-                'is_cyber_specialized': False,
-                'contact_number': '+91-79-2546-0500',
-                'officer_capacity': 15,
                 'status': 'active',
             },
             {
@@ -87,7 +99,43 @@ class Command(BaseCommand):
                 'jurisdiction': 'Bodakdev, Judges Bungalow Road, Sindhu Bhavan Road, Pakwan',
                 'is_cyber_specialized': False,
                 'contact_number': '+91-79-2687-0600',
-                'officer_capacity': 14,
+                'officer_capacity': 18,
+                'status': 'active',
+            },
+            {
+                'name': 'Sola High Court Police Station',
+                'district': 'Ahmedabad',
+                'area': 'Sola / High Court',
+                'latitude': 23.0780,
+                'longitude': 72.5250,
+                'jurisdiction': 'Gujarat High Court, Civil Hospital Sola, Science City Road North',
+                'is_cyber_specialized': False,
+                'contact_number': '+91-79-2766-0200',
+                'officer_capacity': 25,
+                'status': 'active',
+            },
+            {
+                'name': 'Ghatlodia Police Station',
+                'district': 'Ahmedabad',
+                'area': 'Ghatlodia / KK Nagar',
+                'latitude': 23.0640,
+                'longitude': 72.5410,
+                'jurisdiction': 'Ghatlodia, KK Nagar, Memnagar, Chanakyapuri Road',
+                'is_cyber_specialized': False,
+                'contact_number': '+91-79-2748-0300',
+                'officer_capacity': 16,
+                'status': 'active',
+            },
+            {
+                'name': 'Naranpura Police Station',
+                'district': 'Ahmedabad',
+                'area': 'Naranpura / Ankur',
+                'latitude': 23.0520,
+                'longitude': 72.5550,
+                'jurisdiction': 'Naranpura, Ankur Cross Roads, Vijay Nagar, AEC Char Rasta',
+                'is_cyber_specialized': False,
+                'contact_number': '+91-79-2745-0400',
+                'officer_capacity': 18,
                 'status': 'active',
             },
             {
@@ -99,19 +147,43 @@ class Command(BaseCommand):
                 'jurisdiction': 'Sabarmati, Ashram Road North, RTO Circle, Motera Stadium Rd',
                 'is_cyber_specialized': False,
                 'contact_number': '+91-79-2750-0700',
-                'officer_capacity': 18,
+                'officer_capacity': 20,
                 'status': 'active',
             },
             {
-                'name': 'S.G. Highway Crime Branch Cell',
+                'name': 'Chandkheda Police Station',
                 'district': 'Ahmedabad',
-                'area': 'SG Highway / Thaltej',
-                'latitude': 23.0500,
-                'longitude': 72.5050,
-                'jurisdiction': 'SG Highway Corridor, Thaltej Cross Roads, Science City Circle',
-                'is_cyber_specialized': True,
-                'contact_number': '+91-79-2693-0800',
-                'officer_capacity': 30,
+                'area': 'Chandkheda / Motera',
+                'latitude': 23.1050,
+                'longitude': 72.5920,
+                'jurisdiction': 'Narendra Modi Stadium, ONGC Campus, Visat Circle, Zundal Ring Road',
+                'is_cyber_specialized': False,
+                'contact_number': '+91-79-2770-0500',
+                'officer_capacity': 24,
+                'status': 'active',
+            },
+            {
+                'name': 'Bopal Police Station',
+                'district': 'Ahmedabad',
+                'area': 'Bopal / South Bopal',
+                'latitude': 23.0320,
+                'longitude': 72.4670,
+                'jurisdiction': 'Bopal, South Bopal, TRP Mall, Gala Gymkhana Road, Shela',
+                'is_cyber_specialized': False,
+                'contact_number': '+91-79-2970-0600',
+                'officer_capacity': 20,
+                'status': 'active',
+            },
+            {
+                'name': 'Shahibaug Police Station',
+                'district': 'Ahmedabad',
+                'area': 'Shahibaug / Cantonment',
+                'latitude': 23.0560,
+                'longitude': 72.5890,
+                'jurisdiction': 'Shahibaug, Camp Road, Civil Hospital Complex, Subhash Bridge',
+                'is_cyber_specialized': False,
+                'contact_number': '+91-79-2286-0400',
+                'officer_capacity': 22,
                 'status': 'active',
             },
             {
@@ -126,20 +198,107 @@ class Command(BaseCommand):
                 'officer_capacity': 16,
                 'status': 'active',
             },
+            {
+                'name': 'Maninagar Police Station',
+                'district': 'Ahmedabad',
+                'area': 'Maninagar / Kankaria',
+                'latitude': 22.9985,
+                'longitude': 72.6025,
+                'jurisdiction': 'Maninagar, Kankaria Lake, Jawahar Chowk, Balvatika',
+                'is_cyber_specialized': False,
+                'contact_number': '+91-79-2546-0500',
+                'officer_capacity': 20,
+                'status': 'active',
+            },
+            {
+                'name': 'Nikol Police Station',
+                'district': 'Ahmedabad',
+                'area': 'Nikol / Naroda Ring Road',
+                'latitude': 23.0450,
+                'longitude': 72.6680,
+                'jurisdiction': 'Nikol Gam, Raspan Cross Roads, SP Ring Road East, Dehgam Rd',
+                'is_cyber_specialized': False,
+                'contact_number': '+91-79-2293-0700',
+                'officer_capacity': 22,
+                'status': 'active',
+            },
+            {
+                'name': 'Naroda Police Station',
+                'district': 'Ahmedabad',
+                'area': 'Naroda / GIDC',
+                'latitude': 23.0720,
+                'longitude': 72.6510,
+                'jurisdiction': 'Naroda GIDC Industrial Area, Bethak, Galaxy Cinema Road',
+                'is_cyber_specialized': False,
+                'contact_number': '+91-79-2281-0800',
+                'officer_capacity': 25,
+                'status': 'active',
+            },
+            {
+                'name': 'Odhav Police Station',
+                'district': 'Ahmedabad',
+                'area': 'Odhav / GIDC',
+                'latitude': 23.0180,
+                'longitude': 72.6620,
+                'jurisdiction': 'Odhav Ring Road, GIDC Estate, Express Highway Junction',
+                'is_cyber_specialized': False,
+                'contact_number': '+91-79-2287-0900',
+                'officer_capacity': 18,
+                'status': 'active',
+            },
+            {
+                'name': 'Amraiwadi Police Station',
+                'district': 'Ahmedabad',
+                'area': 'Amraiwadi / CTM',
+                'latitude': 22.9990,
+                'longitude': 72.6350,
+                'jurisdiction': 'CTM Cross Roads, Amraiwadi Industrial Area, Rabari Colony',
+                'is_cyber_specialized': False,
+                'contact_number': '+91-79-2274-1000',
+                'officer_capacity': 18,
+                'status': 'active',
+            },
+            {
+                'name': 'Danilimda Police Station',
+                'district': 'Ahmedabad',
+                'area': 'Danilimda / Shah-e-Alam',
+                'latitude': 22.9850,
+                'longitude': 72.5800,
+                'jurisdiction': 'Danilimda, Shah-e-Alam Darwaja, Chandola Lake, BRTS Corridor',
+                'is_cyber_specialized': False,
+                'contact_number': '+91-79-2532-1100',
+                'officer_capacity': 20,
+                'status': 'active',
+            },
+            {
+                'name': 'Sardar Vallabhbhai Patel Airport Police Station',
+                'district': 'Ahmedabad',
+                'area': 'Hansol / SVPIA Airport',
+                'latitude': 23.0750,
+                'longitude': 72.6280,
+                'jurisdiction': 'SVPIA Terminal 1 & 2, Cargo Complex, Airport Circle',
+                'is_cyber_specialized': False,
+                'contact_number': '+91-79-2286-1200',
+                'officer_capacity': 25,
+                'status': 'active',
+            },
         ]
 
         created_count = 0
+        updated_count = 0
         for data in stations_data:
-            st, created = PoliceStation.objects.get_or_create(
+            st, created = PoliceStation.objects.update_or_create(
                 name=data['name'],
                 defaults=data
             )
             if created:
                 created_count += 1
+            else:
+                updated_count += 1
 
         from api.models import User
-        User.objects.filter(role='admin').update(phone='9045303803')
+        User.objects.filter(role='admin').update(phone='1930')
 
         self.stdout.write(self.style.SUCCESS(
-            f"Successfully seeded {created_count} Ahmedabad police stations (Total registered: {PoliceStation.objects.count()}). Admin phone set to 9045303803."
+            f"Successfully seeded {created_count} new & updated {updated_count} Ahmedabad police stations (Total active in DB: {PoliceStation.objects.count()}). Central Helpline set to 1930."
         ))

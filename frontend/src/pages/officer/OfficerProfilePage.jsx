@@ -156,7 +156,7 @@ export default function OfficerProfilePage() {
               </div>
               <div className="flex items-center gap-3 text-xs text-on-surface-variant">
                 <Phone size={16} className="text-primary" />
-                <span>+91-98765-SHIELD</span>
+                <span>1930 (National Cyber Crime Helpline)</span>
               </div>
             </div>
           </div>

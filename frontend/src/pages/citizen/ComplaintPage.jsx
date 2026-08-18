@@ -178,21 +178,21 @@ useEffect(() => {
                 )}
               </div>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-md">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-md items-stretch">
               <KpiCard label={t('ai.urgency')} value={`${(submitted.urgency_score * 100).toFixed(0)}%`} icon="speed" accent="error" />
               <KpiCard label={t('ai.readiness')} value={`${(submitted.readiness_score * 100).toFixed(0)}%`} icon="fact_check" accent="secondary" />
-              <KpiCard label={t('complaint.classification')} value={submitted.fraud_classification} icon="psychology" accent="primary" />
-              <div className="glass-panel p-md rounded-xl flex flex-col items-center justify-center gap-sm">
+              <KpiCard label={t('complaint.classification')} value={submitted.fraud_classification?.replace(/_/g, ' ')} icon="psychology" accent="primary" />
+              <div className="glass-panel p-sm rounded-xl flex flex-col items-center justify-center gap-xs overflow-hidden border border-primary/20 bg-surface-container-low/60">
                 <QRCodeCanvas 
                   value={JSON.stringify({ id: submitted.complaint_id, type: 'complaint', citizen: submitted.citizen_name })} 
-                  size={192} 
+                  size={100} 
                   bgColor={"#ffffff"}
                   fgColor={"#040e21"}
                   level={"M"}
-                  className="rounded bg-white p-1"
+                  className="rounded bg-white p-1 shadow-sm"
                 />
                 <div className="text-center">
-                  <p className="text-[10px] font-label-caps text-secondary uppercase">{t('complaint.qr_code', 'QR Code')}</p>
+                  <p className="text-[10px] font-label-caps text-secondary uppercase font-bold tracking-wider">{t('complaint.qr_code', 'QR Code')}</p>
                 </div>
               </div>
             </div>
@@ -213,16 +213,16 @@ useEffect(() => {
               register={register('category')}
               options={[
                 { value: 'General', label: t('complaint.categories.general') },
-                { value: 'Digital Arrest Scam', label: '🚨 Digital Arrest Scam (CBI / ED Impersonation)' },
-                { value: 'Sextortion', label: '⚠️ Sextortion & Photo Leak Threat' },
-                { value: 'APK Malware', label: '📱 Fake Utility / Electricity Bill APK Hijack' },
-                { value: 'Deepfake Scam', label: '🤖 AI Deepfake Video / Voice Impersonation' },
-                { value: 'SIM Swap', label: '💳 SIM Swap & NetBanking Takeover' },
-                { value: 'UPI Fraud', label: '💸 UPI & OTP Refund Fraud' },
+                { value: 'Digital Arrest Scam', label: 'Digital Arrest Scam (CBI / ED Impersonation)' },
+                { value: 'Sextortion', label: 'Sextortion & Photo Leak Threat' },
+                { value: 'APK Malware', label: 'APK Malware (Fake Utility Bill Hijack)' },
+                { value: 'Deepfake Scam', label: 'AI Deepfake Video / Voice Impersonation' },
+                { value: 'SIM Swap', label: 'SIM Swap & NetBanking Takeover' },
+                { value: 'UPI Fraud', label: 'UPI & OTP Refund Fraud' },
                 { value: 'Financial Fraud', label: t('complaint.categories.financial_fraud') },
-                { value: 'Phishing Scam', label: '🎣 Phishing & Malicious Link Scam' },
-                { value: 'Investment Scam', label: '📈 Telegram / Part-Time Job Scam' },
-                { value: 'Crypto Crime', label: '🪙 Crypto Wallet Mule Laundering' },
+                { value: 'Phishing Scam', label: 'Phishing & Malicious Link Scam' },
+                { value: 'Investment Scam', label: 'Telegram / Part-Time Job Scam' },
+                { value: 'Crypto Crime', label: 'Crypto Wallet Mule Laundering' },
                 { value: 'Cybercrime', label: t('complaint.categories.cybercrime') },
                 { value: 'Assault', label: t('complaint.categories.assault') },
                 { value: 'Emergency', label: t('complaint.categories.emergency') },

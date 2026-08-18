@@ -3,12 +3,15 @@ import { notificationService } from '../../services/api'
 import { useTranslation } from 'react-i18next'
 import toast from 'react-hot-toast'
 
+import { translateNotificationMessage } from '../../utils/statusTranslation'
+
 export default function NotificationBell() {
   const { t, i18n } = useTranslation()
   const [notifications, setNotifications] = useState([])
   const [open, setOpen] = useState(false)
   const [isSpeaking, setIsSpeaking] = useState(false)
   const ref = useRef(null)
+  const currentLang = i18n.language || 'en'
 
   const load = () => notificationService.list().then(({ data }) => setNotifications(Array.isArray(data) ? data : [])).catch(() => {})
 
@@ -118,7 +121,7 @@ export default function NotificationBell() {
                   <p className={`text-xs font-bold ${priorityColor(n.notification_type)}`}>{n.title}</p>
                   <span className="text-[9px] font-mono text-secondary px-1.5 py-0.2 rounded bg-secondary/10 uppercase">{n.notification_type || 'INFO'}</span>
                 </div>
-                <p className="text-[11px] text-on-surface-variant mt-1 leading-snug">{n.message}</p>
+                <p className="text-[11px] text-on-surface-variant mt-1 leading-snug">{translateNotificationMessage(n.message, currentLang)}</p>
                 <p className="text-[9px] text-on-surface-variant/50 font-mono-data mt-1.5 flex justify-between items-center">
                   <span>{new Date(n.created_at).toLocaleString()}</span>
                   <span className="text-primary hover:underline font-bold text-[10px]">Inspect →</span>
