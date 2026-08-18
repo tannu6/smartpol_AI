@@ -221,7 +221,7 @@ export default function RegisterPage() {
 
                 <div>
                   <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">
-                    Department / Unit Specialization
+                    Branch / Department
                   </label>
                   <div className="relative">
                     <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-xl text-on-surface-variant/60 pointer-events-none">security</span>
@@ -229,10 +229,8 @@ export default function RegisterPage() {
                       className="w-full py-3 pl-11 pr-10 bg-surface-container-lowest border border-outline-variant/10 rounded-lg text-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/25 transition-all appearance-none cursor-pointer"
                       {...register('department')}
                     >
-                      <option value="General Police">General Police / Law & Order</option>
-                      <option value="Cyber Crime Cell">Cyber Crime Cell / High Tech Crime Unit</option>
-                      <option value="Crime Branch">Crime Branch / Special Task Force</option>
-                      <option value="Traffic Division">Traffic Division</option>
+                      <option value="General Police">General Police</option>
+                      <option value="Cyber Branch">Cyber Branch</option>
                     </select>
                     <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-xl text-on-surface-variant/60 pointer-events-none">
                       expand_more
