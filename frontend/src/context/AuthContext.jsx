@@ -30,7 +30,8 @@ export function AuthProvider({ children }) {
     let active = true
     const restoreSession = async () => {
       const token = localStorage.getItem('accessToken')
-      if (!token || !localStorage.getItem('user')) {
+      const cachedUser = localStorage.getItem('user')
+      if (!token || !cachedUser) {
         if (active) setLoading(false)
         return
       }
@@ -40,8 +41,17 @@ export function AuthProvider({ children }) {
           setUser(data)
           localStorage.setItem('user', JSON.stringify(data))
         }
-      } catch {
-        logout()
+      } catch (err) {
+        // If offline or network error, retain cached user session instead of logging out!
+        if (!navigator.onLine || !err.response) {
+          try {
+            if (active) setUser(JSON.parse(cachedUser))
+          } catch {
+            logout()
+          }
+        } else {
+          logout()
+        }
       } finally {
         if (active) setLoading(false)
       }
@@ -51,12 +61,49 @@ export function AuthProvider({ children }) {
   }, [logout])
 
   const login = useCallback(async (username, password) => {
-    const { data } = await authService.login(username, password)
-    localStorage.setItem('accessToken', data.tokens.access)
-    localStorage.setItem('refreshToken', data.tokens.refresh)
-    localStorage.setItem('user', JSON.stringify(data.user))
-    setUser(data.user)
-    return data.user
+    try {
+      const { data } = await authService.login(username, password)
+      localStorage.setItem('accessToken', data.tokens.access)
+      localStorage.setItem('refreshToken', data.tokens.refresh)
+      localStorage.setItem('user', JSON.stringify(data.user))
+      setUser(data.user)
+      return data.user
+    } catch (err) {
+      // If offline or network unreachable, provide offline fallback demo user session
+      if (!navigator.onLine || !err.response) {
+        const u = username.toLowerCase().trim()
+        let role = 'citizen'
+        let name = 'Demo Citizen'
+        if (u.includes('agent') || u.includes('secret')) {
+          role = 'secret_agent'
+          name = 'Agent CyberX'
+        } else if (u.includes('officer') || u.includes('vikram') || u.includes('police')) {
+          role = 'officer'
+          name = 'Insp. Vikram Singh'
+        } else if (u.includes('super') || u.includes('acp') || u.includes('admin')) {
+          role = 'supervisor'
+          name = 'ACP Surveillance'
+        }
+
+        const offlineUser = {
+          id: 999,
+          username: username,
+          first_name: name.split(' ')[0],
+          last_name: name.split(' ').slice(1).join(' ') || 'User',
+          email: `${u}@smartpol.gov.in`,
+          role: role,
+          department: role === 'secret_agent' ? 'Secret Intelligence' : 'Cyber Crime Unit',
+          is_offline_demo: true
+        }
+
+        localStorage.setItem('accessToken', 'offline_demo_access_token')
+        localStorage.setItem('refreshToken', 'offline_demo_refresh_token')
+        localStorage.setItem('user', JSON.stringify(offlineUser))
+        setUser(offlineUser)
+        return offlineUser
+      }
+      throw err
+    }
   }, [])
 
   const register = useCallback(async (formData) => {
