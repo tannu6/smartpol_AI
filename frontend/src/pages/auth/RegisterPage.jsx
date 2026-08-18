@@ -193,7 +193,7 @@ export default function RegisterPage() {
             </div>
 
             {/* Officer Registration: Station & Cyber Cell Selection */}
-            {(selectedRole === 'officer' || selectedRole === 'supervisor') && (
+            {selectedRole === 'officer' && (
               <>
                 <div>
                   <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">
@@ -239,10 +239,30 @@ export default function RegisterPage() {
                 </div>
 
                 <Field 
-                  label="Tactical Badge ID" 
+                  label="Officer Badge ID" 
                   icon="badge" 
                   placeholder="e.g. AHM-OFC-4092"
-                  register={register('badge_id', { required: "Badge ID is required for tactical officers" })} 
+                  register={register('badge_id', { required: "Badge ID is required for officers" })} 
+                  error={errors.badge_id} 
+                />
+              </>
+            )}
+
+            {/* Supervisor Registration: Unrestricted City-Wide Access */}
+            {selectedRole === 'supervisor' && (
+              <>
+                <div className="p-3.5 rounded-lg bg-primary/10 border border-primary/20 flex items-start gap-2.5">
+                  <span className="material-symbols-outlined text-primary text-xl flex-shrink-0 mt-0.5">verified_user</span>
+                  <div className="text-xs text-on-surface-variant">
+                    <p className="font-bold text-primary mb-0.5">City-Wide Supervisor Authority</p>
+                    <p>Supervisors hold full command authority over all Ahmedabad police stations, cyber cells, analytics, and officer assignments without location restrictions.</p>
+                  </div>
+                </div>
+                <Field 
+                  label="Supervisor Badge ID" 
+                  icon="badge" 
+                  placeholder="e.g. SUP-AHM-001"
+                  register={register('badge_id', { required: "Supervisor Badge ID is required" })} 
                   error={errors.badge_id} 
                 />
               </>
