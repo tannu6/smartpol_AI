@@ -4,3 +4,6 @@
 *.sqlite3
 db.sqlite3
 backend/media/
+__pycache__/
+*.pyc
+

@@ -94,12 +94,49 @@ class EvidenceSerializer(serializers.ModelSerializer):
                   'is_deepfake', 'deepfake_score', 'deepfake_analysis']
 
 
+class CaseTaskSerializer(serializers.ModelSerializer):
+    assigned_to_name = serializers.CharField(source='assigned_to.get_full_name', read_only=True, default='')
+    created_by_name = serializers.CharField(source='created_by.get_full_name', read_only=True, default='')
+
+    class Meta:
+        from .models import CaseTask
+        model = CaseTask
+        fields = '__all__'
+
+
+class CaseNoteSerializer(serializers.ModelSerializer):
+    officer_name = serializers.CharField(source='officer.get_full_name', read_only=True, default='System')
+
+    class Meta:
+        from .models import CaseNote
+        model = CaseNote
+        fields = '__all__'
+
+
+class CanonicalEntitySerializer(serializers.ModelSerializer):
+    class Meta:
+        from .models import CanonicalEntity
+        model = CanonicalEntity
+        fields = '__all__'
+
+
+class EntityRelationSerializer(serializers.ModelSerializer):
+    verified_by_name = serializers.CharField(source='verified_by.get_full_name', read_only=True, default='')
+
+    class Meta:
+        from .models import EntityRelation
+        model = EntityRelation
+        fields = '__all__'
+
+
 class ComplaintSerializer(serializers.ModelSerializer):
     citizen_name = serializers.CharField(source='citizen.get_full_name', read_only=True)
     officer_name = serializers.CharField(source='assigned_officer.get_full_name', read_only=True, default='')
     station_name = serializers.CharField(source='assigned_station.name', read_only=True, default='')
     timeline = ComplaintTimelineSerializer(many=True, read_only=True)
     evidence = EvidenceSerializer(many=True, read_only=True)
+    tasks = CaseTaskSerializer(many=True, read_only=True)
+    diary_notes = CaseNoteSerializer(many=True, read_only=True)
 
     class Meta:
         model = Complaint

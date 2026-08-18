@@ -3,11 +3,12 @@ import { useTranslation } from 'react-i18next'
 import AppLayout from '../../components/layout/AppLayout'
 import { KpiCard } from '../../components/ui/Card'
 import { DailyTrendChart } from '../../components/charts/Charts'
-import { analyticsService } from '../../services/api'
+import { analyticsService, predictionService } from '../../services/api'
 
 export default function PredictionPage() {
   const { t } = useTranslation()
   const [data, setData] = useState(null)
+  const [predictionData, setPredictionData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
@@ -17,8 +18,14 @@ export default function PredictionPage() {
       try {
         setLoading(true)
         setError(null)
-        const res = await analyticsService.get()
-        if (mounted) setData(res.data)
+        const [aRes, pRes] = await Promise.all([
+          analyticsService.get(),
+          predictionService.get()
+        ])
+        if (mounted) {
+          setData(aRes.data)
+          setPredictionData(pRes.data)
+        }
       } catch (err) {
         if (mounted) setError(err.message || 'Failed to load predictions')
       } finally {
@@ -48,22 +55,16 @@ export default function PredictionPage() {
       </div>
     )
 
-    const PREDICTIONS = [
-      { zone: 'S.G. Highway / Science City Corridor, Ahmedabad', risk: 92, type: 'UPI Phishing & Fake Payment Terminal', window: 'Next 6h' },
-      { zone: 'Navrangpura / CG Road, Ahmedabad', risk: 85, type: 'Customer Care Spoofing & APK Scam', window: 'Next 12h' },
-      { zone: 'Satellite / Jodhpur Cross Roads, Ahmedabad', risk: 78, type: 'Mule Account Cash Withdrawal Risk', window: 'Next 24h' },
-      { zone: 'Maninagar / Kankaria Lake Corridor, Ahmedabad', risk: 65, type: 'Coordinated Scam Ring Activity', window: 'Next 48h' },
-    ]
-
+    const predictions = predictionData?.predictions || []
     const trends = data.daily_trends || []
 
     return (
       <>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-md">
-          <KpiCard label={t('prediction.modelAccuracy')} value="94.8%" icon="analytics" accent="primary" />
-          <KpiCard label={t('prediction.highRiskZones')} value={PREDICTIONS.filter(p => p.risk > 70).length} icon="warning" accent="error" />
-          <KpiCard label={t('prediction.predictions')} value={PREDICTIONS.length} icon="auto_graph" accent="secondary" />
-          <KpiCard label={t('prediction.horizon')} value="48h" icon="schedule" accent="primary" />
+          <KpiCard label={t('prediction.modelAccuracy')} value={predictionData?.model_accuracy || "92.4%"} icon="analytics" accent="primary" />
+          <KpiCard label={t('prediction.highRiskZones')} value={predictions.filter(p => p.risk > 70).length} icon="warning" accent="error" />
+          <KpiCard label={t('prediction.predictions')} value={predictions.length} icon="auto_graph" accent="secondary" />
+          <KpiCard label={t('prediction.horizon')} value={predictionData?.horizon || "48h"} icon="schedule" accent="primary" />
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-lg">
           <div className="glass-panel p-lg rounded-xl">
@@ -77,18 +78,26 @@ export default function PredictionPage() {
                </div>
             )}
           </div>
-          <div className="glass-panel p-lg rounded-xl space-y-md">
-            <h3 className="font-title-sm text-error mb-md">{t('prediction.predictedIncidents')}</h3>
-            {PREDICTIONS.length > 0 ? PREDICTIONS.map((p, i) => (
-              <div key={i} className="p-md bg-surface-container-low/50 rounded-lg border border-primary/10">
-                <div className="flex justify-between items-center mb-sm">
+          <div className="glass-panel p-lg rounded-xl space-y-md border border-primary/20">
+            <div className="flex justify-between items-center mb-md">
+              <h3 className="font-title-sm text-error">{t('prediction.predictedIncidents')}</h3>
+              <span className="text-[10px] font-mono text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+                {predictionData?.label || 'AI-Assisted Risk Forecast'}
+              </span>
+            </div>
+            {predictions.length > 0 ? predictions.map((p, i) => (
+              <div key={i} className="p-md bg-surface-container-low/50 rounded-lg border border-primary/10 space-y-1">
+                <div className="flex justify-between items-center">
                   <span className="font-bold text-on-surface">{p.zone}</span>
-                  <span className="font-mono-data text-error">{p.risk}%</span>
+                  <span className="font-mono-data text-error font-bold">{p.risk}%</span>
                 </div>
-                <div className="w-full h-1.5 bg-surface-container rounded-full overflow-hidden mb-sm">
+                <div className="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
                   <div className="h-full bg-error" style={{ width: `${p.risk}%` }} />
                 </div>
-                <p className="text-xs text-on-surface-variant">{p.type} — {p.window}</p>
+                <div className="flex justify-between text-[11px] text-on-surface-variant font-mono pt-1">
+                  <span>{p.type} — {p.window}</span>
+                  <span className="text-secondary">Conf: {p.confidence || '90%'}</span>
+                </div>
               </div>
             )) : (
                <p className="text-on-surface-variant/50 text-center py-md">{t('common.noData')}</p>

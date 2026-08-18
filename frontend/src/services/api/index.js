@@ -99,3 +99,30 @@ export const operationService = {
   list: () => api.get('/operations/'),
   create: (data) => api.post('/operations/', data),
 }
+
+export const taskService = {
+  list: (complaintId) => api.get('/tasks/', { params: complaintId ? { complaint_id: complaintId } : {} }),
+  create: (data) => api.post('/tasks/', data),
+  update: (id, data) => api.patch(`/tasks/${id}/`, data),
+}
+
+export const diaryService = {
+  list: (complaintId) => api.get('/diary/', { params: complaintId ? { complaint_id: complaintId } : {} }),
+  create: (data) => api.post('/diary/', data),
+}
+
+export const relatedCasesService = {
+  get: (complaintId) => api.get(`/complaints/${complaintId}/related/`),
+}
+
+export const predictionService = {
+  get: (params) => api.get('/predictions/', { params }),
+}
+
+export const pdfReportService = {
+  getPdfUrl: (complaintId) => {
+    const baseURL = api.defaults.baseURL || '/api/v1'
+    return `${baseURL}/complaints/${complaintId}/pdf-report/`
+  }
+}
+

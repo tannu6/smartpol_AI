@@ -98,29 +98,38 @@ export default function WarRoomPage() {
     return (
       <>
         {/* Coordinated Scam Pattern Banner */}
-        <div className="p-4 rounded-xl bg-gradient-to-r from-red-950/80 via-slate-900 to-amber-950/80 border border-red-500/40 shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-full bg-red-500 animate-ping" />
-              <span className="font-bold text-red-400 text-sm tracking-wider uppercase">POSSIBLE COORDINATED SCAM PATTERN DETECTED</span>
-              <span className="px-2 py-0.5 rounded bg-red-500/20 text-red-300 font-mono text-[10px] border border-red-500/30">
-                Confidence: 94%
-              </span>
+        {(() => {
+          const totalExposure = muleAlerts.reduce((acc, m) => acc + (parseFloat(m.total_amount) || 0), 0)
+          const activeLocalities = Array.from(new Set(incidents.map(i => i.locality || i.location).filter(Boolean))).slice(0, 3)
+          const locString = activeLocalities.length > 0 ? activeLocalities.join(', ') : 'Navrangpura, Satellite, Vastrapur'
+          return (
+            <div className="p-4 rounded-xl bg-gradient-to-r from-red-950/80 via-slate-900 to-amber-950/80 border border-red-500/40 shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 rounded-full bg-red-500 animate-ping" />
+                  <span className="font-bold text-red-400 text-sm tracking-wider uppercase">POSSIBLE COORDINATED SCAM PATTERN DETECTED</span>
+                  <span className="px-2 py-0.5 rounded bg-red-500/20 text-red-300 font-mono text-[10px] border border-red-500/30">
+                    Confidence: 94%
+                  </span>
+                </div>
+                <p className="text-xs text-slate-300 font-mono">
+                  Multiple UPI & Cyber Crime complaints linked to shared entity clusters across <strong className="text-white">{locString}</strong>.
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="text-right font-mono">
+                  <span className="text-[10px] text-slate-400 block">Est. Financial Exposure</span>
+                  <span className="text-lg font-bold text-amber-400">
+                    {totalExposure > 0 ? `₹${totalExposure.toLocaleString('en-IN')}` : '₹8,45,000'}
+                  </span>
+                </div>
+                <span className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold text-xs uppercase cursor-pointer transition-all shadow-md">
+                  Inspect Scam DNA Cluster
+                </span>
+              </div>
             </div>
-            <p className="text-xs text-slate-300 font-mono">
-              Multiple UPI & Fake Customer Care complaints linked to shared entity clusters across <strong className="text-white">Navrangpura, Satellite, and Vastrapur</strong>.
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="text-right font-mono">
-              <span className="text-[10px] text-slate-400 block">Est. Financial Exposure</span>
-              <span className="text-lg font-bold text-amber-400">₹8,45,000</span>
-            </div>
-            <span className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold text-xs uppercase cursor-pointer transition-all shadow-md">
-              Inspect Scam DNA Cluster
-            </span>
-          </div>
-        </div>
+          )
+        })()}
 
         {/* Intelligence Top Metrics */}
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-md">

@@ -6,30 +6,152 @@ import toast from 'react-hot-toast'
 import AppLayout from '../../components/layout/AppLayout'
 import { KpiCard } from '../../components/ui/Card'
 import { DataTable } from '../../components/ui/DataTable'
-import { complaintService } from '../../services/api'
+import SuspectNetworkGraph from '../../components/charts/SuspectNetworkGraph'
+import { 
+  complaintService, taskService, diaryService, 
+  relatedCasesService, pdfReportService, suspectService 
+} from '../../services/api'
 
 export default function ComplaintDetailsPage() {
   const { t } = useTranslation()
   const { id } = useParams()
   const { setDispatchModalOpen } = useApp()
+
   const [complaint, setComplaint] = useState(null)
   const [loading, setLoading] = useState(true)
   const [errorMsg, setErrorMsg] = useState('')
+  const [activeTab, setActiveTab] = useState('overview')
+
+  // Workflow State Machine & Case Close
   const [isCloseModalOpen, setIsCloseModalOpen] = useState(false)
   const [closureOutcome, setClosureOutcome] = useState('chargesheet')
   const [closureNotes, setClosureNotes] = useState('')
   const [courtRef, setCourtRef] = useState('')
   const [submittingClose, setSubmittingClose] = useState(false)
+  const [updatingStatus, setUpdatingStatus] = useState(false)
+
+  // Tasks State
+  const [tasks, setTasks] = useState([])
+  const [newTaskTitle, setNewTaskTitle] = useState('')
+  const [newTaskPriority, setNewTaskPriority] = useState('medium')
+  const [submittingTask, setSubmittingTask] = useState(false)
+
+  // Case Diary Notes State
+  const [notes, setNotes] = useState([])
+  const [newNoteBody, setNewNoteBody] = useState('')
+  const [newNoteType, setNewNoteType] = useState('investigation')
+  const [submittingNote, setSubmittingNote] = useState(false)
+
+  // Related Cases State
+  const [relatedCases, setRelatedCases] = useState([])
+  const [loadingRelated, setLoadingRelated] = useState(false)
+
+  // Network Graph State
+  const [graphData, setGraphData] = useState(null)
+
+  const loadCaseData = async () => {
+    if (!id) return
+    try {
+      setLoading(true)
+      const { data } = await complaintService.get(id)
+      setComplaint(data)
+      setTasks(data.tasks || [])
+      setNotes(data.diary_notes || [])
+
+      // Fetch related cases
+      relatedCasesService.get(id)
+        .then(({ data: relData }) => setRelatedCases(relData.related_cases || []))
+        .catch(() => {})
+
+      // Fetch suspect graph
+      suspectService.getGraph()
+        .then(({ data: gData }) => setGraphData(gData))
+        .catch(() => {})
+
+    } catch (err) {
+      setErrorMsg(t('common.error_occurred', 'Failed to load case file.'))
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    if (id) {
-      complaintService.get(id)
-        .then(({ data }) => setComplaint(data))
-        .catch(() => setErrorMsg(t('common.error_occurred', 'Failed to load case file.')))
-        .finally(() => setLoading(false))
-    }
+    loadCaseData()
   }, [id])
 
+  // Workflow status step update
+  const handleStatusStep = async (nextStatus) => {
+    setUpdatingStatus(true)
+    try {
+      const { data } = await complaintService.update(id, { status: nextStatus })
+      setComplaint(data)
+      toast.success(`Case status advanced to ${nextStatus.replace('_', ' ').toUpperCase()}`)
+    } catch (err) {
+      const msg = err.response?.data?.detail || "Invalid status transition."
+      toast.error(msg)
+    } finally {
+      setUpdatingStatus(false)
+    }
+  }
+
+  // Task creation
+  const handleCreateTask = async (e) => {
+    e.preventDefault()
+    if (!newTaskTitle.trim()) return
+    setSubmittingTask(true)
+    try {
+      const { data: created } = await taskService.create({
+        complaint: complaint.id,
+        title: newTaskTitle,
+        priority: newTaskPriority,
+        status: 'todo'
+      })
+      setTasks(prev => [created, ...prev])
+      setNewTaskTitle('')
+      toast.success('Investigation task added.')
+    } catch (err) {
+      toast.error('Failed to create task.')
+    } finally {
+      setSubmittingTask(false)
+    }
+  }
+
+  const handleToggleTaskStatus = async (taskObj) => {
+    const nextStatus = taskObj.status === 'completed' ? 'todo' : 'completed'
+    try {
+      const { data: updated } = await taskService.update(taskObj.id, {
+        status: nextStatus,
+        completed_at: nextStatus === 'completed' ? new Date().toISOString() : null
+      })
+      setTasks(prev => prev.map(t => t.id === updated.id ? updated : t))
+      toast.success(`Task marked as ${nextStatus.toUpperCase()}`)
+    } catch (err) {
+      toast.error('Failed to update task status.')
+    }
+  }
+
+  // Case Diary Note creation
+  const handleAddDiaryNote = async (e) => {
+    e.preventDefault()
+    if (!newNoteBody.trim()) return
+    setSubmittingNote(true)
+    try {
+      const { data: created } = await diaryService.create({
+        complaint: complaint.id,
+        note: newNoteBody,
+        note_type: newNoteType
+      })
+      setNotes(prev => [...prev, created])
+      setNewNoteBody('')
+      toast.success('Official Case Diary entry recorded.')
+    } catch (err) {
+      toast.error('Failed to log diary entry.')
+    } finally {
+      setSubmittingNote(false)
+    }
+  }
+
+  // Formal case closure
   const handleFormalCaseClose = async () => {
     if (!closureNotes.trim()) {
       toast.error('Investigation closure summary is required.')
@@ -38,28 +160,14 @@ export default function ComplaintDetailsPage() {
     setSubmittingClose(true)
     try {
       const formattedNote = `[FORMAL CASE CLOSURE] Outcome: ${closureOutcome.toUpperCase()} | Court Ref: ${courtRef || 'N/A'} | Remarks: ${closureNotes}`
-      await complaintService.update(id, {
+      const { data } = await complaintService.update(id, {
         status: 'closed',
         note: formattedNote
       })
-      setComplaint(prev => ({ 
-        ...prev, 
-        status: 'closed',
-        timeline: [
-          ...(prev.timeline || []),
-          {
-            id: Date.now(),
-            event: `Case Closed: ${closureOutcome.replace('_', ' ').toUpperCase()}`,
-            description: formattedNote,
-            actor_name: 'Investigating Officer',
-            created_at: new Date().toISOString()
-          }
-        ]
-      }))
+      setComplaint(data)
       toast.success("Case formally resolved and closed.")
       setIsCloseModalOpen(false)
     } catch (err) {
-      console.error(err)
       toast.error(err.response?.data?.detail || "Failed to close case.")
     } finally {
       setSubmittingClose(false)
@@ -68,7 +176,7 @@ export default function ComplaintDetailsPage() {
 
   if (loading) {
     return (
-      <AppLayout title="SmartPol AI" subtitle={t('complaintDetails.subtitle', 'Case Details')}>
+      <AppLayout title="SmartPol AI" subtitle="Investigator Cockpit">
         <div className="flex-1 p-lg flex items-center justify-center min-h-[300px]">
           <span className="material-symbols-outlined text-4xl text-primary animate-spin">refresh</span>
         </div>
@@ -78,154 +186,412 @@ export default function ComplaintDetailsPage() {
 
   if (errorMsg || !complaint) {
     return (
-      <AppLayout title="SmartPol AI" subtitle={t('complaintDetails.subtitle', 'Case Details')}>
+      <AppLayout title="SmartPol AI" subtitle="Investigator Cockpit">
         <div className="p-xl text-center flex flex-col items-center gap-4 text-error">
           <span className="material-symbols-outlined text-6xl">error</span>
-          <p className="font-mono-data">{errorMsg || t('complaintDetails.notFound', 'Case not found.')}</p>
+          <p className="font-mono-data">{errorMsg || 'Case file not found.'}</p>
         </div>
       </AppLayout>
     )
   }
 
+  const pdfUrl = pdfReportService.getPdfUrl(complaint.id)
+
+  const WORKFLOW_STEPS = [
+    { key: 'new', label: 'NEW' },
+    { key: 'triaged', label: 'TRIAGED' },
+    { key: 'assigned', label: 'ASSIGNED' },
+    { key: 'under_investigation', label: 'INVESTIGATING' },
+    { key: 'evidence_review', label: 'EVIDENCE REVIEW' },
+    { key: 'supervisor_review', label: 'SUPERVISOR REVIEW' },
+    { key: 'closed', label: 'CLOSED' },
+  ]
+
+  const currentStepIndex = WORKFLOW_STEPS.findIndex(s => s.key === complaint.status || (complaint.status === 'investigating' && s.key === 'under_investigation') || (complaint.status === 'pending' && s.key === 'new'))
+
   return (
-    <AppLayout title="SmartPol AI" subtitle={t('complaintDetails.subtitle', 'Case Details')}>
+    <AppLayout title="SmartPol AI" subtitle={`Investigator Cockpit — ${complaint.complaint_id}`}>
       <div className="p-lg space-y-lg">
-        <div className="flex flex-wrap items-center justify-between gap-md">
+        {/* Case Header Banner */}
+        <div className="flex flex-wrap items-center justify-between gap-md p-md rounded-xl bg-slate-900/90 border border-primary/30 shadow-2xl">
           <div>
-            <h2 className="font-display-lg-mobile text-primary">{complaint.title}</h2>
-            <p className="font-mono-data text-secondary">{complaint.complaint_id}</p>
+            <div className="flex items-center gap-3">
+              <h2 className="font-bold text-xl text-primary">{complaint.title}</h2>
+              <span className="px-2.5 py-0.5 rounded bg-secondary/10 border border-secondary/30 text-secondary font-mono text-xs font-bold">
+                {complaint.complaint_id}
+              </span>
+            </div>
+            <p className="text-xs text-slate-300 font-mono mt-1">
+              Category: <strong className="text-white">{complaint.category}</strong> | District: <strong className="text-white">{complaint.district || 'Ahmedabad'}</strong> | Station: <strong className="text-blue-400">{complaint.station_name || 'Mithakhali Cyber Cell'}</strong>
+            </p>
           </div>
+
           <div className="flex flex-wrap gap-sm">
+            <a
+              href={pdfUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-sm px-md py-sm bg-primary text-on-primary font-bold text-xs uppercase tracking-wider rounded hover:brightness-110 shadow-lg cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-base">download</span> Official Investigation Report (PDF)
+            </a>
             <button
               onClick={() => setDispatchModalOpen(true)}
-              className="flex items-center gap-sm px-lg py-sm bg-error/20 text-error border border-error/40 hover:bg-error/30 font-bold text-xs tracking-widest uppercase transition-colors cursor-pointer"
+              className="flex items-center gap-sm px-md py-sm bg-error/20 text-error border border-error/40 hover:bg-error/30 font-bold text-xs uppercase tracking-wider rounded transition-colors cursor-pointer"
             >
-              <span className="material-symbols-outlined text-lg">emergency</span> Dispatch Unit
+              <span className="material-symbols-outlined text-base">emergency</span> Dispatch Unit
             </button>
-            {complaint.status !== 'closed' && complaint.status !== 'resolved' && (
+            {complaint.status !== 'closed' && (
               <button 
                 onClick={() => setIsCloseModalOpen(true)} 
-                className="flex items-center gap-sm px-lg py-sm border border-secondary text-secondary hover:bg-secondary/10 font-bold text-xs tracking-widest uppercase transition-colors cursor-pointer"
+                className="flex items-center gap-sm px-md py-sm border border-secondary text-secondary hover:bg-secondary/10 font-bold text-xs uppercase tracking-wider rounded transition-colors cursor-pointer"
               >
-                <span className="material-symbols-outlined text-lg">check_circle</span> Close Case
+                <span className="material-symbols-outlined text-base">check_circle</span> Formally Close Case
               </button>
             )}
-            <Link to="/officer/investigation" className="flex items-center gap-sm px-lg py-sm bg-primary text-on-primary font-bold text-xs tracking-widest uppercase">
-              <span className="material-symbols-outlined text-lg">psychology</span> {t('complaintDetails.runAI', 'Run AI Analysis')}
-            </Link>
           </div>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-md">
-          <KpiCard label={t('complaintDetails.status', 'Status')} value={complaint.status?.toUpperCase()} icon="info" accent="secondary" />
-          <KpiCard label={t('complaintDetails.urgency', 'Urgency')} value={`${(complaint.urgency_score * 100).toFixed(0)}%`} icon="speed" accent="error" />
-          <KpiCard label={t('complaintDetails.readiness', 'Readiness')} value={`${(complaint.readiness_score * 100).toFixed(0)}%`} icon="fact_check" accent="primary" />
-          <KpiCard label={t('complaintDetails.fraudClass', 'Fraud Class')} value={complaint.fraud_classification || 'N/A'} icon="gavel" accent="secondary" />
-        </div>
-        <div className="glass-panel p-lg rounded-xl">
-          <h3 className="font-title-sm text-on-surface mb-md">{t('complaintDetails.description', 'Description')}</h3>
-          <p className="text-on-surface-variant">{complaint.description}</p>
-          <div className="mt-md flex flex-wrap gap-md text-sm font-mono-data text-on-surface-variant">
-            <span>{t('complaintDetails.location', 'Location')}: {complaint.location || 'Unknown'}</span>
-            <span>{t('complaintDetails.category', 'Category')}: {complaint.category}</span>
-            <span>{t('complaintDetails.citizen', 'Citizen')}: {complaint.citizen_name}</span>
-          </div>
-        </div>
-        {complaint.entities_extracted && Object.keys(complaint.entities_extracted).length > 0 && (
-          <div className="glass-panel p-lg rounded-xl">
-            <h3 className="font-title-sm text-secondary mb-md">{t('complaintDetails.entities', 'Extracted Entities')}</h3>
-            <pre className="text-xs font-mono-data text-on-surface-variant overflow-x-auto">{JSON.stringify(complaint.entities_extracted, null, 2)}</pre>
-          </div>
-        )}
-        <div className="glass-panel rounded-xl overflow-hidden">
-          <div className="px-lg py-md border-b border-outline-variant/10"><h3 className="font-title-sm text-primary">{t('complaintDetails.evidenceVault', 'Evidence Vault')}</h3></div>
-          <DataTable
-            columns={[
-              { key: 'file_name', label: t('complaintDetails.evidence.file', 'File') },
-              { key: 'file_type', label: t('complaintDetails.evidence.type', 'Type') },
-              { key: 'forensics', label: 'Forensics Check', render: (r) => {
-                  if (!r.deepfake_analysis || Object.keys(r.deepfake_analysis).length === 0) return <span className="text-secondary text-xs font-mono-data opacity-50">Pending</span>;
-                  const a = r.deepfake_analysis;
-                  return (
-                    <div className={`text-xs px-2 py-1 rounded w-max font-bold ${a.is_deepfake ? 'bg-error/20 text-error border border-error/50 animate-pulse' : 'bg-primary/10 text-primary'}`}>
-                      {a.is_deepfake ? '🚨 Deepfake Flagged' : '✅ Authentic'} ({(a.confidence_score * 100).toFixed(0)}%)
-                      {a.is_deepfake && <p className="text-[9px] font-normal mt-1 opacity-80 max-w-[150px]">{a.anomalies_detected?.[0]}</p>}
-                    </div>
-                  );
-              } },
-              { key: 'hash_value', label: t('complaintDetails.evidence.hash', 'Hash'), render: (r) => <span className="font-mono-data text-xs">{r.hash_value?.slice(0, 12)}...</span> },
-              { key: 'uploaded_by_name', label: t('complaintDetails.evidence.uploadedBy', 'Uploaded By') },
-            ]}
-            data={complaint.evidence || []}
-          />
-        </div>
-      </div>
 
-      {/* Case Resolution & Closure Modal */}
-      {isCloseModalOpen && (
-        <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
-          <div className="bg-surface-container-high border border-secondary/30 rounded-xl w-full max-w-lg flex flex-col shadow-2xl overflow-hidden">
-            <div className="p-md border-b border-white/10 flex justify-between items-center bg-surface-container-highest">
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-secondary text-2xl">gavel</span>
-                <h3 className="font-bold text-on-surface text-base">Formal Case Resolution & Closure</h3>
-              </div>
-              <button onClick={() => setIsCloseModalOpen(false)} className="text-on-surface-variant hover:text-on-surface p-1">
-                <span className="material-symbols-outlined">close</span>
-              </button>
+        {/* Controlled State Machine Workflow Bar */}
+        <div className="p-md rounded-xl bg-slate-950/90 border border-white/10 space-y-sm font-mono">
+          <div className="flex justify-between items-center text-xs">
+            <span className="text-slate-400 font-bold uppercase text-[10px]">Controlled Workflow Pipeline</span>
+            <span className="text-secondary font-bold">Current Stage: {complaint.status?.replace('_', ' ').toUpperCase()}</span>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 pt-1">
+            {WORKFLOW_STEPS.map((step, i) => {
+              const isCurrent = step.key === complaint.status || (complaint.status === 'investigating' && step.key === 'under_investigation')
+              const isPast = i < currentStepIndex
+              return (
+                <button
+                  key={step.key}
+                  disabled={updatingStatus || isCurrent}
+                  onClick={() => handleStatusStep(step.key)}
+                  className={`p-2 rounded text-center text-[10px] font-bold tracking-wider transition-all cursor-pointer border ${
+                    isCurrent 
+                      ? 'bg-primary text-white border-primary shadow-[0_0_10px_rgba(37,99,235,0.5)]' 
+                      : isPast 
+                      ? 'bg-emerald-950/40 text-emerald-400 border-emerald-500/30' 
+                      : 'bg-slate-900 text-slate-400 border-white/5 hover:border-white/20'
+                  }`}
+                >
+                  {step.label}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Cockpit Navigation Tabs */}
+        <div className="flex flex-wrap border-b border-white/10 text-xs font-mono">
+          {[
+            { id: 'overview', label: 'OVERVIEW & AI TRIAGE', icon: 'dashboard' },
+            { id: 'tasks', label: `TASKS (${tasks.length})`, icon: 'task_alt' },
+            { id: 'diary', label: `CASE DIARY (${notes.length})`, icon: 'menu_book' },
+            { id: 'evidence', label: `EVIDENCE (${complaint.evidence?.length || 0})`, icon: 'inventory_2' },
+            { id: 'graph', label: 'NETWORK GRAPH', icon: 'hub' },
+            { id: 'related', label: `RELATED CASES (${relatedCases.length})`, icon: 'compare_arrows' },
+            { id: 'timeline', label: 'TIMELINE', icon: 'timeline' },
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-4 py-3 flex items-center gap-2 font-bold tracking-wider transition-colors cursor-pointer border-b-2 ${
+                activeTab === tab.id 
+                  ? 'border-primary text-primary bg-primary/5' 
+                  : 'border-transparent text-slate-400 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <span className="material-symbols-outlined text-sm">{tab.icon}</span>
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Tab 1: Overview & AI Triage */}
+        {activeTab === 'overview' && (
+          <div className="space-y-lg">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-md">
+              <KpiCard label="URGENCY SCORE" value={`${(complaint.urgency_score * 100).toFixed(0)}%`} icon="speed" accent="error" />
+              <KpiCard label="CASE READINESS" value={`${(complaint.readiness_score * 100).toFixed(0)}%`} icon="fact_check" accent="primary" />
+              <KpiCard label="FRAUD CLASSIFICATION" value={complaint.fraud_classification || 'General'} icon="gavel" accent="secondary" />
+              <KpiCard label="GOLDEN HOUR STATUS" value={complaint.urgency_score >= 0.7 ? 'ACTIVE' : 'STANDARD'} icon="timer" accent={complaint.urgency_score >= 0.7 ? 'error' : 'secondary'} />
             </div>
 
-            <div className="p-lg space-y-md text-xs font-mono">
-              <div>
-                <label className="block text-slate-400 mb-1 uppercase font-bold text-[10px]">Select Investigation Outcome</label>
-                <select 
-                  value={closureOutcome} 
-                  onChange={e => setClosureOutcome(e.target.value)}
-                  className="w-full bg-slate-900 border border-white/10 rounded p-2 text-white"
-                >
-                  <option value="chargesheet">Charge-Sheet Filed in Court</option>
-                  <option value="accused_arrested">Accused Arrested & Sent to Judicial Custody</option>
-                  <option value="evidence_verified">Forensic Evidence Verified & Case Solved</option>
-                  <option value="untraced_closed">Final Report / Untraced Submitted</option>
-                </select>
+            <div className="glass-panel p-lg rounded-xl space-y-md border border-primary/20">
+              <h3 className="font-title-sm text-on-surface">Incident Description Statement</h3>
+              <p className="text-on-surface-variant text-sm leading-relaxed">{complaint.description}</p>
+              <div className="mt-md flex flex-wrap gap-md text-xs font-mono text-slate-400 pt-sm border-t border-white/10">
+                <span>Location: <strong className="text-white">{complaint.locality || complaint.location || 'Unknown'}</strong></span>
+                <span>Citizen: <strong className="text-white">{complaint.citizen_name}</strong></span>
+                <span>Created: <strong className="text-white">{new Date(complaint.created_at).toLocaleString()}</strong></span>
               </div>
+            </div>
 
-              <div>
-                <label className="block text-slate-400 mb-1 uppercase font-bold text-[10px]">Court / Charge-Sheet Reference Number (Optional)</label>
-                <input 
+            {complaint.assignment_explanation && (
+              <div className="p-md rounded-xl bg-blue-950/40 border border-blue-500/30 text-xs font-mono space-y-1">
+                <span className="font-bold text-blue-400 block uppercase">Automated Station & Officer Routing Explanation:</span>
+                <pre className="whitespace-pre-wrap text-slate-300 leading-relaxed">{complaint.assignment_explanation}</pre>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Tab 2: Investigation Tasks */}
+        {activeTab === 'tasks' && (
+          <div className="space-y-lg">
+            <form onSubmit={handleCreateTask} className="glass-panel p-md rounded-xl space-y-md border border-primary/20">
+              <h3 className="font-title-sm text-secondary">Create Investigation Task</h3>
+              <div className="flex flex-col sm:flex-row gap-md">
+                <input
                   type="text"
-                  placeholder="e.g. CS-2026-9812 / Metropolitan Court 4"
-                  value={courtRef}
-                  onChange={e => setCourtRef(e.target.value)}
-                  className="w-full bg-slate-900 border border-white/10 rounded p-2 text-white"
+                  placeholder="Enter task title (e.g. Request CDR records / Serve Section 91 notice)..."
+                  value={newTaskTitle}
+                  onChange={e => setNewTaskTitle(e.target.value)}
+                  className="flex-1 bg-slate-900 border border-white/10 rounded p-2 text-xs font-mono text-white placeholder:text-slate-500"
                 />
-              </div>
-
-              <div>
-                <label className="block text-slate-400 mb-1 uppercase font-bold text-[10px]">Investigation Closure Summary & Remarks *</label>
-                <textarea 
-                  rows={4}
-                  placeholder="Enter detailed investigation findings, evidence verified, and final resolution summary..."
-                  value={closureNotes}
-                  onChange={e => setClosureNotes(e.target.value)}
-                  className="w-full bg-slate-900 border border-white/10 rounded p-2 text-white"
-                />
-              </div>
-
-              <div className="flex justify-end gap-sm pt-sm">
-                <button 
-                  onClick={() => setIsCloseModalOpen(false)}
-                  className="px-md py-2 border border-white/10 text-slate-300 rounded hover:bg-white/5"
+                <select
+                  value={newTaskPriority}
+                  onChange={e => setNewTaskPriority(e.target.value)}
+                  className="bg-slate-900 border border-white/10 rounded p-2 text-xs font-mono text-white"
                 >
-                  Cancel
-                </button>
-                <button 
-                  onClick={handleFormalCaseClose}
-                  disabled={submittingClose || !closureNotes.trim()}
-                  className="px-md py-2 bg-secondary text-on-secondary font-bold uppercase rounded hover:brightness-110 disabled:opacity-50 cursor-pointer"
+                  <option value="low">Low Priority</option>
+                  <option value="medium">Medium Priority</option>
+                  <option value="high">High Priority</option>
+                  <option value="critical">Critical Priority</option>
+                </select>
+                <button
+                  type="submit"
+                  disabled={submittingTask || !newTaskTitle.trim()}
+                  className="px-lg py-2 bg-primary text-white font-bold text-xs uppercase rounded hover:brightness-110 disabled:opacity-50 cursor-pointer"
                 >
-                  {submittingClose ? 'Closing Case...' : 'Formally Submit & Close Case'}
+                  {submittingTask ? 'Adding...' : 'Add Task'}
                 </button>
               </div>
+            </form>
+
+            <div className="glass-panel rounded-xl overflow-hidden border border-primary/20">
+              <div className="p-md bg-slate-900/60 border-b border-white/10">
+                <h3 className="font-title-sm text-on-surface">Active Case Tasks Checklist ({tasks.length})</h3>
+              </div>
+              {tasks.length === 0 ? (
+                <div className="p-lg text-center text-slate-400 font-mono text-xs">No active tasks created yet.</div>
+              ) : (
+                <div className="divide-y divide-white/5 font-mono text-xs">
+                  {tasks.map(t => (
+                    <div key={t.id} className="p-md flex items-center justify-between gap-md hover:bg-white/5">
+                      <div className="flex items-center gap-md">
+                        <input
+                          type="checkbox"
+                          checked={t.status === 'completed'}
+                          onChange={() => handleToggleTaskStatus(t)}
+                          className="w-4 h-4 rounded accent-primary cursor-pointer"
+                        />
+                        <span className={`font-semibold ${t.status === 'completed' ? 'line-through text-slate-500' : 'text-white'}`}>
+                          {t.title}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-sm">
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${t.priority === 'critical' || t.priority === 'high' ? 'bg-red-500/20 text-red-400' : 'bg-slate-800 text-slate-300'}`}>
+                          {t.priority}
+                        </span>
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${t.status === 'completed' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`}>
+                          {t.status}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Tab 3: Case Diary (Audit Notes) */}
+        {activeTab === 'diary' && (
+          <div className="space-y-lg">
+            <form onSubmit={handleAddDiaryNote} className="glass-panel p-md rounded-xl space-y-md border border-primary/20">
+              <h3 className="font-title-sm text-secondary">Append Case Diary Entry</h3>
+              <div className="space-y-sm font-mono text-xs">
+                <div className="flex gap-md">
+                  <select
+                    value={newNoteType}
+                    onChange={e => setNewNoteType(e.target.value)}
+                    className="bg-slate-900 border border-white/10 rounded p-2 text-white"
+                  >
+                    <option value="investigation">Investigation Note</option>
+                    <option value="evidence">Evidence Forensic Note</option>
+                    <option value="financial">Financial / Bank Freeze Note</option>
+                    <option value="legal">Legal / Charge-Sheet Note</option>
+                    <option value="supervisor">Supervisor Directive</option>
+                    <option value="general">General Note</option>
+                  </select>
+                </div>
+                <textarea
+                  rows={3}
+                  placeholder="Type official case diary entry..."
+                  value={newNoteBody}
+                  onChange={e => setNewNoteBody(e.target.value)}
+                  className="w-full bg-slate-900 border border-white/10 rounded p-2 text-white"
+                />
+                <button
+                  type="submit"
+                  disabled={submittingNote || !newNoteBody.trim()}
+                  className="px-lg py-2 bg-secondary text-on-secondary font-bold text-xs uppercase rounded hover:brightness-110 disabled:opacity-50 cursor-pointer"
+                >
+                  {submittingNote ? 'Logging...' : 'Log Case Diary Entry'}
+                </button>
+              </div>
+            </form>
+
+            <div className="glass-panel p-md rounded-xl space-y-md border border-primary/20">
+              <h3 className="font-title-sm text-on-surface">Chronological Case Diary ({notes.length})</h3>
+              {notes.length === 0 ? (
+                <div className="p-lg text-center text-slate-400 font-mono text-xs">No case diary entries recorded.</div>
+              ) : (
+                <div className="space-y-sm font-mono text-xs">
+                  {notes.map((n, idx) => (
+                    <div key={n.id || idx} className="p-md bg-slate-900/60 rounded border border-white/5 space-y-1">
+                      <div className="flex justify-between items-center">
+                        <span className="font-bold text-secondary text-xs uppercase">{n.note_type} NOTE — {n.officer_name || 'Investigating Officer'}</span>
+                        <span className="text-[10px] text-slate-400">{new Date(n.timestamp).toLocaleString()}</span>
+                      </div>
+                      <p className="text-slate-200">{n.note}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Tab 4: Evidence Vault */}
+        {activeTab === 'evidence' && (
+          <div className="glass-panel rounded-xl overflow-hidden border border-primary/20">
+            <div className="p-md bg-slate-900/60 border-b border-white/10 flex justify-between items-center">
+              <h3 className="font-title-sm text-primary">Evidence Vault & Forensic Integrity Checks</h3>
+              <Link to="/citizen/evidence" className="px-3 py-1 bg-primary text-white text-xs font-bold uppercase rounded">Upload File</Link>
+            </div>
+            <DataTable
+              columns={[
+                { key: 'file_name', label: 'File Name' },
+                { key: 'file_type', label: 'Type' },
+                { key: 'forensics', label: 'Forensics Check', render: (r) => {
+                    if (!r.deepfake_analysis || Object.keys(r.deepfake_analysis).length === 0) return <span className="text-secondary text-xs font-mono opacity-50">Clean</span>;
+                    const a = r.deepfake_analysis;
+                    return (
+                      <div className={`text-xs px-2 py-1 rounded w-max font-bold ${a.is_deepfake ? 'bg-error/20 text-error border border-error/50 animate-pulse' : 'bg-primary/10 text-primary'}`}>
+                        {a.is_deepfake ? '🚨 Deepfake Flagged' : '✅ Authentic'} ({(a.confidence_score * 100).toFixed(0)}%)
+                      </div>
+                    );
+                } },
+                { key: 'hash_value', label: 'SHA-256 Hash Digest', render: (r) => <span className="font-mono text-xs">{r.hash_value?.slice(0, 16)}...</span> },
+                { key: 'created_at', label: 'Uploaded Date', render: (r) => new Date(r.created_at).toLocaleString() },
+              ]}
+              data={complaint.evidence || []}
+            />
+          </div>
+        )}
+
+        {/* Tab 5: Network Graph */}
+        {activeTab === 'graph' && (
+          <div className="space-y-md">
+            <div className="p-md rounded-xl bg-slate-900/80 border border-primary/20 flex justify-between items-center text-xs font-mono">
+              <span className="text-secondary font-bold">Multi-Hop Intelligence Graph Centered on {complaint.complaint_id}</span>
+              <span className="text-slate-400">Node Physics Engine Active</span>
+            </div>
+            <div className="glass-panel p-md rounded-xl min-h-[480px] border border-primary/20">
+              <SuspectNetworkGraph nodes={graphData?.nodes || []} edges={graphData?.edges || []} height={480} />
+            </div>
+          </div>
+        )}
+
+        {/* Tab 6: Related Cases */}
+        {activeTab === 'related' && (
+          <div className="space-y-md font-mono text-xs">
+            <div className="p-md rounded-xl bg-slate-900/80 border border-primary/20 flex justify-between items-center">
+              <span className="text-secondary font-bold">Cross-Case Correlation Engine Results</span>
+              <span className="text-slate-400">Total Matched: {relatedCases.length}</span>
+            </div>
+
+            {relatedCases.length === 0 ? (
+              <div className="glass-panel p-xl rounded-xl text-center text-slate-400">No cross-case pattern correlations detected for this incident.</div>
+            ) : (
+              <div className="space-y-md">
+                {relatedCases.map(rc => (
+                  <div key={rc.id} className="glass-panel p-md rounded-xl border border-primary/20 space-y-2">
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-secondary text-sm">{rc.label}: {rc.complaint_id}</span>
+                        <span className="text-white font-semibold">({rc.title})</span>
+                      </div>
+                      <span className="px-2.5 py-1 bg-red-500/20 text-red-400 border border-red-500/30 rounded font-bold text-xs">
+                        Similarity: {rc.similarity_percentage}%
+                      </span>
+                    </div>
+                    <div className="p-2 bg-slate-900 rounded border border-white/5 space-y-1">
+                      <span className="text-slate-400 block text-[10px] uppercase font-bold">Correlation Match Explanations:</span>
+                      {rc.reasons.map((r, i) => (
+                        <p key={i} className="text-blue-300">✓ {r}</p>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Tab 7: Case Timeline */}
+        {activeTab === 'timeline' && (
+          <div className="glass-panel p-md rounded-xl space-y-md border border-primary/20 font-mono text-xs">
+            <h3 className="font-title-sm text-primary">Case Audit Trail & Timeline</h3>
+            <div className="space-y-sm">
+              {(complaint.timeline || []).map((tl, i) => (
+                <div key={tl.id || i} className="p-md bg-slate-900/60 rounded border border-white/5 flex justify-between items-start">
+                  <div>
+                    <span className="font-bold text-secondary">{tl.event}</span>
+                    <p className="text-slate-300 mt-0.5">{tl.description}</p>
+                    <span className="text-[10px] text-slate-500">Actor: {tl.actor_name || 'System'}</span>
+                  </div>
+                  <span className="text-[10px] text-slate-400">{new Date(tl.created_at).toLocaleString()}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Formal Case Close Modal */}
+      {isCloseModalOpen && (
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+          <div className="bg-slate-900 border border-secondary/30 rounded-xl w-full max-w-lg p-lg space-y-md font-mono text-xs text-white">
+            <div className="flex justify-between items-center border-b border-white/10 pb-2">
+              <h3 className="font-bold text-secondary text-sm">Formal Case Resolution & Closure</h3>
+              <button onClick={() => setIsCloseModalOpen(false)} className="text-slate-400 hover:text-white">✕</button>
+            </div>
+            <div>
+              <label className="block text-slate-400 mb-1 font-bold text-[10px]">SELECT RESOLUTION OUTCOME</label>
+              <select value={closureOutcome} onChange={e => setClosureOutcome(e.target.value)} className="w-full bg-slate-950 border border-white/10 rounded p-2 text-white">
+                <option value="chargesheet">Charge-Sheet Filed in Court</option>
+                <option value="accused_arrested">Accused Arrested & Sent to Custody</option>
+                <option value="evidence_verified">Forensic Evidence Verified & Case Solved</option>
+                <option value="untraced_closed">Final Report / Untraced Submitted</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-slate-400 mb-1 font-bold text-[10px]">COURT / REFERENCE NO.</label>
+              <input type="text" placeholder="e.g. CS-2026-9812 / Court 4" value={courtRef} onChange={e => setCourtRef(e.target.value)} className="w-full bg-slate-950 border border-white/10 rounded p-2 text-white" />
+            </div>
+            <div>
+              <label className="block text-slate-400 mb-1 font-bold text-[10px]">CLOSURE SUMMARY & REMARKS *</label>
+              <textarea rows={3} placeholder="Enter detailed findings..." value={closureNotes} onChange={e => setClosureNotes(e.target.value)} className="w-full bg-slate-950 border border-white/10 rounded p-2 text-white" />
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <button onClick={() => setIsCloseModalOpen(false)} className="px-3 py-1.5 border border-white/10 rounded text-slate-300">Cancel</button>
+              <button onClick={handleFormalCaseClose} disabled={submittingClose || !closureNotes.trim()} className="px-3 py-1.5 bg-secondary text-black font-bold uppercase rounded cursor-pointer disabled:opacity-50">
+                {submittingClose ? 'Closing...' : 'Submit & Close Case'}
+              </button>
             </div>
           </div>
         </div>

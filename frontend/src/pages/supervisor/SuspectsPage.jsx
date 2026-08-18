@@ -40,14 +40,13 @@ export default function SuspectsPage() {
         setError(null)
         const { data } = await suspectService.getGraph()
         if (mounted) {
-          if (data && data.nodes && data.nodes.length > 0) {
-            setGraph(data)
-          } else {
-            setGraph(defaultNetwork)
-          }
+          setGraph(data || { nodes: [], edges: [] })
         }
       } catch (err) {
-        if (mounted) setGraph(defaultNetwork)
+        if (mounted) {
+          setError(err.message || 'Failed to load network intelligence')
+          setGraph({ nodes: [], edges: [] })
+        }
       } finally {
         if (mounted) setLoading(false)
       }
@@ -63,8 +62,20 @@ export default function SuspectsPage() {
       </div>
     )
 
-    const activeNodes = graph?.nodes || defaultNetwork.nodes
-    const activeEdges = graph?.edges || defaultNetwork.edges
+    const activeNodes = graph?.nodes || []
+    const activeEdges = graph?.edges || []
+
+    if (!activeNodes || activeNodes.length === 0) {
+      return (
+        <div className="glass-panel p-xl rounded-xl text-center space-y-md border border-primary/20">
+          <span className="material-symbols-outlined text-6xl text-on-surface-variant/40">hub</span>
+          <h3 className="text-lg font-bold text-on-surface">No Connected Intelligence Found</h3>
+          <p className="text-xs text-on-surface-variant max-w-md mx-auto font-mono">
+            No connected intelligence found for this case. File new complaints or extract suspicious entities to populate the relationship graph.
+          </p>
+        </div>
+      )
+    }
 
     return (
       <div className="space-y-md">

@@ -8,6 +8,8 @@ router = DefaultRouter()
 router.register(r'complaints', views.ComplaintViewSet, basename='complaints')
 router.register(r'police-stations', views.PoliceStationViewSet, basename='police-stations')
 router.register(r'operations', views.OperationViewSet, basename='operations')
+router.register(r'tasks', views.CaseTaskViewSet, basename='case-tasks')
+router.register(r'diary', views.CaseNoteViewSet, basename='case-diary')
 router.register(r'admin/users', views.AdminUserViewSet, basename='admin-users')
 router.register(r'admin/logs', views.SystemLogViewSet, basename='admin-logs')
 
@@ -25,6 +27,7 @@ urlpatterns = [
     path('upload/', views.UploadView.as_view(), name='upload'),
     path('priority/', views.priority_view, name='priority'),
     path('analytics/', views.analytics_view, name='analytics'),
+    path('predictions/', views.predictions_view, name='predictions'),
     path('hotspots/', views.hotspots_view, name='hotspots'),
     path('suspect-graph/', views.suspect_graph_view, name='suspect-graph'),
     path('mule-alerts/', views.mule_alerts_view, name='mule-alerts'),
@@ -38,5 +41,7 @@ urlpatterns = [
     path('evidence/', views.evidence_list_view, name='evidence-list'),
     path('ai/analyze/', views.ai_analyze_view, name='ai-analyze'),
     path('freeze-account/<int:complaint_id>/', views.FreezeAccountView.as_view(), name='freeze-account'),
+    path('complaints/<int:complaint_id>/related/', views.related_cases_view, name='related-cases'),
+    path('complaints/<int:complaint_id>/pdf-report/', views.pdf_report_view, name='pdf-report'),
     path('', include(router.urls)),
 ]

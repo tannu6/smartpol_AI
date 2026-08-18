@@ -61,15 +61,27 @@ class PoliceStation(models.Model):
 
 
 class Complaint(models.Model):
+    STATUS_NEW = 'new'
+    STATUS_TRIAGED = 'triaged'
+    STATUS_ASSIGNED = 'assigned'
     STATUS_PENDING = 'pending'
     STATUS_INVESTIGATING = 'investigating'
+    STATUS_UNDER_INVESTIGATION = 'under_investigation'
+    STATUS_EVIDENCE_REVIEW = 'evidence_review'
+    STATUS_SUPERVISOR_REVIEW = 'supervisor_review'
     STATUS_RESOLVED = 'resolved'
     STATUS_CLOSED = 'closed'
     STATUS_ESCALATED = 'escalated'
 
     STATUS_CHOICES = [
+        (STATUS_NEW, 'New'),
+        (STATUS_TRIAGED, 'Triaged'),
+        (STATUS_ASSIGNED, 'Assigned'),
         (STATUS_PENDING, 'Pending'),
         (STATUS_INVESTIGATING, 'Investigating'),
+        (STATUS_UNDER_INVESTIGATION, 'Under Investigation'),
+        (STATUS_EVIDENCE_REVIEW, 'Evidence Review'),
+        (STATUS_SUPERVISOR_REVIEW, 'Supervisor Review'),
         (STATUS_RESOLVED, 'Resolved'),
         (STATUS_CLOSED, 'Closed'),
         (STATUS_ESCALATED, 'Escalated'),
@@ -326,4 +338,133 @@ class Operation(models.Model):
 
     def __str__(self):
         return f"{self.code_name} ({self.status})"
+
+
+class CaseTask(models.Model):
+    STATUS_TODO = 'todo'
+    STATUS_IN_PROGRESS = 'in_progress'
+    STATUS_COMPLETED = 'completed'
+    STATUS_BLOCKED = 'blocked'
+
+    STATUS_CHOICES = [
+        (STATUS_TODO, 'To Do'),
+        (STATUS_IN_PROGRESS, 'In Progress'),
+        (STATUS_COMPLETED, 'Completed'),
+        (STATUS_BLOCKED, 'Blocked'),
+    ]
+
+    PRIORITY_LOW = 'low'
+    PRIORITY_MEDIUM = 'medium'
+    PRIORITY_HIGH = 'high'
+    PRIORITY_CRITICAL = 'critical'
+
+    PRIORITY_CHOICES = [
+        (PRIORITY_LOW, 'Low'),
+        (PRIORITY_MEDIUM, 'Medium'),
+        (PRIORITY_HIGH, 'High'),
+        (PRIORITY_CRITICAL, 'Critical'),
+    ]
+
+    complaint = models.ForeignKey(Complaint, on_delete=models.CASCADE, related_name='tasks')
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    assigned_to = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_tasks')
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_tasks')
+    priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default=PRIORITY_MEDIUM)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_TODO)
+    due_date = models.DateField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"[{self.status.upper()}] {self.title} (Case: {self.complaint.complaint_id})"
+
+
+class CaseNote(models.Model):
+    TYPE_GENERAL = 'general'
+    TYPE_INVESTIGATION = 'investigation'
+    TYPE_EVIDENCE = 'evidence'
+    TYPE_FINANCIAL = 'financial'
+    TYPE_LEGAL = 'legal'
+    TYPE_SUPERVISOR = 'supervisor'
+
+    TYPE_CHOICES = [
+        (TYPE_GENERAL, 'General'),
+        (TYPE_INVESTIGATION, 'Investigation'),
+        (TYPE_EVIDENCE, 'Evidence'),
+        (TYPE_FINANCIAL, 'Financial'),
+        (TYPE_LEGAL, 'Legal'),
+        (TYPE_SUPERVISOR, 'Supervisor'),
+    ]
+
+    complaint = models.ForeignKey(Complaint, on_delete=models.CASCADE, related_name='diary_notes')
+    officer = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    note = models.TextField()
+    note_type = models.CharField(max_length=30, choices=TYPE_CHOICES, default=TYPE_INVESTIGATION)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['timestamp']
+
+    def __str__(self):
+        return f"{self.note_type.upper()} Note by {self.officer} on {self.complaint.complaint_id}"
+
+
+class CanonicalEntity(models.Model):
+    ENTITY_PHONE = 'phone'
+    ENTITY_UPI = 'upi'
+    ENTITY_EMAIL = 'email'
+    ENTITY_DOMAIN = 'domain'
+    ENTITY_ACCOUNT = 'account'
+
+    ENTITY_TYPES = [
+        (ENTITY_PHONE, 'Phone'),
+        (ENTITY_UPI, 'UPI ID'),
+        (ENTITY_EMAIL, 'Email'),
+        (ENTITY_DOMAIN, 'Domain/URL'),
+        (ENTITY_ACCOUNT, 'Bank Account'),
+    ]
+
+    entity_type = models.CharField(max_length=20, choices=ENTITY_TYPES, db_index=True)
+    original_value = models.CharField(max_length=255)
+    normalized_value = models.CharField(max_length=255, db_index=True)
+    complaint = models.ForeignKey(Complaint, on_delete=models.CASCADE, related_name='canonical_entities', null=True, blank=True)
+    risk_score = models.FloatField(default=0.0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.entity_type.upper()}: {self.normalized_value}"
+
+
+class EntityRelation(models.Model):
+    STATUS_REPORTED = 'reported'
+    STATUS_AI_INFERRED = 'ai_inferred'
+    STATUS_VERIFIED = 'verified'
+    STATUS_DISMISSED = 'dismissed'
+
+    VERIFICATION_STATUSES = [
+        (STATUS_REPORTED, 'User Reported'),
+        (STATUS_AI_INFERRED, 'AI Inferred'),
+        (STATUS_VERIFIED, 'Verified'),
+        (STATUS_DISMISSED, 'Dismissed'),
+    ]
+
+    source_entity = models.CharField(max_length=255, db_index=True)
+    target_entity = models.CharField(max_length=255, db_index=True)
+    relationship_type = models.CharField(max_length=100)
+    confidence = models.FloatField(default=1.0)
+    source_case = models.ForeignKey(Complaint, on_delete=models.CASCADE, related_name='entity_relations', null=True, blank=True)
+    verified_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    verification_status = models.CharField(max_length=30, choices=VERIFICATION_STATUSES, default=STATUS_REPORTED)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
 

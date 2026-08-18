@@ -66,9 +66,8 @@ export default function AdminWorkspace({ mode = 'dashboard' }) {
           return <span className={`px-2 py-1 rounded text-xs font-mono ${color}`}>{row.action}</span>
         } },
         { key: 'usage', label: 'Usage Time', render: (row) => {
-           // Mock usage time for demo if not provided by backend
-           const mins = Math.max(1, Math.floor((new Date(row.created_at).getTime() % 100) / 2));
-           return <span className="flex items-center gap-1 text-xs text-on-surface-variant"><Clock className="w-3 h-3" /> {mins}m</span>;
+           const duration = row.duration || row.usage_time;
+           return <span className="flex items-center gap-1 text-xs text-on-surface-variant"><Clock className="w-3 h-3" /> {duration ? `${duration}m` : 'N/A'}</span>;
         }},
         { key: 'details', label: t('adminWorkspace.logs.details', 'Details') }
       ]
