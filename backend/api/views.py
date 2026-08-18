@@ -399,7 +399,7 @@ class ComplaintViewSet(viewsets.ModelViewSet):
             'entities_extracted': entities,
         })
         # Run Geographic Police Station Routing Engine
-        routing = ai_services.recommend_police_station_and_officer(serializer.validated_data)
+        routing = ai_services.recommend_police_station_and_officer(serializer.validated_data, citizen_user=request.user)
         station = routing['station']
         explanation_str = routing['explanation']
 

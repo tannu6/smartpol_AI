@@ -98,14 +98,17 @@ def calculate_haversine_distance(lat1: float, lon1: float, lat2: float, lon2: fl
     return round(R * c, 2)
 
 
-def recommend_police_station_and_officer(complaint_data: dict) -> dict:
+def recommend_police_station_and_officer(complaint_data: dict, citizen_user=None) -> dict:
     """
     Geographic Jurisdiction & Specialized Department Routing Engine.
     
     Rule:
-    1. Geographic Jurisdiction is determined solely by incident location and serving Police Station.
-    2. Cyber Crime is a SPECIALIZED DEPARTMENT / UNIT, NOT a geographic jurisdiction.
-    3. Officer assignment is performed MANUALLY by the Supervisor (NO AI auto-assignment).
+    1. Primary Location: If an incident location (location, locality, address, or lat/lng) is entered
+       during complaint creation, route to the nearest/matching Police Station for that incident location.
+    2. Fallback Location: If no complaint location is entered, fall back to citizen_user's registered
+       profile location/district (e.g. Nikol, Ahmedabad) and route to nearest station (e.g. Nikol Police Station).
+    3. Cyber Crime is a SPECIALIZED DEPARTMENT / UNIT that routes to Cyber Crime Cells/Branches.
+    4. Officer assignment is performed MANUALLY by the Supervisor.
     """
     from .models import PoliceStation, User
     
@@ -113,10 +116,18 @@ def recommend_police_station_and_officer(complaint_data: dict) -> dict:
     cat_lower = category.lower()
     c_lat = complaint_data.get('latitude')
     c_lng = complaint_data.get('longitude')
-    locality = complaint_data.get('locality') or complaint_data.get('location', '')
     
-    if c_lat is None: c_lat = 23.0225  # Default Ahmedabad center
-    if c_lng is None: c_lng = 72.5714
+    # 1. Determine location text and source
+    incident_location = (complaint_data.get('locality') or complaint_data.get('location') or complaint_data.get('address') or '').strip()
+    
+    using_citizen_home = False
+    target_location_str = incident_location
+
+    if not target_location_str and c_lat is None and citizen_user:
+        # Fall back to citizen's registered profile location/district if no complaint incident location was entered
+        target_location_str = (getattr(citizen_user, 'district', '') or getattr(citizen_user, 'address', '') or '').strip()
+        if target_location_str:
+            using_citizen_home = True
 
     cyber_keywords = ['upi', 'otp', 'phish', 'scam', 'cyber', 'fraud', 'hack', 'card', 'crypto', 'sextortion', 'customer care', 'loan', 'investment']
     is_cybercrime = any(kw in cat_lower for kw in cyber_keywords)
@@ -142,23 +153,59 @@ def recommend_police_station_and_officer(complaint_data: dict) -> dict:
         if not candidate_stations:
             candidate_stations = all_stations
 
+    # Extract area tokens (e.g. "nikol", "naroda", "satellite", "bopal", "vastrapur", etc.)
+    target_tokens = [
+        tok.lower() for tok in re.split(r'[\s,/\-\.\(\)]+', target_location_str)
+        if len(tok) >= 3 and tok.lower() not in ['ghar', 'home', 'near', 'area', 'road', 'street', 'city', 'ahmedabad', 'gujarat']
+    ]
+
+    # If lat/long was not explicitly provided by map picker, check if target location text matches a station's area/name
+    ref_lat = c_lat
+    ref_lng = c_lng
+
+    if ref_lat is None or ref_lng is None:
+        matched_coords = None
+        # First try matching candidate stations
+        for st in candidate_stations:
+            st_text = f"{st.name} {st.area} {st.jurisdiction}".lower()
+            if any(tok in st_text for tok in target_tokens):
+                matched_coords = (st.latitude, st.longitude)
+                break
+        
+        if not matched_coords:
+            for st in all_stations:
+                st_text = f"{st.name} {st.area} {st.jurisdiction}".lower()
+                if any(tok in st_text for tok in target_tokens):
+                    matched_coords = (st.latitude, st.longitude)
+                    break
+
+        ref_lat = matched_coords[0] if matched_coords else 23.0225  # Default Ahmedabad center
+        ref_lng = matched_coords[1] if matched_coords else 72.5714
+
     best_station = None
     best_distance = 99999.0
 
     for st in candidate_stations:
-        dist = calculate_haversine_distance(c_lat, c_lng, st.latitude, st.longitude)
-        if locality and (locality.lower() in st.jurisdiction.lower() or locality.lower() in st.name.lower() or locality.lower() in st.area.lower()):
-            dist = max(0.1, dist - 2.5)  # Priority boost for matching geographic locality
+        dist = calculate_haversine_distance(ref_lat, ref_lng, st.latitude, st.longitude)
+        st_text = f"{st.name} {st.area} {st.jurisdiction}".lower()
+        
+        # Major priority boost / exact match for matching geographic locality tokens
+        if target_tokens and any(tok in st_text for tok in target_tokens):
+            dist = 0.1  # Jurisdiction text match priority
             
         if dist < best_distance:
             best_distance = dist
             best_station = st
 
+    location_label = target_location_str or "Default Ahmedabad Geographic Center"
+    source_label = f"Citizen Registered Home Location ({location_label})" if using_citizen_home else f"Entered Incident Location ({location_label})"
+
     explanation_lines = [
         f"✓ Assigned Station / Unit: {best_station.name} ({best_station.area}, Ahmedabad)",
+        f"✓ Location Routing Basis: {source_label}",
         f"✓ Jurisdiction Area: {best_station.jurisdiction}",
         f"✓ Investigation Type: {'Cyber Crime Investigation' if is_cybercrime else 'Ordinary Police Investigation'}",
-        f"✓ Geographic Proximity: {best_distance:.1f} km from incident location",
+        f"✓ Geographic Proximity: {best_distance:.1f} km from target location",
     ]
 
     if is_cybercrime:
