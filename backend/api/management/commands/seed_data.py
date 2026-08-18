@@ -22,9 +22,13 @@ class Command(BaseCommand):
 
         for username, data in users.items():
             user, created = User.objects.get_or_create(username=username, defaults={**data, 'district': 'Sector 7G'})
+            if data.get('role') == User.ROLE_ADMIN:
+                user.is_staff = True
+                user.is_superuser = True
             if created:
                 user.set_password('password123')
-                user.save()
+            user.save()
+            if created:
                 self.stdout.write(f'Created user: {username}')
 
         officer = User.objects.get(username='officer1')
