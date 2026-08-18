@@ -285,9 +285,18 @@ useEffect(() => {
                 </div>
               </div>
             </div>
-            <button onClick={handleFileAnother} className="text-primary hover:text-secondary">
-              {t('complaint.file_another')}
-            </button>
+            <div className="pt-4 border-t border-white/10 flex flex-wrap items-center justify-between gap-md">
+              <p className="text-xs text-on-surface-variant">
+                ✓ Complaint saved with Unique ID <span className="font-mono font-bold text-secondary">{submitted.complaint_id}</span>
+              </p>
+              <CyberButton 
+                onClick={handleFileAnother} 
+                variant="secondary"
+                icon="add_circle"
+              >
+                {t('complaint.file_another', 'File Another Complaint')}
+              </CyberButton>
+            </div>
           </div>
         ) : (
           <form onSubmit={handleSubmit(onSubmit)} className="glass-panel p-lg rounded-xl space-y-md accent-bar">
