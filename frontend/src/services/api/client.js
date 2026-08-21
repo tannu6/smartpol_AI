@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { enqueueOfflineAction } from '../../utils/offlineQueue'
 
-const API_BASE = import.meta.env.VITE_API_URL || '/api/v1'
+const API_BASE = (import.meta.env.VITE_API_URL || '/api/v1').replace(/\/$/, '')
 
 const apiClient = axios.create({
   baseURL: API_BASE,

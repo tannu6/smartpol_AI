@@ -1,0 +1,17 @@
+[Unit]
+Description=Gunicorn daemon for SmartPol AI
+After=network.target
+
+[Service]
+User=ubuntu
+Group=www-data
+WorkingDirectory=/var/www/smartpol_AI/backend
+ExecStart=/var/www/smartpol_AI/backend/venv/bin/gunicorn \
+          --access-logfile - \
+          --error-logfile - \
+          --workers 3 \
+          --bind unix:/run/gunicorn.sock \
+          smartpol.wsgi:application
+
+[Install]
+WantedBy=multi-user.target

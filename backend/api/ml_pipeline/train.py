@@ -84,6 +84,13 @@ def train_and_save():
         "Lost cryptocurrency to a fake exchange that closed overnight with all deposited funds",
         "Someone promised guaranteed crypto returns and disappeared with my entire investment",
 
+        # physical_assault (5 samples)
+        "I was physically assaulted by two men near the ring road and sustained injuries",
+        "A policeman slapped me and threatened me during an argument at the junction",
+        "Someone attacked me with a stick and hit me on the head",
+        "I was beaten up and slapped near the market area by unknown attackers",
+        "A group of people ambushed and physically assaulted me on the main road",
+
         # theft (4 samples)
         "Someone stole my phone near the bus stop while I was waiting for the bus",
         "My car was broken into and the stereo and laptop bag were stolen overnight",
@@ -130,6 +137,8 @@ def train_and_save():
         'sextortion', 'sextortion', 'sextortion',
         # crypto_scam
         'crypto_scam', 'crypto_scam', 'crypto_scam',
+        # physical_assault
+        'physical_assault', 'physical_assault', 'physical_assault', 'physical_assault', 'physical_assault',
         # theft
         'theft', 'theft', 'theft', 'theft',
         # emergency

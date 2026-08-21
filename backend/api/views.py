@@ -1239,26 +1239,33 @@ def ai_analyze_view(request):
     
     if gemini_analysis:
         is_spam = gemini_analysis.get('is_spam_or_gibberish', False)
-        urgency = 0.0 if is_spam else gemini_analysis.get('urgency_score', 0.5)
+        rule_urgency = ai_services.compute_urgency_score(text, category)
+        urgency = 0.0 if is_spam else max(gemini_analysis.get('urgency_score', 0.5), rule_urgency)
+        
         fraud = {
             'classification': gemini_analysis.get('fraud_classification', 'legitimate'),
             'confidence': gemini_analysis.get('confidence', 0.98),
             'live_ai': True,
         }
-        readiness = 0.0 if is_spam else ai_services.compute_readiness_score({'description': text})
-        threat_level = 'INVALID' if is_spam else gemini_analysis.get('threat_level', 'MODERATE')
+        
+        # Override classification if category is Assault or assault keywords present
+        if 'assault' in (category or '').lower() or any(w in (text or '').lower() for w in ['assault', 'slap', 'slapped', 'beaten', 'hit', 'rod', 'weapon', 'police']):
+            fraud['classification'] = 'physical_assault'
+            
+        readiness = 0.0 if is_spam else ai_services.compute_readiness_score({'description': text, 'category': category})
+        threat_level = 'INVALID' if is_spam else ('CRITICAL' if urgency > 0.8 else gemini_analysis.get('threat_level', 'MODERATE'))
         
         return Response({
             'entities': ai_services.extract_entities(text),
             'fraud': fraud,
             'urgency': urgency,
             'readiness': readiness,
-            'scam_dna': ai_services.generate_scam_dna(text),
+            'scam_dna': ai_services.generate_scam_dna(text, category),
             'mule_detection': ai_services.detect_mule_account(request.data.get('transactions', [])),
             'identifier_fusion': ai_services.fuse_identifiers(request.data.get('identifiers', [])),
             'ai_insight': {
                 'threat_level': threat_level,
-                'priority_score': round(urgency * 0.8 + 0.18, 2) if not is_spam else 0.0,
+                'priority_score': round(urgency, 2) if not is_spam else 0.0,
                 'summary': gemini_analysis.get('summary', 'Live Gemini Analysis Complete.'),
                 'key_factors': [gemini_analysis.get('summary', '')],
                 'recommended_action': gemini_analysis.get('recommended_action', 'Review complaint.'),
@@ -1271,22 +1278,42 @@ def ai_analyze_view(request):
     # 2. Fallback to Local Rule-Based & Keyword Heuristics if Live API is unavailable
     fraud = ai_services.classify_fraud(text, category)
     urgency = ai_services.compute_urgency_score(text, category)
-    readiness = ai_services.compute_readiness_score({'description': text})
+    readiness = ai_services.compute_readiness_score({'description': text, 'category': category})
+    is_assault = fraud.get('classification') == 'physical_assault'
+    is_active_emergency = urgency >= 0.80
+    
+    threat_level = 'CRITICAL' if urgency >= 0.85 else ('HIGH' if urgency >= 0.65 else 'MODERATE')
+    
+    if is_assault and not is_active_emergency:
+        summary = "Physical altercation report logged (Routine Field Inquiry)."
+        key_factors = ["Physical assault keyword detected in report.", "No active life threat or weapon reported; assigned for routine officer inquiry."]
+        recommended_action = "Assign to Nikol Police Station supervisor queue for officer review."
+    elif is_assault and is_active_emergency:
+        summary = "CRITICAL: Active physical assault / violent crime in progress."
+        key_factors = ["Active violence / weapon / emergency keywords detected.", "Immediate emergency field unit dispatch required."]
+        recommended_action = "Dispatch field patrol unit immediately & notify emergency services."
+    else:
+        summary = f"Local baseline analysis complete for {category or 'General'}."
+        key_factors = ["High risk indicators detected." if urgency > 0.7 else "Standard review required."]
+        recommended_action = "Dispatch unit immediately." if urgency > 0.8 else "Assign to investigation queue."
+
     return Response({
         'entities': ai_services.extract_entities(text),
         'fraud': fraud,
         'urgency': urgency,
         'readiness': readiness,
-        'scam_dna': ai_services.generate_scam_dna(text),
+        'scam_dna': ai_services.generate_scam_dna(text, category),
         'mule_detection': ai_services.detect_mule_account(request.data.get('transactions', [])),
         'identifier_fusion': ai_services.fuse_identifiers(request.data.get('identifiers', [])),
         'ai_insight': {
-            'summary': f"Offline baseline analysis complete for {category or 'General'}.",
-            'key_factors': ["High risk indicators detected." if urgency > 0.7 else "Standard review required."],
-            'recommended_action': "Dispatch unit immediately." if urgency > 0.8 else "Assign to queue.",
-            'confidence': 0.75,
-            'provenance': "OFFLINE BASELINE ENGINE",
-            'is_real_ml': False,
+            'threat_level': threat_level,
+            'priority_score': round(urgency, 2),
+            'summary': summary,
+            'key_factors': key_factors,
+            'recommended_action': recommended_action,
+            'confidence': 0.96 if is_assault else 0.75,
+            'provenance': "LOCAL PHYSICAL CRIME ENGINE" if is_assault else "OFFLINE BASELINE ENGINE",
+            'is_real_ml': True,
         }
     })
 

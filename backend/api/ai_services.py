@@ -37,15 +37,15 @@ def generate_gemini_narrative_analysis(text: str, category: str = 'General') -> 
     import urllib.request
     import urllib.error
 
-    models = ['gemini-3.5-flash', 'gemini-3-flash-preview', 'gemini-flash-latest']
+    models = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro', 'gemini-flash-latest']
     
     prompt = (
-        "You are SmartPol AI Cyber Intelligence Officer. "
-        "Analyze the following complaint text for legitimacy, threat level, and fraud classification. "
+        "You are SmartPol AI Cyber & Law Enforcement Intelligence Officer. "
+        "Analyze the following complaint text for legitimacy, threat level, and fraud/crime classification. "
         "Return ONLY a raw JSON object with keys:\n"
         "- 'is_spam_or_gibberish': boolean (true if text is random characters like 'aljdhf...', test spam, or unreadable junk)\n"
         "- 'urgency_score': float between 0.0 and 1.0 (0.0 if spam/gibberish, 0.95+ for emergency/violent crime)\n"
-        "- 'fraud_classification': string (e.g., 'financial_fraud', 'cybercrime', 'sextortion', 'assault', 'legitimate', 'invalid_gibberish')\n"
+        "- 'fraud_classification': string (e.g., 'physical_assault', 'financial_fraud', 'cybercrime', 'sextortion', 'assault', 'legitimate', 'invalid_gibberish')\n"
         "- 'confidence': float (default 0.98 for high precision)\n"
         "- 'summary': clear English summary of the complaint or notice of invalid text\n"
         "- 'recommended_action': specific tactical advice for officers\n"
@@ -449,12 +449,20 @@ def analyze_digital_evidence(file_name: str, file_type: str, file_path: str = No
     }
 
 
-def classify_fraud(text: str, category: str) -> dict:
-    """Classify fraud type using ML model with keyword rule-based fallback."""
+def classify_fraud(text: str, category: str = 'General') -> dict:
+    """Classify complaint type using ML model with keyword rule-based fallback."""
+    cat_lower = (category or '').lower()
+    text_lower = (text or '').lower()
+
+    # 1. Direct Category or Keyword Override for Physical Assault / Violent Crime
+    assault_keywords = ['assault', 'assaulted', 'slap', 'slapped', 'beaten', 'hit', 'rod', 'attack', 'attacked', 'weapon', 'stab', 'stabbed', 'violence', 'police', 'policeman']
+    if 'assault' in cat_lower or any(kw in text_lower for kw in assault_keywords):
+        return {'classification': 'physical_assault', 'confidence': 0.96}
+
     try:
         model = get_ml_model()
         analysis = model.analyze(text)
-        if analysis:
+        if analysis and analysis.get('detected_patterns'):
             return {
                 'classification': analysis['detected_patterns'][0],
                 'confidence': analysis['fraud_probability'],
@@ -465,12 +473,12 @@ def classify_fraud(text: str, category: str) -> dict:
 
     # Deterministic keyword-based fallback (no randomness)
     keywords = {
+        'physical_assault': ['assault', 'assaulted', 'slap', 'slapped', 'beaten', 'hit', 'rod', 'attack', 'weapon', 'stab', 'violence'],
         'sextortion': ['sextortion', 'blackmail', 'extortion', 'nude', 'morph', 'photo leak', 'video leak', 'coercion'],
         'scam': ['otp', 'upi', 'refund', 'lottery', 'investment', 'prize', 'winner'],
         'cyber': ['hack', 'breach', 'phishing', 'malware', 'ransomware', 'password'],
         'financial': ['transfer', 'account', 'bank', 'mule', 'neft', 'rtgs', 'wire'],
     }
-    text_lower = text.lower()
     best_type = 'legitimate'
     best_score = 0.1
     for fraud_type, words in keywords.items():
@@ -483,69 +491,56 @@ def classify_fraud(text: str, category: str) -> dict:
     return {'classification': best_type, 'confidence': best_score}
 
 
-def compute_urgency_score(text: str, category: str) -> float:
+def compute_urgency_score(text: str, category: str = 'General') -> float:
     """Compute urgency score deterministically with Golden Hour detection and regex word boundaries."""
-    urgent_words = ['emergency', 'urgent', 'weapon', 'violence', 'sos', 'help', 'attack',
-                    'kidnap', 'kidnapped', 'abduction', 'abducted', 'fire', 'bleeding', 'critical', 'immediate', 'threat', 'danger',
-                    'rape', 'raped', 'rapped', 'gang rape', 'assault', 'assaulted', 'hit', 'rod', 'beaten', 'blood',
-                    'drained', 'stolen', 'hacked', 'blackmail', 'extortion', 'sextortion', 'transferred', 'suicide',
-                    'leak', 'nude', 'coercion', 'morph', 'viral', 'photo', 'video',
-                    'golden hour', 'freeze', 'apk', 'deactivation', 'customer care', 'qr', 'otp',
-                    'minutes', 'mins', 'min', 'rs', 'rupees', 'lakh', 'lakhs', 'phonepe', 'gpay', 'paytm',
-                    # Hindi / Hinglish / Gujarati localized keywords
-                    'madad', 'bachao', 'jaldi', 'turant', 'chori', 'kat gaye', 'loot', 'lut gaya', 
-                    'dhamki', 'fas gaya', 'dhokha', 'paisa kapai', 'cheating', 'taatkalik']
-    
-    high_category = {
-        'assault', 'robbery', 'sos', 'emergency', 'kidnapping', 'murder', 'rape', 'sexual assault',
-        'financial fraud', 'cybercrime', 'upi fraud', 'phishing scam', 'phishing', 
-        'investment scam', 'job scam', 'tech support scam', 'sextortion', 'extortion',
-        'blackmail', 'cyberbullying', 'harassment'
-    }
-    medium_category = {'identity theft', 'theft', 'general'}
-
-    if not text or len(text.strip()) < 15:
+    if not text or len(text.strip()) < 5:
         return 0.0
 
     text_lower = text.lower()
-    base = 0.25
+    cat_lower = (category or '').lower()
 
-    # Severe Violent Crime, Abduction & Sexual Violence Override
-    violent_crime_terms = ['kidnap', 'abduct', 'rape', 'gang rape', 'rapped', 'hit me', 'rod', 'weapon', 'murder', 'bleeding']
-    extortion_terms = ['sextortion', 'blackmail', 'extortion', 'leak photo', 'viral video', 'nude', 'morph']
+    # 1. Active Emergency & Severe Life Threat Indicators
+    active_emergency_terms = [
+        'weapon', 'rod', 'knife', 'stab', 'stabbed', 'gun', 'bullet', 'shot',
+        'bleeding', 'murder', 'blood', 'kidnap', 'abduct', 'sos', 'in progress',
+        'right now', 'attacked now', 'kill', 'killing', 'life threat', 'dying', 'fire'
+    ]
+    is_active_emergency = any(term in text_lower for term in active_emergency_terms)
 
-    if any(term in text_lower for term in violent_crime_terms) or any(vc in category.lower() for vc in ['assault', 'kidnapping', 'emergency', 'sos', 'rape']):
-        base += 0.50
-    elif any(term in text_lower for term in extortion_terms) or 'sextortion' in category.lower():
-        base += 0.40
+    # 2. Base calculation
+    if is_active_emergency:
+        base = 0.80
+    elif 'assault' in cat_lower or any(w in text_lower for w in ['assault', 'slap', 'slapped', 'beaten', 'hit', 'pushed']):
+        base = 0.45  # Moderate baseline for non-emergency physical altercation
+    elif any(hc in cat_lower for hc in ['robbery', 'sos', 'emergency', 'kidnapping', 'financial fraud', 'cybercrime', 'phishing']):
+        base = 0.40
+    else:
+        base = 0.25
 
-    # Keyword contributions (using exact word boundary matching)
+    # 3. Keyword contributions
+    urgent_words = ['emergency', 'urgent', 'weapon', 'violence', 'sos', 'help', 'attack',
+                    'kidnap', 'abducted', 'fire', 'bleeding', 'critical', 'immediate', 'threat', 'danger',
+                    'rape', 'assault', 'hit', 'rod', 'beaten', 'blood', 'policeman', 'police',
+                    'drained', 'stolen', 'hacked', 'blackmail', 'extortion', 'sextortion', 'transferred', 'suicide',
+                    # Hindi / Hinglish / Gujarati localized keywords
+                    'madad', 'bachao', 'jaldi', 'turant', 'chori', 'kat gaye', 'loot', 'lut gaya', 
+                    'dhamki', 'fas gaya', 'dhokha', 'paisa kapai', 'cheating', 'taatkalik']
     matched_words = sum(1 for w in urgent_words if re.search(r'\b' + re.escape(w) + r'\b', text_lower))
-    keyword_score = matched_words * 0.08
-    base += min(keyword_score, 0.40)  # cap keyword contribution
+    base += min(matched_words * 0.05, 0.20)
 
-    # Category contributions
-    cat_lower = category.lower() if category else ''
-    if any(hc in cat_lower for hc in high_category):
-        base += 0.30
-    elif any(mc in cat_lower for mc in medium_category):
-        base += 0.15
-
-    # Golden Hour & High Financial Exposure Boost
+    # 4. Golden Hour & High Financial Exposure Boost
     golden_hour_patterns = [
         r'golden hour', r'last \d+ min', r'\d+ mins ago', r'\d+ minutes ago', 
         r'just now', r'transferred', r'deactivation', r'apk', r'qr'
     ]
     if any(re.search(p, text_lower) for p in golden_hour_patterns):
-        base += 0.25
+        base += 0.20
 
-    # Text length tuning
-    if len(text) < 30:
-        base -= 0.05
-    elif len(text) > 150:
-        base += 0.05
+    # 5. Non-emergency short/vague text adjustment (< 25 chars without active emergency context)
+    if len(text.strip()) < 25 and not is_active_emergency:
+        base = min(base, 0.60)
 
-    return round(min(base, 0.98), 2)
+    return round(min(max(base, 0.20), 0.98), 2)
 
 
 def compute_readiness_score(complaint_data: dict) -> float:
@@ -604,9 +599,20 @@ _SCAM_STEP_MAP = {
 }
 
 
-def generate_scam_dna(text: str) -> dict:
+def generate_scam_dna(text: str, category: str = 'General') -> dict:
     """Generate a scam DNA sequence by matching text to known fraud patterns."""
-    text_lower = text.lower()
+    text_lower = (text or '').lower()
+    cat_lower = (category or '').lower()
+
+    # Non-cyber / Physical assault complaints do not have a Scam DNA sequence
+    if 'assault' in cat_lower or any(w in text_lower for w in ['assault', 'slap', 'slapped', 'beaten', 'hit', 'rod', 'attack', 'weapon', 'police', 'policeman', 'robbery']):
+        return {
+            'pattern_id': 'N/A (Physical Crime)',
+            'pattern_key': 'none',
+            'sequence': [],
+            'confidence': 0.0,
+        }
+
     # Keyword-to-pattern mapping (deterministic)
     if any(w in text_lower for w in ['phish', 'link', 'email', 'password', 'credential', 'login']):
         pattern_key = 'phishing'

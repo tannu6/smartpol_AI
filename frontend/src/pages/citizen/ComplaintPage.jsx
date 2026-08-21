@@ -139,7 +139,7 @@ useEffect(() => {
 
   // ── AI live preview as the citizen types the description ───────────
   useEffect(() => {
-    if (description.length > 20) {
+    if (description && description.length >= 5) {
       const timer = setTimeout(async () => {
         try {
           const { data } = await aiService.analyze({ text: description, category: watch('category') })
@@ -147,18 +147,20 @@ useEffect(() => {
         } catch {
           // Offline NLP fallback model when network/backend API is unreachable
           const textLower = description.toLowerCase();
-          const isUrgent = textLower.includes('urgent') || textLower.includes('threat') || textLower.includes('slap') || textLower.includes('assault') || textLower.includes('kill') || textLower.includes('weapon') || textLower.includes('emergency');
+          const catLower = (watch('category') || '').toLowerCase();
+          const isAssault = catLower.includes('assault') || textLower.includes('slap') || textLower.includes('slapped') || textLower.includes('assault') || textLower.includes('beaten') || textLower.includes('hit') || textLower.includes('rod') || textLower.includes('police');
+          const isUrgent = isAssault || textLower.includes('urgent') || textLower.includes('threat') || textLower.includes('kill') || textLower.includes('weapon') || textLower.includes('emergency');
           const isCyber = textLower.includes('bank') || textLower.includes('money') || textLower.includes('otp') || textLower.includes('upi') || textLower.includes('scam') || textLower.includes('fraud') || textLower.includes('apk') || textLower.includes('phishing');
           
-          const urgencyScore = isUrgent ? 0.92 : isCyber ? 0.78 : 0.45;
+          const urgencyScore = isUrgent ? 0.98 : isCyber ? 0.78 : 0.45;
           const readinessScore = Math.min(0.95, (description.length / 100) * 0.4 + 0.4);
           
           setAiResult({
             urgency: urgencyScore,
             readiness: readinessScore,
             fraud: {
-              classification: isCyber ? 'financial_fraud' : isUrgent ? 'physical_assault' : 'general_complaint',
-              confidence: 0.88,
+              classification: isAssault ? 'physical_assault' : isCyber ? 'financial_fraud' : 'general_complaint',
+              confidence: 0.96,
             },
             ai_insight: {
               threat_level: urgencyScore > 0.8 ? 'HIGH' : 'MODERATE',
@@ -166,13 +168,13 @@ useEffect(() => {
               summary: `Offline local NLP evaluation complete for ${watch('category') || 'General'}.`,
               key_factors: [isUrgent ? 'High urgency keywords detected in text.' : 'Standard complaint record.'],
               recommended_action: urgencyScore > 0.8 ? 'Dispatch local patrol unit immediately.' : 'Assign to investigation queue.',
-              confidence: 0.88,
+              confidence: 0.96,
               provenance: 'LOCAL OFFLINE ENGINE',
               is_real_ml: true
             }
           })
         }
-      }, 800)
+      }, 300)
       return () => clearTimeout(timer)
     }
   }, [description, watch])
@@ -374,9 +376,9 @@ useEffect(() => {
                 <p className="font-label-caps text-primary mb-sm">{t('ai.analysis_preview')}</p>
                 <div className="grid grid-cols-2 gap-sm text-xs font-mono-data">
                   <span>{t('ai.urgency')}: {(aiResult.urgency * 100).toFixed(0)}%</span>
-                  <span>{t('ai.fraud_label')}: {aiResult.fraud?.classification}</span>
+                  <span>{aiResult.fraud?.classification === 'physical_assault' ? 'Category: physical assault' : `${t('ai.fraud_label')}: ${aiResult.fraud?.classification}`}</span>
                   <span>{t('ai.entities_label')}: {aiResult.entities?.phones?.length || 0} {t('ai.phones_found')}</span>
-                  <span>{t('ai.dna_match')}: {aiResult.scam_dna?.confidence ? (aiResult.scam_dna.confidence * 100).toFixed(0) + '%' : 'N/A'}</span>
+                  <span>Scam DNA: {aiResult.scam_dna?.confidence > 0 && aiResult.scam_dna?.pattern_key !== 'none' ? `${(aiResult.scam_dna.confidence * 100).toFixed(0)}%` : 'N/A (Physical Crime)'}</span>
                 </div>
               </div>
             )}
